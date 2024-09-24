@@ -14,8 +14,8 @@ const authUsers = (req, res, next) => {
   } else {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.id;
+    next();
   }
-  next();
 };
 
 const authGroups = (...users) => {
