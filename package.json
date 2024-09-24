@@ -1,0 +1,24 @@
+{
+  "name": "my-tms-app",
+  "version": "1.0.0",
+  "author": "Gordon <gordonyit25@gmail.com>",
+  "description": "",
+  "main": "/backend/index.js",
+  "scripts": {
+    "dev": "SET NODE_ENV=development& nodemon --env-file=.env  ./backend/index.js",
+    "prod": "SET NODE_ENV=production& node --env-file=.env  ./backend/index.js",
+    "db": "node --env-file=.env db.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "expres": "^0.0.5",
+    "express": "^4.21.0",
+    "express-generator": "^4.16.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "node": "^22.9.0"
+  }
+}
