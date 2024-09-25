@@ -7,6 +7,7 @@ const validateUsernameController = require("./controllers/validateUsername");
 const validatePasswordController = require("./controllers/validatePassword");
 const validateEmailController = require("./controllers/validateEmail");
 const updateUserController = require("./controllers/updateUser");
+const createGroupController = require("./controllers/createGroup");
 router.post("/login", loginController);
 router.get("/TMS", authUsers, authGroups("Admin")); //add middleware to render TMS page
 router.post(
@@ -26,4 +27,5 @@ router.put(
   validateEmailController,
   updateUserController
 );
+router.post("/groups", authUsers, authGroups("Admin"), createGroupController);
 module.exports = router;
