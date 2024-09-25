@@ -43,7 +43,10 @@ module.exports = async (req, res, next) => {
     console.log("finished checks", hasInvalidFields);
     if (hasInvalidFields) {
       res.json.success = false;
-      res.status(400);
+      res.status(400).json({
+        success: false,
+        message: "Contains invalid fields",
+      });
     } else {
       // all fields valid
       // create new user
@@ -57,15 +60,10 @@ module.exports = async (req, res, next) => {
       // add user to groups
       if (groups.length != 0) {
         // assign user to groups
-        const [[{ id }], fields] = await connection.query(
-          "SELECT id from users order by id desc limit 1;"
-        );
-        console.log(id, ...groups);
-
         await connection.query(
-          `INSERT INTO grouplists (groupname, userid) 
+          `INSERT INTO grouplists (groupname, username) 
           VALUES ${groups.map((group) => {
-            return `('` + group + `',` + id + `)`;
+            return `('` + group + `','` + username + `')`;
           })};`
         );
       }
@@ -79,6 +77,7 @@ module.exports = async (req, res, next) => {
     res.status(error.status).json({
       sucess: false,
       message: error.message,
+      stack: error.stack,
     });
   }
 };

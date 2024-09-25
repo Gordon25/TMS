@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
     //login successful
     const user = entries[0];
     //create jwt
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_TIME,
     });
 

@@ -12,8 +12,8 @@ const authUsers = (req, res, next) => {
       message: "Unauthorized, login first",
     });
   } else {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.id;
+    const { username } = jwt.verify(token, process.env.JWT_SECRET);
+    req.username = username;
     next();
   }
 };
@@ -22,9 +22,10 @@ const authGroups = (...users) => {
   return async (req, res, next) => {
     try {
       const connection = await asynConnection;
-      const userId = req.userId;
+      const username = req.username;
+      
       const [groups, fields] = await connection.query(
-        `select groupname from grouplists where userid=${userId}`
+        `select groupname from grouplists where username='${username}'`
       );
 
       const userPermittedGroups = groups.filter((group) => users.includes(group.groupname));
@@ -36,10 +37,7 @@ const authGroups = (...users) => {
           message: "Unauthorized access",
         });
       } else {
-        res.status(200).json({
-          success: true,
-          message: "Granted access",
-        });
+        next();
       }
     } catch (error) {
       res.status(400).json({
