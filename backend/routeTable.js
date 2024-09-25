@@ -10,7 +10,7 @@ const updateUserController = require("./controllers/updateUser");
 router.post("/login", loginController);
 router.get("/TMS", authUsers, authGroups("Admin")); //add middleware to render TMS page
 router.post(
-  "/createUser",
+  "/users",
   authUsers,
   authGroups("Admin"),
   validateUsernameController,
