@@ -1,12 +1,19 @@
 module.exports = (req, res, next) => {
-  const { password } = req.body;
+  const { username, password } = req.body;
   const isValidPassword = verifyPasswordFormat(password);
-  if (!isValidPassword) {
+  if ((!username && password === "") || isValidPassword) {
+    // no password provided in update request or password is valid
+    next();
+  } else if (username && password === "") {
+    //password missing in create request
     res.status(200).json({
-      message: "Password is not alphanumeric or does not contain at least 1 special character.",
+      message: "Password is mandatory",
     });
   } else {
-    next();
+    // password empty
+    res.status(200).json({
+      message: "Password is must alphanumeric or does not contain at least 1 special character.",
+    });
   }
 };
 

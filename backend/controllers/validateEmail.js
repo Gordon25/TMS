@@ -1,6 +1,6 @@
 module.exports = (req, res, next) => {
   const { email } = req.body;
-  if (!email || verifyEmailFormat(email)) {
+  if (email === "" || verifyEmailFormat(email)) {
     // email not provided or email valid
     next();
   } else {
