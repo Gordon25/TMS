@@ -25,7 +25,7 @@ const authGroups = (...users) => {
       const username = req.username;
       
       const [groups, fields] = await connection.query(
-        `select groupname from grouplists where username='${username}'`
+        `select groupname from user_groups where username='${username}'`
       );
 
       const userPermittedGroups = groups.filter((group) => users.includes(group.groupname));

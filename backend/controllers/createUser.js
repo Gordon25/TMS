@@ -15,7 +15,7 @@ module.exports = async (req, res, next) => {
     if (groups.length != 0) {
       // assign user to groups
       await connection.query(
-        `INSERT INTO grouplists (groupname, username) 
+        `INSERT INTO user_groups (groupname, username) 
           VALUES ${groups.map((group) => {
             return `('` + group + `','` + username + `')`;
           })};`
