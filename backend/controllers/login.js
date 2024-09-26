@@ -4,9 +4,9 @@ import jwt from "jsonwebtoken";
 export default async (req, res) => {
   console.log(req.cookies);
   const { username: loginUsername, password: loginPassword } = req.body;
-  const [entries, fields] = await connection.query(
-    `select * from users where username='${loginUsername}'`
-  );
+  const [entries, fields] = await connection.query(`select * from users where username=?`, [
+    [loginUsername],
+  ]);
   console.log("Entries ", entries.length);
   if (entries.length == 0 || entries[0].password !== loginPassword) {
     res.status(401).json("Invalid login credentials");

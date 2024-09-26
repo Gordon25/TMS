@@ -7,14 +7,16 @@ export default async (req, res) => {
     // update email, password
     await connection.query(
       `UPDATE users SET
-      password = IF('${password}' != '', '${password}', password),
-      email = IF('${email}' != '', '${email}', email)
-      where username = '${username}';`
+      password = IF(? != '', ?, password),
+      email = IF(? != '', ?, email)
+      where username = ?;`,
+      [password, password, email, email, username]
     );
     // remove unselected groups
     await connection.query(
       `DELETE FROM user_groups
-      WHERE username = '${username}';`
+      WHERE username = ?;`,
+      [username]
     );
 
     // assign user to groups selected
@@ -24,7 +26,7 @@ export default async (req, res) => {
 
       await connection.query(
         `INSERT IGNORE INTO user_groups (groupname, username) VALUES ${newEntries};`,
-        values
+        [values]
       );
     }
 

@@ -7,17 +7,19 @@ export default async (req, res, next) => {
     console.log("inserting");
     await connection.query(
       `INSERT INTO  users (username, password, email, isActive) 
-        VALUES ('${username}', '${password}', \'${email ? email : NULL}\', ${isActive});`
+        VALUES (?, ?, ?, ?);`,
+      [username, password, email ? email : NULL, isActive]
     );
     console.log("Inserted");
     // add user to groups
     if (groups.length != 0) {
       // assign user to groups
+      const newEntries = groups.map(() => "(?, ?)").join(", ");
+      const values = groups.flatMap((group) => [group, username]);
       await connection.query(
         `INSERT INTO user_groups (groupname, username) 
-          VALUES ${groups.map((group) => {
-            return `('` + group + `','` + username + `')`;
-          })};`
+          VALUES ${newEntries};`,
+        [values]
       );
     }
     res.status(200).json({
