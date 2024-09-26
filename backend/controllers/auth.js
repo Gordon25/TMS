@@ -50,6 +50,7 @@ const authGroups = (...users) => {
           message: "Unauthorized access",
         });
       } else {
+        req.permittedGroups = users;
         next();
       }
     } catch (error) {

@@ -11,7 +11,7 @@ import getUsersController from "./controllers/getUsers.js";
 import getUserController from "./controllers/getUser.js";
 import getUsers from "./controllers/getUsers.js";
 import logoutController from "./controllers/logout.js";
-import getGroupsController from "./controllers/getGroups.js"
+import getGroupsController from "./controllers/getGroups.js";
 const router = express.Router();
 
 // login, logout
@@ -29,7 +29,6 @@ router.post(
   validateEmailController,
   createUserController
 );
-router.get("/users/:username", authLogin, authUser, getUserController);
 router.put(
   "/users/:username",
   authLogin,
@@ -38,6 +37,8 @@ router.put(
   validateEmailController,
   updateUserController
 );
+router.get("/:username", authLogin, authUser, getUserController);
+router.put("/:username", authLogin, authUser, updateUserController);
 
 // Groups
 router.get("/groups", authLogin, authGroups("Admin"), getGroupsController);
