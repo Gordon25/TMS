@@ -8,23 +8,39 @@ module.exports = async (req, res) => {
     // update email, password
     await connection.query(
       `UPDATE users SET
-      password = IF('${password}' != '', '${password}', password),
-      email = IF('${email}' != '', '${email}', email)
-      where username = '${username}';`
+      password = IF(? != '', ?, password),
+      email = IF(? != '', ?, email)
+      where username = ?;`,
+      [password, password, email, email, username]
     );
+
+    // get current groups
+    const [joinedGroups, fields] = await connection.query(
+      `SELECT groupname from user_groups
+      WHERE username = ?;`,
+      [username]
+    );
+    const currentJoinedGroups = joinedGroups.map((currentGroup) => currentGroup.groupname);
     // remove unselected groups
-    await connection.query(
-      `DELETE FROM user_groups
-      WHERE username = '${username}';`
-    );
+    const groupsToRemove = currentJoinedGroups.filter((curr_group) => !groups.includes(curr_group));
+
+    if (groupsToRemove.length > 0) {
+      const groupsPlaceholder = groupsToRemove.map(() => "?").join(", ");
+      await connection.query(
+        `DELETE FROM user_groups
+      WHERE username = '${username}' and
+      groupname in (${groupsPlaceholder});`,
+        groupsToRemove
+      );
+    }
 
     // assign user to groups selected
-    if (groups.length > 0) {
-      const newEntries = groups.map(() => "(?, ?)").join(", ");
-      const values = groups.flatMap((group) => [group, username]);
-
+    const groupsToAdd = groups.filter((group) => !currentJoinedGroups.includes(group));
+    if (groupsToAdd.length > 0) {
+      const newGroupsPlaceholder = groupsToAdd.map(() => "(?, ?)").join(", ");
+      const values = groupsToAdd.flatMap((group) => [group, username]);
       await connection.query(
-        `INSERT IGNORE INTO user_groups (groupname, username) VALUES ${newEntries};`,
+        `INSERT INTO user_groups (groupname, username) VALUES ${newGroupsPlaceholder};`,
         values
       );
     }
