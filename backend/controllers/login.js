@@ -5,7 +5,7 @@ export default async (req, res) => {
   console.log(req.cookies);
   const { username: loginUsername, password: loginPassword } = req.body;
   const [[user], fields] = await connection.query(`select * from users where username=?`, [
-    [loginUsername],
+    loginUsername,
   ]);
   console.log("ENTRIES", user, !user);
   const isPasswordMatch = bcryptjs.compare(loginPassword, user.password);

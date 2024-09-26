@@ -11,11 +11,10 @@ export default async (req, res, next) => {
     try {
       const [matchedUsernames, fields] = await connection.query(
         `select username from users where username=?;`,
-        [username]
+        username
       );
 
       if (matchedUsernames.length != 0) {
-        hasInvalidFields = true;
         //duplicate username
         res.status(200).json({
           message: `${username} has already been taken, choose another one.`,
