@@ -12,9 +12,18 @@ const authUsers = (req, res, next) => {
       message: "Unauthorized, login first",
     });
   } else {
-    const { username } = jwt.verify(token, process.env.JWT_SECRET);
-    req.username = username;
-    next();
+    try {
+      const { username } = jwt.verify(token, process.env.JWT_SECRET);
+      req.username = username;
+      next();
+    } catch (error) {
+      if (error.name == "TokenExpiredError") {
+        res
+          .status(401)
+          .json({ success: false, message: "You have been logged out, please log in again" });
+        //log user out
+      }
+    }
   }
 };
 
