@@ -29,7 +29,7 @@ export default async (req, res) => {
         `DELETE FROM user_groups
       WHERE username = '${username}' and
       groupname in (${groupsPlaceholder});`,
-        groupsToRemove
+        [groupsToRemove]
       );
     }
 
@@ -40,7 +40,7 @@ export default async (req, res) => {
       const values = groupsToAdd.flatMap((group) => [group, username]);
       await connection.query(
         `INSERT INTO user_groups (groupname, username) VALUES ${newGroupsPlaceholder};`,
-        values
+        [values]
       );
     }
 

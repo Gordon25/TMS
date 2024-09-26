@@ -10,7 +10,8 @@ export default async (req, res, next) => {
   } else {
     try {
       const [matchedUsernames, fields] = await connection.query(
-        `select username from users where username='${username}';`
+        `select username from users where username=?;`,
+        [username]
       );
 
       if (matchedUsernames.length != 0) {

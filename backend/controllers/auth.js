@@ -21,7 +21,10 @@ const authUsers = (req, res, next) => {
         res
           .status(401)
           .json({ success: false, message: "You have been logged out, please log in again" });
-        //log user out
+        //remove token, log user out
+      } else {
+        // Need?
+        res.status(401).json({ success: false, message: "Invalid JWT." });
       }
     }
   }
@@ -34,7 +37,8 @@ const authGroups = (...users) => {
       const username = req.username;
 
       const [groups, fields] = await connection.query(
-        `select groupname from user_groups where username='${username}'`
+        `select groupname from user_groups where username=?`,
+        [username]
       );
 
       const userPermittedGroups = groups.filter((group) => users.includes(group.groupname));
