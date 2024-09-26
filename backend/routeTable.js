@@ -9,7 +9,6 @@ import updateUserController from "./controllers/updateUser.js";
 import createGroupController from "./controllers/createGroup.js";
 import getUsersController from "./controllers/getUsers.js";
 import getUserController from "./controllers/getUser.js";
-import getUsers from "./controllers/getUsers.js";
 import logoutController from "./controllers/logout.js";
 import getGroupsController from "./controllers/getGroups.js";
 const router = express.Router();
