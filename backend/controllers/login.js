@@ -1,9 +1,8 @@
-const bcryptjs = require("bcryptjs");
-const asyncConnection = require("../db.js");
-const jwt = require("jsonwebtoken");
-module.exports = async (req, res) => {
+import bcryptjs from "bcryptjs";
+import connection from "../dbconnection.js";
+import jwt from "jsonwebtoken";
+export default async (req, res) => {
   console.log(req.cookies);
-  const connection = await asyncConnection;
   const { username: loginUsername, password: loginPassword } = req.body;
   const [entries, fields] = await connection.query(
     `select * from users where username='${loginUsername}'`

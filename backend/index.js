@@ -1,9 +1,9 @@
-const express = require("express");
-const session = require("express-session");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const router = require("./routeTable.js");
+import express from "express";
+import session from "express-session";
+import bodyParser from "body-parser";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import router from "./routeTable.js";
 const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true })); // Setup the body parser to handle form submits

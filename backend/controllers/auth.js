@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
-const asynConnection = require("../db");
+import jwt from "jsonwebtoken";
+import asynConnection from "../dbconnection.js";
 const authUsers = (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
@@ -22,7 +22,8 @@ const authGroups = (...users) => {
   return async (req, res, next) => {
     try {
       const connection = await asynConnection;
-      const userId = req.userId;
+      const username = req.username;
+
       const [groups, fields] = await connection.query(
         `select groupname from grouplists where userid=${userId}`
       );
@@ -50,4 +51,4 @@ const authGroups = (...users) => {
   };
 };
 
-module.exports = { authUsers, authGroups };
+export { authUsers, authGroups };
