@@ -34,5 +34,5 @@ router.put(
 router.post("/groups", authLogin, authGroups("Admin"), createGroupController);
 router.get("/users", authLogin, authGroups("Admin"), getUsersController);
 router.get("/users/:username", authLogin, authUser, getUserController);
-router.get("/logout", authUsers, logoutController);
+router.get("/logout", authLogin, logoutController);
 export default router;
