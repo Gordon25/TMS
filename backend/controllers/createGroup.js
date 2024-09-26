@@ -1,8 +1,7 @@
-const asyncConnection = require("../db");
-module.exports = async (req, res) => {
+import connection from "../dbconnection.js";
+export default async (req, res) => {
   const { group } = req.body;
   try {
-    const connection = await asyncConnection;
     await connection.query(
       `INSERT INTO user_groups (groupname, username)
       VALUES ('${group}', NULL);`

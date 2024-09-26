@@ -1,4 +1,4 @@
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   const { email } = req.body;
   if (email === "" || verifyEmailFormat(email)) {
     // email not provided or email valid

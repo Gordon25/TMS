@@ -1,4 +1,4 @@
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   const { username, password } = req.body;
   const isValidPassword = verifyPasswordFormat(password);
   if ((!username && password === "") || isValidPassword) {
