@@ -10,6 +10,7 @@ import createGroupController from "./controllers/createGroup.js";
 import getUsersController from "./controllers/getUsers.js";
 import getUserController from "./controllers/getUser.js";
 import getUsers from "./controllers/getUsers.js";
+import logoutController from "./controllers/logout.js";
 const router = express.Router();
 router.post("/login", loginController);
 router.get("/TMS", authLogin, authGroups("Admin")); //add middleware to render TMS page
@@ -33,4 +34,5 @@ router.put(
 router.post("/groups", authLogin, authGroups("Admin"), createGroupController);
 router.get("/users", authLogin, authGroups("Admin"), getUsersController);
 router.get("/users/:username", authLogin, authUser, getUserController);
+router.get("/logout", authUsers, logoutController);
 export default router;
