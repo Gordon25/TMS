@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
+import loginController from "./controllers/login.js";
+import { authUsers, authGroups } from "./controllers/auth.js";
+import createUserController from "./controllers/createUser.js";
+import validateUsernameController from "./controllers/validateUsername.js";
+import validatePasswordController from "./controllers/validatePassword.js";
+import validateEmailController from "./controllers/validateEmail.js";
+import updateUserController from "./controllers/updateUser.js";
+import createGroupController from "./controllers/createGroup.js";
 const router = express.Router();
-const loginController = require("./controllers/login");
-const { authUsers, authGroups } = require("./controllers/auth");
-const createUserController = require("./controllers/createUser");
-const validateUsernameController = require("./controllers/validateUsername");
-const validatePasswordController = require("./controllers/validatePassword");
-const validateEmailController = require("./controllers/validateEmail");
-const updateUserController = require("./controllers/updateUser");
-const createGroupController = require("./controllers/createGroup");
 router.post("/login", loginController);
 router.get("/TMS", authUsers, authGroups("Admin")); //add middleware to render TMS page
 router.post(
@@ -28,4 +28,4 @@ router.put(
   updateUserController
 );
 router.post("/groups", authUsers, authGroups("Admin"), createGroupController);
-module.exports = router;
+export default router;

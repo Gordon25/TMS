@@ -1,9 +1,8 @@
-const asyncConnection = require("../db");
-module.exports = async (req, res, next) => {
+import connection from "../dbconnection.js";
+export default async (req, res, next) => {
   const { username, password, email, groups, isActive } = req.body;
   console.log(username, password, email, groups);
   try {
-    const connection = await asyncConnection;
     // all fields valid
     console.log("inserting");
     await connection.query(

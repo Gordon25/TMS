@@ -1,5 +1,5 @@
-const asyncConnection = require("../db");
-module.exports = async (req, res, next) => {
+import connection from "../dbconnection.js";
+export default async (req, res, next) => {
   const { username } = req.body;
   const isValidUsername = verifyUsernameFormat(username);
   if (!isValidUsername) {
@@ -9,7 +9,6 @@ module.exports = async (req, res, next) => {
     });
   } else {
     try {
-      const connection = await asyncConnection;
       const [matchedUsernames, fields] = await connection.query(
         `select username from users where username='${username}';`
       );

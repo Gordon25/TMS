@@ -1,10 +1,9 @@
-const asyncConnection = require("../db");
-module.exports = async (req, res) => {
+import connection from "../dbconnection.js";
+export default async (req, res) => {
   const username = req.params.username;
   const { password, email, groups } = req.body;
   console.log(password, email, groups);
   try {
-    const connection = await asyncConnection;
     // update email, password
     await connection.query(
       `UPDATE users SET
