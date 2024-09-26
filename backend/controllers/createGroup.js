@@ -2,14 +2,28 @@ import connection from "../dbconnection.js";
 export default async (req, res) => {
   const { group } = req.body;
   try {
-    await connection.query(
-      `INSERT INTO user_groups (groupname, username)
-      VALUES ('${group}', NULL);`
+    const [groupsMatched, fields] = await connection.query(
+      `SELECT 1 FROM user_groups 
+      WHERE groupname = ?`,
+      group
     );
-    res.status(200).json({
-      success: true,
-      message: "Group created successfully.",
-    });
+    if (groupsMatched.length > 0) {
+      //is duplicate group
+      res.status(400).json({
+        success: false,
+        message: "Duplicate group names not allowed.",
+      });
+    } else {
+      await connection.query(
+        `INSERT INTO user_groups (groupname, username)
+      VALUES (?, NULL);`,
+        group
+      );
+      res.status(200).json({
+        success: true,
+        message: "Group created successfully.",
+      });
+    }
   } catch (error) {
     console.log(error.stack);
     res.status(error.status).json({
