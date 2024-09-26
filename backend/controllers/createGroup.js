@@ -5,7 +5,7 @@ export default async (req, res) => {
     const [groupsMatched, fields] = await connection.query(
       `SELECT 1 FROM user_groups 
       WHERE groupname = ?`,
-      [group]
+      group
     );
     if (groupsMatched.length > 0) {
       //is duplicate group
@@ -17,7 +17,7 @@ export default async (req, res) => {
       await connection.query(
         `INSERT INTO user_groups (groupname, username)
       VALUES (?, NULL);`,
-        [group]
+        group
       );
       res.status(200).json({
         success: true,

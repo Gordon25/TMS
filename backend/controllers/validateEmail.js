@@ -4,7 +4,9 @@ export default (req, res, next) => {
     // email not provided or email valid
     next();
   } else {
-    res.json.invalidEmail = "Email must be in the form <user>@<domain>.com.";
+    res.status(400).json({
+      message: "Email must be in the form <user>@<domain>.com.",
+    });
   }
 };
 

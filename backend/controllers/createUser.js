@@ -4,9 +4,10 @@ export default async (req, res, next) => {
   const { username, password, email, groups, isActive } = req.body;
   console.log(username, password, email, groups);
   // encrypt password with bcryptjs
-  const passwordHash = bcryptjs.hash(password, 10);
+
   try {
     // all fields valid
+    const passwordHash = await bcryptjs.hash(password, 10);
     console.log("inserting");
     await connection.query(
       `INSERT INTO  users (username, password, email, isActive) 
@@ -20,9 +21,9 @@ export default async (req, res, next) => {
       const newEntries = groups.map(() => "(?, ?)").join(", ");
       const values = groups.flatMap((group) => [group, username]);
       await connection.query(
-        `INSERT INTO user_groups (groupname, username) 
-          VALUES ${newEntries};`,
-        [values]
+        `INSERT INTO user_groups (groupname, username)
+         VALUES ${newEntries};`,
+        values // Pass `values` directly, not as an array
       );
     }
     res.status(200).json({
