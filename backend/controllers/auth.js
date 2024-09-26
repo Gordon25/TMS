@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import asynConnection from "../dbconnection.js";
-const authUsers = (req, res, next) => {
+const authLogin = (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
@@ -48,4 +48,19 @@ const authGroups = (...users) => {
   };
 };
 
-export { authUsers, authGroups };
+const authUser = (req, res, next) => {
+  const queryUsername = req.params.username;
+  const reqUsername = req.username;
+  console.log(queryUsername, reqUsername);
+  if (queryUsername == reqUsername) {
+    next();
+  } else {
+    res.status(400).json({
+      success: false,
+      message: "Access Denied, not permitted to access this data",
+    });
+    //redirect user?
+  }
+};
+
+export { authLogin, authGroups, authUser };
