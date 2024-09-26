@@ -4,17 +4,18 @@ import jwt from "jsonwebtoken";
 export default async (req, res) => {
   console.log(req.cookies);
   const { username: loginUsername, password: loginPassword } = req.body;
-  const [entries, fields] = await connection.query(`select * from users where username=?`, [
+  const [[user], fields] = await connection.query(`select * from users where username=?`, [
     [loginUsername],
   ]);
-  console.log("Entries ", entries.length);
-  if (entries.length == 0 || entries[0].password !== loginPassword) {
+  console.log("ENTRIES", user, !user);
+  const isPasswordMatch = bcryptjs.compare(loginPassword, user.password);
+  if (!user || !isPasswordMatch) {
     res.status(401).json("Invalid login credentials");
-  } else if (!entries[0].isActive) {
+  } else if (!user.isActive) {
     res.status(403).json("Account disabled");
   } else {
     //login successful
-    const user = entries[0];
+
     //create jwt
     const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_TIME,

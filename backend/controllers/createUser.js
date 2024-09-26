@@ -1,14 +1,17 @@
 import connection from "../dbconnection.js";
+import bcryptjs from "bcryptjs";
 export default async (req, res, next) => {
   const { username, password, email, groups, isActive } = req.body;
   console.log(username, password, email, groups);
+  // encrypt password with bcryptjs
+  const passwordHash = bcryptjs.hash(password, 10);
   try {
     // all fields valid
     console.log("inserting");
     await connection.query(
       `INSERT INTO  users (username, password, email, isActive) 
         VALUES (?, ?, ?, ?);`,
-      [username, password, email ? email : NULL, isActive]
+      [username, passwordHash, email ? email : NULL, isActive]
     );
     console.log("Inserted");
     // add user to groups
