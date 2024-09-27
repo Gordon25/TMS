@@ -47,17 +47,18 @@ export default async (req, res) => {
         }
       );
 
-    //create cookie
-    const options = {
-      expires: new Date(Date.now() + process.env.COOKIES_EXPIRES_TIME * 24 * 60 * 60 * 1000),
-      httpOnly: true,
-      secure: true,
-    };
-    // set cookie in browser
-    res.status(200).cookie("token", token, options).json({
-      success: true,
-      username,
-      token,
-    });
+      //create cookie
+      const options = {
+        expires: new Date(Date.now() + process.env.COOKIES_EXPIRES_TIME * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        secure: true,
+      };
+      // set cookie in browser
+      res.status(200).cookie("token", token, options).json({
+        success: true,
+        username,
+        token,
+      });
+    }
   }
 };
