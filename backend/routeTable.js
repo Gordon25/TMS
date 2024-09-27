@@ -3,8 +3,8 @@ import loginController from "./controllers/login.js";
 import { authLogin, authGroups, authUser } from "./controllers/auth.js";
 import createUserController from "./controllers/createUser.js";
 import validateUsernameController from "./controllers/validateUsername.js";
-import validatePasswordController from "./controllers/validatePassword.js";
-import validateEmailController from "./controllers/validateEmail.js";
+import validatePasswordAndEmailController from "./controllers/validatePasswordAndEmail.js";
+
 import updateUserController from "./controllers/updateUser.js";
 import createGroupController from "./controllers/createGroup.js";
 import getUsersController from "./controllers/getUsers.js";
@@ -24,16 +24,14 @@ router.post(
   authLogin,
   authGroups("Admin"),
   validateUsernameController,
-  validatePasswordController,
-  validateEmailController,
+  validatePasswordAndEmailController,
   createUserController
 );
 router.put(
   "/users/:username",
   authLogin,
   authGroups("Admin"),
-  validatePasswordController,
-  validateEmailController,
+  validatePasswordAndEmailController,
   updateUserController
 );
 router.get("/:username", authLogin, authUser, getUserController);
