@@ -5,10 +5,11 @@ export default async (req, res) => {
   console.log(req.cookies);
   console.log(req.body);
   const { username: loginUsername, password: loginPassword } = req.body;
+  console.log(loginUsername, loginPassword);
   const [entries, fields] = await connection.query(`select * from users where username=?`, [
     loginUsername,
   ]);
-  console.log("IP ADDRESS ", req.ip, JSON.stringify(req.ip), req.headers["user-agent"]);
+  console.log("IP ADDRESS ", req.ip, JSON.stringify(req.ip), req.headers["user-agent"], entries);
   if (entries.length === 0) {
     res.status(401).json({
       // wrong username
@@ -19,6 +20,7 @@ export default async (req, res) => {
     // username matches a user
     const [user] = entries;
     const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
+    console.log(isPasswordMatch);
     if (!isPasswordMatch) {
       res.status(401).json({
         // wrong password
@@ -56,7 +58,7 @@ export default async (req, res) => {
       // set cookie in browser
       res.status(200).cookie("token", token, options).json({
         success: true,
-        username,
+        username: loginUsername,
         token,
       });
     }
