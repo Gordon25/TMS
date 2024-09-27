@@ -4,12 +4,7 @@
   "author": "Gordon <gordonyit25@gmail.com>",
   "description": "",
   "main": "/backend/index.js",
-  "type": "module",
-  "scripts": {
-    "dev": "SET NODE_ENV=development& nodemon --env-file=.env  ./backend/index.js",
-    "prod": "SET NODE_ENV=production& node --env-file=.env  ./backend/index.js",
-    "db": "node --env-file=.env db.js"
-  },
+  "scripts": {},
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
