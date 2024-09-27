@@ -11,15 +11,15 @@ import getUsersController from "./controllers/getUsers.js";
 import getUserController from "./controllers/getUser.js";
 import logoutController from "./controllers/logout.js";
 import getGroupsController from "./controllers/getGroups.js";
-const router = express.Router();
+import app from "./app.js";
 
 // login, logout
-router.post("/login", loginController);
-router.get("/logout", authLogin, logoutController);
+app.post("/login", loginController);
+app.get("/logout", authLogin, logoutController);
 
 // Users
-router.get("/users", authLogin, authGroups("Admin"), getUsersController);
-router.post(
+app.get("/users", authLogin, authGroups("Admin"), getUsersController);
+app.post(
   "/users",
   authLogin,
   authGroups("Admin"),
@@ -27,19 +27,23 @@ router.post(
   validatePasswordAndEmailController,
   createUserController
 );
-router.put(
+app.put(
   "/users/:username",
   authLogin,
   authGroups("Admin"),
   validatePasswordAndEmailController,
   updateUserController
 );
-router.get("/:username", authLogin, authUser, getUserController);
-router.put("/:username", authLogin, authUser, updateUserController);
+app.get("/:username", authLogin, authUser, getUserController);
+app.put("/:username", authLogin, authUser, updateUserController);
 
 // Groups
-router.get("/groups", authLogin, authGroups("Admin"), getGroupsController);
-router.post("/groups", authLogin, authGroups("Admin"), createGroupController);
+app.get("/groups", authLogin, authGroups("Admin"), getGroupsController);
+app.post("/groups", authLogin, authGroups("Admin"), createGroupController);
 
-router.get("/TMS", authLogin, authGroups("Admin")); //add middleware to render TMS page
-export default router;
+app.get("/TMS", authLogin, authGroups("Admin")); //add middleware to render TMS page
+
+app.get("/", (req, res) => {
+  res.json({ message: "Hi, youve reached the backend" });
+});
+export default app;
