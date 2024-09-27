@@ -13,5 +13,5 @@ app.use(session({ secret: "super-secret" })); // Session setup
 app.use(router);
 app.listen(
   process.env.PORT,
-  console.log(`App listening at port ${process.env.PORT} ${process.env.NODE_ENV}`)
+  console.log(`App listening at port ${process.env.BACKEND_PORT} ${process.env.NODE_ENV}`)
 );
