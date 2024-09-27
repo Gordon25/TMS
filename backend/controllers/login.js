@@ -10,6 +10,7 @@ export default async (req, res) => {
   console.log("IP ADDRESS ", req.ip, JSON.stringify(req.ip), req.headers["user-agent"]);
   console.log("ENTRIES", user, !user);
   const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
+  console.log("IS LOGGED IN SUCCESSFUL ", isPasswordMatch);
   if (!user || !isPasswordMatch) {
     res.status(401).json({
       // wrong username or password
@@ -43,6 +44,7 @@ export default async (req, res) => {
       expires: new Date(Date.now() + process.env.COOKIES_EXPIRES_TIME * 24 * 60 * 60 * 1000),
       httpOnly: true,
       secure: true,
+      path: "/",
     };
     // set cookie in browser
     res.status(200).cookie("token", token, options).json({

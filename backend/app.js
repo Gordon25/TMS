@@ -5,7 +5,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 // set up app
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: `http://localhost:${process.env.FRONTEND_PORT}`,
+    credentials: true,
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true })); // Setup the body parser to handle form submits
 app.use(cookieParser()); // to populate session cookies during login
 app.use(express.json());
