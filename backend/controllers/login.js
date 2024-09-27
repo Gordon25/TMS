@@ -9,7 +9,7 @@ export default async (req, res) => {
   ]);
   console.log("IP ADDRESS ", req.ip, JSON.stringify(req.ip), req.headers["user-agent"]);
   console.log("ENTRIES", user, !user);
-  const isPasswordMatch = bcryptjs.compare(loginPassword, user.password);
+  const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
   if (!user || !isPasswordMatch) {
     res.status(401).json({
       // wrong username or password
