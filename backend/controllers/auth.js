@@ -15,6 +15,7 @@ const authLogin = (req, res, next) => {
     try {
       const { username, ip, browserType } = jwt.verify(token, process.env.JWT_SECRET);
       if (ip != req.ip || browserType != req.headers["user-agent"]) {
+        console.log(ip, req.ip, browserType, req.browserType);
         // Do not allow copy and pasting to different PC or browser
         res.status(401).json({
           success: false,
@@ -60,10 +61,9 @@ const authGroups = (...users) => {
         //not permitted to access
         res.status(401).json({
           success: false,
-          message: "Unauthorized access",
+          message: "User does not have authorized access, please find admin.",
         });
       } else {
-        req.permittedGroups = users;
         next();
       }
     } catch (error) {
