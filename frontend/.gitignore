@@ -1,7 +1,4 @@
 node_modules
-package.json
-package-lock.json
-.env
 
 # Output
 .output
@@ -14,7 +11,7 @@ package-lock.json
 Thumbs.db
 
 # Env
-
+.env
 .env.*
 !.env.example
 !.env.test
