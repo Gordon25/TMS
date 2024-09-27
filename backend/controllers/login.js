@@ -7,19 +7,36 @@ export default async (req, res) => {
   const [[user], fields] = await connection.query(`select * from users where username=?`, [
     loginUsername,
   ]);
+  console.log("IP ADDRESS ", req.ip, JSON.stringify(req.ip), req.headers["user-agent"]);
   console.log("ENTRIES", user, !user);
   const isPasswordMatch = bcryptjs.compare(loginPassword, user.password);
   if (!user || !isPasswordMatch) {
-    res.status(401).json("Invalid login credentials");
+    res.status(401).json({
+      // wrong username or password
+      success: false,
+      message: "Invalid login credentials",
+    });
   } else if (!user.isActive) {
-    res.status(403).json("Account disabled");
+    // disabled users not allowed to login
+    res.status(403).json({
+      success: false,
+      message: "Account disabled",
+    });
   } else {
     //login successful
 
     //create jwt
-    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_TIME,
-    });
+    const token = jwt.sign(
+      {
+        username: user.username,
+        ip: req.ip,
+        browserType: req.headers["user-agent"],
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRES_TIME,
+      }
+    );
 
     //create cookie
     const options = {
@@ -27,7 +44,7 @@ export default async (req, res) => {
       httpOnly: true,
       secure: true,
     };
-
+    // set cookie in browser
     res.status(200).cookie("token", token, options).json({
       success: true,
       token,

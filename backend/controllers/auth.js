@@ -9,22 +9,35 @@ const authLogin = (req, res, next) => {
     // user not logged in
     res.status(401).json({
       success: false,
-      message: "Unauthorized, login first",
+      message: "Unauthorized, login first.",
     });
   } else {
     try {
-      const { username } = jwt.verify(token, process.env.JWT_SECRET);
-      req.username = username;
-      next();
+      const { username, ip, browserType } = jwt.verify(token, process.env.JWT_SECRET);
+      if (ip != req.ip || browserType != req.headers["user-agent"]) {
+        // Do not allow copy and pasting to different PC or browser
+        res.status(401).json({
+          success: false,
+          message: "Unauthorised access.",
+        });
+      } else {
+        req.username = username;
+        next();
+      }
     } catch (error) {
       if (error.name == "TokenExpiredError") {
-        res
-          .status(401)
-          .json({ success: false, message: "You have been logged out, please log in again" });
-        //remove token, log user out
+        res.status(401).json({
+          success: false,
+          message: "Your session has expired. Please sign in again.",
+        });
+        //remove token, log user out?
+        res;
       } else {
         // Need?
-        res.status(401).json({ success: false, message: "Invalid JWT." });
+        res.status(401).json({
+          success: false,
+          message: "Invalid JWT.",
+        });
       }
     }
   }
@@ -57,6 +70,7 @@ const authGroups = (...users) => {
       res.status(400).json({
         success: false,
         message: error.message,
+        stack: error.stack,
       });
     }
   };
