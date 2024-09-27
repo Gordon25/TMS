@@ -5,7 +5,9 @@ export default async (req, res) => {
     const [users, userFields] = await connection.query(
       `SELECT username, email, isActive FROM users;`
     );
-    const [groups, groupFields] = await connection.query(`SELECT * FROM user_groups;`);
+    const [groups, groupFields] = await connection.query(
+      `SELECT username, email, isActive FROM user_groups;`
+    );
     const data = users.map((user) => {
       return {
         ...user,
