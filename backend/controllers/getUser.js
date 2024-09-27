@@ -17,10 +17,10 @@ export default async (req, res) => {
       data,
     });
   } catch (error) {
-    console.log(error.stack);
-    res.json(error.status).json({
+    res.json({
       success: false,
       message: error.message,
+      stack: error.stack,
     });
   }
 };

@@ -25,10 +25,10 @@ export default async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error.stack);
-    res.status(error.status).json({
+    res.json({
       success: false,
       message: error.message,
+      stack: error.stack,
     });
   }
 };

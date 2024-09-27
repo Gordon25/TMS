@@ -13,8 +13,8 @@ export default async (req, res) => {
       [password, password, email, email, username]
     );
 
-    //only admin can edit groups
-    if (req.permittedGroups && req.permittedGroups.contain("Admin")) {
+    //only admin can edit groups, only admin can access /users/ route
+    if (req.originalUrl.startsWith("/users/")) {
       // get current groups
       const [joinedGroups, fields] = await connection.query(
         `SELECT groupname from user_groups
@@ -54,10 +54,10 @@ export default async (req, res) => {
       message: "User update successful",
     });
   } catch (error) {
-    console.log(error.stack);
-    res.status(error.status).json({
+    res.json({
       success: false,
       message: error.message,
+      stack: error.stack,
     });
   }
 };

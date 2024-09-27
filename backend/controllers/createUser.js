@@ -23,7 +23,7 @@ export default async (req, res, next) => {
       await connection.query(
         `INSERT INTO user_groups (groupname, username)
          VALUES ${newEntries};`,
-        values // Pass `values` directly, not as an array
+        values
       );
     }
     res.status(200).json({
@@ -31,8 +31,7 @@ export default async (req, res, next) => {
       message: "User account created",
     });
   } catch (error) {
-    console.log(error.stack);
-    res.status(error.status).json({
+    res.json({
       sucess: false,
       message: error.message,
       stack: error.stack,

@@ -6,12 +6,13 @@ export default async (req, res) => {
     const groupnames = groups.map((group) => group.groupname);
     res.status(200).json({
       success: true,
-      groups: groupnames,
+      data: groupnames,
     });
   } catch (error) {
-    res.status(error.status).json({
+    res.json({
       success: true,
       message: error.message,
+      stack: error.stack,
     });
   }
 };

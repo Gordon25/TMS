@@ -1,10 +1,12 @@
 import connection from "../dbconnection.js";
 export default async (req, res, next) => {
+  const usernameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
   const { username } = req.body;
-  const isValidUsername = verifyUsernameFormat(username);
+  const isValidUsername = usernameRegex.test(username);
   if (!isValidUsername) {
     //username not alphanumeric
-    res.status(200).json({
+    res.status(400).json({
+      success: false,
       message: "Username is not alphanumeric.",
     });
   } else {
@@ -16,7 +18,8 @@ export default async (req, res, next) => {
 
       if (matchedUsernames.length != 0) {
         //duplicate username
-        res.status(200).json({
+        res.status(400).json({
+          success: false,
           message: `${username} has already been taken, choose another one.`,
         });
       } else {
@@ -24,11 +27,11 @@ export default async (req, res, next) => {
         next();
       }
     } catch (error) {
-      res.json(error.status).json(error.message);
+      res.json({
+        success: false,
+        message: error.message,
+        stack: error.stack,
+      });
     }
   }
 };
-function verifyUsernameFormat(username) {
-  const usernameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
-  return usernameRegex.test(username);
-}
