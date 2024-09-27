@@ -47,6 +47,7 @@ export default async (req, res) => {
     // set cookie in browser
     res.status(200).cookie("token", token, options).json({
       success: true,
+      username,
       token,
     });
   }
