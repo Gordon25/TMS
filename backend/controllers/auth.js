@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import asynConnection from "../dbconnection.js";
+import asynConnection from "../utils/dbconnection.js";
 const authLogin = (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {

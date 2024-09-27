@@ -1,4 +1,4 @@
-import connection from "../dbconnection.js";
+import connection from "../utils/dbconnection.js";
 import bcryptjs from "bcryptjs";
 export default async (req, res, next) => {
   const { username, password, email, groups, isActive } = req.body;

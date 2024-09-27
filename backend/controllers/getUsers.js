@@ -1,5 +1,5 @@
 import { group } from "console";
-import connection from "../dbconnection.js";
+import connection from "../utils/dbconnection.js";
 export default async (req, res) => {
   try {
     const [users, userFields] = await connection.query(

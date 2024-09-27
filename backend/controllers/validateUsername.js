@@ -1,4 +1,4 @@
-import connection from "../dbconnection.js";
+import connection from "../utils/dbconnection.js";
 export default async (req, res, next) => {
   const usernameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
   const { username } = req.body;

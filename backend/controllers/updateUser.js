@@ -1,4 +1,4 @@
-import connection from "../dbconnection.js";
+import connection from "../utils/dbconnection.js";
 export default async (req, res) => {
   const username = req.params.username;
   const { password, email, groups } = req.body;

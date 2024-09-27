@@ -1,5 +1,5 @@
 import { group } from "console";
-import connection from "../dbconnection.js";
+import connection from "../utils/dbconnection.js";
 export default async (req, res) => {
   const username = req.params.username;
   console.log(username);
