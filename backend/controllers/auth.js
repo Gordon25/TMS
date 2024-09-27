@@ -15,7 +15,7 @@ const authLogin = (req, res, next) => {
     try {
       const { username, ip, browserType } = jwt.verify(token, process.env.JWT_SECRET);
       if (ip != req.ip || browserType != req.headers["user-agent"]) {
-        console.log(ip, req.ip, browserType, req.browserType);
+        console.log(ip, req.ip, "TOKEN ", browserType, "REQ ", req.browserType);
         // Do not allow copy and pasting to different PC or browser
         res.status(401).json({
           success: false,
@@ -76,10 +76,11 @@ const authGroups = (...users) => {
   };
 };
 
+// for user to access personal information
 const authUser = (req, res, next) => {
   const queryUsername = req.params.username;
   const reqUsername = req.username;
-  console.log(queryUsername, reqUsername);
+  console.log(req.params, queryUsername, reqUsername);
   if (queryUsername == reqUsername) {
     next();
   } else {
