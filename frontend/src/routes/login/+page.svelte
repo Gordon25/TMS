@@ -1,29 +1,54 @@
 <script lang="ts">
-  import type { ActionData } from "./$types";
-  export let form:ActionData;
-
+  import axios from "axios";
+import { goto, invalidate } from "$app/navigation";
+let username = ''
+let password = ''
+let errorMessage:String;
+import {PUBLIC_BACKEND_HOSTNAME} from "$env/static/public"
+  import { redirect } from "@sveltejs/kit";
+  const login = async (event:Event) => {
+    const response = await axios.post(
+      `${PUBLIC_BACKEND_HOSTNAME}/login`,
+      {
+        username,
+        password
+      },
+      {
+        withCredentials: true,
+      }
+    );
+    const {success} = response.data
+    console.log("COOKIES SET", response.headers.cookie)
+    if (success) {
+      goto("./tms")
+    } else {
+      const {message} = response.data
+      errorMessage = message
+    }
+  } 
+  $:console.log("Error ", errorMessage)
 </script>
 <body>
 <div class="login-container">
-<form class="login-form" method="post" action="?/login">
+<form class="login-form" method="post" on:submit|preventDefault={login}>
 	<label for="username">
 		Username
-	<input type='text' name="username" id="username" placeholder="Username"/>
-	</label>
+  </label>
+	<input type='text' name="username" id="username" bind:value={username} placeholder="Username"/>
+	
  
 	<label for="password">
 		Password
-	<input type='password' name="password" id="password" placeholder="Password"/>
-	</label>
+  </label>
+	<input type='password' name="password" id="password" bind:value={password} placeholder="Password"/>
+	
  
   <button>Submit</button> 
-  {#if form&&!form?.success}
-  <p class="error">{form?.errorMessage}</p>
-  {/if}
-  
-
 </form>
 </div>
+{#if errorMessage}
+<div class="error">{errorMessage}</div>
+{/if}
 </body>
 
 <style>
@@ -35,6 +60,7 @@
 
 body {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -47,7 +73,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%;
+    height: 200;
 }
 
 .login-form {
@@ -87,7 +113,7 @@ body {
 }
 
 .error {
-  display: block;
+  display: flex;
     margin-top:20px;
     margin-bottom: 8px;
     color: #920;
