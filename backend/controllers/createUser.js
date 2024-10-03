@@ -8,11 +8,12 @@ export default async (req, res, next) => {
   try {
     // all fields valid
     const passwordHash = await bcryptjs.hash(password, 10);
+    const emailInserted = email == "" ? null : email;
     console.log("inserting");
     await connection.query(
       `INSERT INTO  users (username, password, email, isActive) 
         VALUES (?, ?, ?, ?);`,
-      [username, passwordHash, email ? email : NULL, isActive]
+      [username, passwordHash, emailInserted, isActive]
     );
     console.log("Inserted");
     // add user to groups

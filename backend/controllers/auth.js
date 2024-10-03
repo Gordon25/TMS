@@ -14,8 +14,16 @@ const authLogin = (req, res, next) => {
   } else {
     try {
       const { username, ip, browserType } = jwt.verify(token, process.env.JWT_SECRET);
+      console.log(
+        "HEADER ",
+        req.headers["user-agent"],
+        "URL",
+        req.headers,
+        browserType != req.headers["user-agent"],
+        req.ip != ip
+      );
       if (ip != req.ip || browserType != req.headers["user-agent"]) {
-        console.log(ip, req.ip, "TOKEN ", browserType, "REQ ", req.browserType);
+        console.log(ip, req.ip, "TOKEN ", browserType, "REQS ", req.headers["user-agent"]);
         // Do not allow copy and pasting to different PC or browser
         res.status(401).json({
           success: false,
@@ -38,6 +46,7 @@ const authLogin = (req, res, next) => {
         res.status(401).json({
           success: false,
           message: "Invalid JWT.",
+          errorname: error.name,
         });
       }
     }
@@ -76,20 +85,4 @@ const authGroups = (...users) => {
   };
 };
 
-// for user to access personal information
-const authUser = (req, res, next) => {
-  const queryUsername = req.params.username;
-  const reqUsername = req.username;
-  console.log(req.params, queryUsername, reqUsername);
-  if (queryUsername == reqUsername) {
-    next();
-  } else {
-    res.status(400).json({
-      success: false,
-      message: "Access Denied, not permitted to access this data",
-    });
-    //redirect user?
-  }
-};
-
-export { authLogin, authGroups, authUser };
+export { authLogin, authGroups };
