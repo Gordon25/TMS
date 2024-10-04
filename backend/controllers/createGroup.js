@@ -25,8 +25,8 @@ export default async (req, res) => {
       } else {
         console.log("GROUP ", groupname);
         await connection.query(
-          `INSERT INTO user_groups (groupname, username)
-      VALUES (?, '-');`,
+          `INSERT INTO user_groups (groupname)
+      VALUES (?);`,
           groupname
         );
         res.status(200).json({

@@ -2,9 +2,15 @@ import loginController from "./controllers/login.js";
 import { authLogin, authGroups } from "./controllers/auth.js";
 import createUserController from "./controllers/createUser.js";
 import validateUsernameController from "./controllers/validateUsername.js";
-import validatePasswordAndEmailController from "./controllers/validatePasswordAndEmail.js";
-
-import updateUserController from "./controllers/updateUser.js";
+import {
+  validatePasswordController,
+  validateEmailController,
+} from "./controllers/validatePasswordAndEmail.js";
+import {
+  updatePasswordController,
+  updateEmailController,
+} from "./controllers/updateUserCredentials.js";
+import adminUpdateUserController from "./controllers/adminUpdateUser.js";
 import createGroupController from "./controllers/createGroup.js";
 import getUsersController from "./controllers/getUsers.js";
 import getUserController from "./controllers/getUser.js";
@@ -25,15 +31,17 @@ app.post(
   authLogin,
   authGroups("Admin"),
   validateUsernameController,
-  validatePasswordAndEmailController,
+  validatePasswordController,
+  validateEmailController,
   createUserController
 );
 app.put(
   "/users/:username",
   authLogin,
   authGroups("Admin"),
-  validatePasswordAndEmailController,
-  updateUserController
+  validatePasswordController,
+  validateEmailController,
+  adminUpdateUserController
 );
 
 // Get, Create Groups
@@ -42,8 +50,8 @@ app.post("/groups", authLogin, authGroups("Admin"), createGroupController);
 
 // User-only route
 app.get("/user", authLogin, getUserController);
-app.put("/user", authLogin, validatePasswordAndEmailController, updateUserController);
-
+app.put("/user/password", authLogin, validatePasswordController, updatePasswordController);
+app.put("/user/email", authLogin, validateEmailController, updateEmailController);
 app.get("/checkIsAdmin", authLogin, checkIsAdminUser); // check if user is admin
 
 export default app;
