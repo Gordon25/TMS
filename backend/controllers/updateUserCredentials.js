@@ -1,16 +1,17 @@
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
+import connection from "../utils/dbconnection.js";
 const updateEmailController = async (req, res) => {
-  const operation = "update email";
+  const field = "email";
   const { email } = req.body;
   // update email
-  if (trim(email) === "") {
+  if (email.trim() === "") {
     res.status(200).json({
       success: false,
-      operation,
+      field,
       message: "New email is not provided, email is not updated.",
     });
-
+  } else {
     try {
       const token = req.headers.authorization.split(" ")[1];
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
@@ -21,31 +22,33 @@ const updateEmailController = async (req, res) => {
       );
       res.status(200).json({
         success: true,
-        operation,
-        message: `${username} email updated.`,
+        field,
+        message: `${username} email updated to ${email}.`,
       });
     } catch (error) {
       res.json({
         success: false,
-        operation,
+        field,
         message: error.message,
+        stack: error.stack,
       });
     }
   }
 };
 
 const updatePasswordController = async (req, res) => {
-  const operation = "update password";
+  const field = "password";
   const { password } = req.body;
   // update email
-  if (trim(password) === "") {
-    res.statusjson({
+  if (password.trim() === "") {
+    res.status(200).json({
       success: false,
-      operation,
+      field,
       message: "New password is not provided, password is not updated.",
     });
   } else {
     try {
+      console.log("GETTTINGNNNNG USER");
       const token = req.headers.authorization.split(" ")[1];
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
       const hashedPassword = await bcryptjs.hash(password, 10);
@@ -56,13 +59,13 @@ const updatePasswordController = async (req, res) => {
       );
       res.status(200).json({
         success: true,
-        operation,
-        message: `${username} password updated.`,
+        field,
+        message: `${username} password updated to ${password}.`,
       });
     } catch (error) {
       res.json({
         success: false,
-        operation,
+        field,
         message: error.message,
       });
     }

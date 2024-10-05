@@ -5,6 +5,7 @@ const authLogin = (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
   }
+  console.log("LOGIN TOKEN ", req.headers.authorization, token);
   if (!token) {
     // user not logged in
     res.status(401).json({
@@ -13,6 +14,7 @@ const authLogin = (req, res, next) => {
     });
   } else {
     try {
+      
       const { username, ip, browserType } = jwt.verify(token, process.env.JWT_SECRET);
       console.log(
         "HEADER ",
@@ -31,6 +33,7 @@ const authLogin = (req, res, next) => {
         });
       } else {
         req.username = username;
+        console.log("USERNAME ", req.username);
         next();
       }
     } catch (error) {

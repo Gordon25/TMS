@@ -11,6 +11,7 @@ const validatePasswordController = (req, res, next) => {
     // password is not valid and non-empty
     res.status(200).json({
       success: false,
+      field: "password",
       message:
         "Password is must alphanumeric or does not contain at least 1 special character and betweeen 8 to 10 characters long.",
     });
@@ -28,6 +29,7 @@ const validateEmailController = (req, res, next) => {
     // email provided not valid and non-empty
     res.status(200).json({
       success: false,
+      field: "email",
       message: "Email must be in the form <user>@<domain>.com.",
     });
   }
