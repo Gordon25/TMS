@@ -1,4 +1,3 @@
-import { group } from "console";
 import connection from "../utils/dbconnection.js";
 import jwt from "jsonwebtoken";
 export default async (req, res) => {
@@ -6,7 +5,7 @@ export default async (req, res) => {
   try {
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
     const [[user], userFields] = await connection.query(
-      `SELECT username, email FROM users WHERE username=?;`,
+      `SELECT username, email FROM accounts WHERE username=?;`,
       [username]
     );
     const data = { ...user };

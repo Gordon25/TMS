@@ -5,7 +5,6 @@ export default async (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
 
   try {
-    console.log("IS ADMIN CHECKING");
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
     // const [[{ isAdmin }], fields] = await connection.query(
     //   "select count(distinct groupname) as isAdmin from user_groups where username=? and groupname='Admin';",

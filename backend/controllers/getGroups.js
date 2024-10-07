@@ -1,4 +1,3 @@
-import { group } from "console";
 import connection from "../utils/dbconnection.js";
 export default async (req, res) => {
   try {

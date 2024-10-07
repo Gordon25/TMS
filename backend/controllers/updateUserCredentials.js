@@ -16,7 +16,7 @@ const updateEmailController = async (req, res) => {
       const token = req.headers.authorization.split(" ")[1];
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
       await connection.query(
-        `UPDATE users SET email = ?
+        `UPDATE accounts SET email = ?
           where username = ?;`,
         [email, username]
       );
@@ -48,12 +48,11 @@ const updatePasswordController = async (req, res) => {
     });
   } else {
     try {
-      console.log("GETTTINGNNNNG USER");
       const token = req.headers.authorization.split(" ")[1];
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
       const hashedPassword = await bcryptjs.hash(password, 10);
       await connection.query(
-        `UPDATE users SET password = ?
+        `UPDATE accounts SET password = ?
           where username = ?;`,
         [hashedPassword, username]
       );

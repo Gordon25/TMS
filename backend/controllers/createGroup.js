@@ -1,5 +1,6 @@
 import connection from "../utils/dbconnection.js";
 export default async (req, res) => {
+  const field = "group";
   const { groupname } = req.body;
   const groupnameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
   const isValidGroupname = groupnameRegex.test(groupname);
@@ -7,6 +8,7 @@ export default async (req, res) => {
     //groupname not alphanumeric
     res.status(400).json({
       success: false,
+      field,
       message: "Groupname is not alphanumeric.",
     });
   } else {
@@ -20,10 +22,10 @@ export default async (req, res) => {
         //is duplicate group
         res.status(400).json({
           success: false,
+          field,
           message: "Duplicate group names not allowed.",
         });
       } else {
-        console.log("GROUP ", groupname);
         await connection.query(
           `INSERT INTO user_groups (groupname)
       VALUES (?);`,
@@ -31,12 +33,14 @@ export default async (req, res) => {
         );
         res.status(200).json({
           success: true,
-          message: "Group created successfully.",
+          field,
+          message: `Group ${groupname} created successfully.`,
         });
       }
     } catch (error) {
       res.json({
         success: false,
+        field,
         message: error.message,
         stack: error.stack,
       });

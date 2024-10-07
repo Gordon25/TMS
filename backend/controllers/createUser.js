@@ -1,11 +1,13 @@
 import connection from "../utils/dbconnection.js";
 import bcryptjs from "bcryptjs";
 export default async (req, res, next) => {
+  const field = "user";
   const { username, password, email, groups, isActive } = req.body;
-  console.log(username, password, email, groups);
+
   if (password === "") {
     res.status(200).json({
       success: false,
+      field: "password",
       message: "Password is mandatory.",
     });
   } else {
@@ -14,13 +16,13 @@ export default async (req, res, next) => {
       // encrypt password with bcryptjs
       const passwordHash = await bcryptjs.hash(password, 10);
       const emailInserted = email == "" ? null : email;
-      console.log("inserting");
+
       await connection.query(
-        `INSERT INTO  users (username, password, email, isActive) 
+        `INSERT INTO accounts (username, password, email, isActive) 
         VALUES (?, ?, ?, ?);`,
         [username, passwordHash, emailInserted, isActive]
       );
-      console.log("Inserted");
+
       // add user to groups
       if (groups.length != 0) {
         // assign user to groups
@@ -34,12 +36,13 @@ export default async (req, res, next) => {
       }
       res.status(200).json({
         success: true,
-        operation: "create user",
-        message: "User account created",
+        field,
+        message: `User account ${username} created.`,
       });
     } catch (error) {
       res.json({
         sucess: false,
+        field,
         message: error.message,
         stack: error.stack,
       });

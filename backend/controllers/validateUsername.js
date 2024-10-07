@@ -1,5 +1,6 @@
 import connection from "../utils/dbconnection.js";
 export default async (req, res, next) => {
+  const field = "username";
   const usernameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
   const { username } = req.body;
   const isValidUsername = usernameRegex.test(username);
@@ -7,13 +8,13 @@ export default async (req, res, next) => {
     //username not alphanumeric
     res.status(200).json({
       success: false,
+      field,
       message: "Username is not alphanumeric.",
     });
   } else {
     try {
-      console.log("USERSSSSSSSSSSSSS ", username);
       const [matchedUsernames, fields] = await connection.query(
-        `select username from users where username=?;`,
+        `select username from accounts where username=?;`,
         username
       );
 
@@ -21,6 +22,7 @@ export default async (req, res, next) => {
         //duplicate username
         res.status(200).json({
           success: false,
+          field,
           message: `${username} has already been taken, choose another one.`,
         });
       } else {
@@ -30,6 +32,7 @@ export default async (req, res, next) => {
     } catch (error) {
       res.json({
         success: false,
+        field,
         message: error.message,
         stack: error.stack,
       });

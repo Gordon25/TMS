@@ -4,14 +4,12 @@ import jwt from "jsonwebtoken";
 import checkgroup from "../utils/checkgroup.js";
 export default async (req, res) => {
   try {
-    console.log(req.cookies);
-    console.log(req.body);
     const { username: loginUsername, password: loginPassword } = req.body;
-    console.log(loginUsername, loginPassword);
-    const [entries, fields] = await connection.query(`select * from users where username=?`, [
+
+    const [entries, fields] = await connection.query(`select * from accounts where username=?`, [
       loginUsername,
     ]);
-    console.log("IP ADDRESS ", req.ip, JSON.stringify(req.ip), req.headers["user-agent"], entries);
+
     if (entries.length === 0) {
       res.status(401).json({
         // wrong username
@@ -22,7 +20,7 @@ export default async (req, res) => {
       // username matches a user
       const [user] = entries;
       const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
-      console.log(isPasswordMatch);
+
       if (!isPasswordMatch) {
         res.status(401).json({
           // wrong password
@@ -31,7 +29,7 @@ export default async (req, res) => {
         });
       } else if (!user.isActive) {
         // disabled users not allowed to login
-        res.status(403).json({
+        res.status(401).json({
           success: false,
           message: "Account disabled",
         });
@@ -57,7 +55,6 @@ export default async (req, res) => {
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
         };
-        console.log("LOGGING IN");
         // set cookie in browser
         res.cookie("token", token, options);
         res.status(200).json({

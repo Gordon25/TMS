@@ -1,14 +1,13 @@
 import connection from "../utils/dbconnection.js";
 import bcryptjs from "bcryptjs";
 export default async (req, res) => {
-  console.log("ADMIN UPDATE USERSSSSSSSSSSSSSSSss");
-  const operation = "create user";
+  const field = "user";
   const { password, email, groups, isActive } = req.body;
   const { username } = req.params;
-  console.log("USERNAMESSSSSS ", username, password, email, groups, isActive);
   if (username === process.env.ADMIN_USER && !isActive) {
     res.status(200).json({
       success: false,
+      field,
       message: "Admin cannot be disabled!",
     });
   } else {
@@ -16,7 +15,7 @@ export default async (req, res) => {
       const hashedPassword = await bcryptjs.hash(password, 10);
       // update email, password, isActive
       await connection.query(
-        `UPDATE users SET
+        `UPDATE accounts SET
       password = IF(? != '', ?, password),
       email = IF(? != '', ?, email),
       isActive = ?
@@ -62,20 +61,20 @@ export default async (req, res) => {
       if (!isActive) {
         res.status(200).json({
           success: true,
-          operation: "disable user",
-          message: `${username} has been disabled.`,
+          field,
+          message: `${username} account has been disabled.`,
         });
       } else {
         res.status(200).json({
           success: true,
-          operation,
-          message: `${username} has been updated.`,
+          field,
+          message: `${username} account has been updated.`,
         });
       }
     } catch (error) {
       res.json({
         success: false,
-        operation,
+        field,
         message: error.message,
         stack: error.stack,
       });

@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
 import asynConnection from "../utils/dbconnection.js";
-const authLogin = (req, res, next) => {
+import connection from "../utils/dbconnection.js";
+const authLogin = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
   }
-  console.log("LOGIN TOKEN ", req.headers.authorization, token);
+
   if (!token) {
     // user not logged in
     res.status(401).json({
@@ -14,26 +15,27 @@ const authLogin = (req, res, next) => {
     });
   } else {
     try {
-      
       const { username, ip, browserType } = jwt.verify(token, process.env.JWT_SECRET);
-      console.log(
-        "HEADER ",
-        req.headers["user-agent"],
-        "URL",
-        req.headers,
-        browserType != req.headers["user-agent"],
-        req.ip != ip
+
+      const [[{ isActive }], field] = await connection.query(
+        "select isActive from accounts where username = ?",
+        username
       );
+
       if (ip != req.ip || browserType != req.headers["user-agent"]) {
-        console.log(ip, req.ip, "TOKEN ", browserType, "REQS ", req.headers["user-agent"]);
         // Do not allow copy and pasting to different PC or browser
         res.status(401).json({
           success: false,
           message: "Unauthorised access.",
         });
+      } else if (!isActive) {
+        res.status(401).json({
+          success: false,
+          message: "Account has been disabled.",
+        });
       } else {
         req.username = username;
-        console.log("USERNAME ", req.username);
+
         next();
       }
     } catch (error) {
@@ -71,7 +73,7 @@ const authGroups = (...users) => {
 
       if (userPermittedGroups.length === 0) {
         //not permitted to access
-        res.status(401).json({
+        res.status(403).json({
           success: false,
           message: "User does not have authorized access, please find admin.",
         });
@@ -79,7 +81,7 @@ const authGroups = (...users) => {
         next();
       }
     } catch (error) {
-      res.status(400).json({
+      res.json({
         success: false,
         message: error.message,
         stack: error.stack,

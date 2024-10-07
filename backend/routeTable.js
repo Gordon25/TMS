@@ -21,7 +21,7 @@ import app from "./app.js";
 
 // login, logout
 app.post("/login", loginController);
-app.get("/logout", authLogin, logoutController);
+app.get("/logout", logoutController);
 
 // Admin-only route
 // Manage Users

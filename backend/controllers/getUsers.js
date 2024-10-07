@@ -1,9 +1,8 @@
-import { group } from "console";
 import connection from "../utils/dbconnection.js";
 export default async (req, res) => {
   try {
     const [users, userFields] = await connection.query(
-      `SELECT id, username, email, isActive FROM users where isActive=1;`
+      `SELECT id, username, email, isActive FROM accounts where isActive=1;`
     );
     const [groups, groupFields] = await connection.query(
       `SELECT username, groupname FROM user_groups;`
