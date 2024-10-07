@@ -1,32 +1,43 @@
 <script lang="ts">
-  import axios from "axios";
-import { goto, invalidate } from "$app/navigation";
+import { goto } from "$app/navigation";
 let username = ''
 let password = ''
-let errorMessage:String;
-import {PUBLIC_BACKEND_HOSTNAME} from "$env/static/public"
-  import { redirect } from "@sveltejs/kit";
+let errorMessage:String|undefined;
+import loginStatus from "$lib/stores/loginStatus";
+import {AxiosError, type AxiosResponse} from 'axios'
+import axiosInstance from "$lib/axiosConfig.ts";
+import Popup from "$lib/components/Popup.svelte"
+import { afterUpdate, beforeUpdate } from "svelte";
+  
   const login = async (event:Event) => {
-    const response = await axios.post(
-      `${PUBLIC_BACKEND_HOSTNAME}/login`,
+    event.preventDefault();
+    try {
+    const responseData = await axiosInstance.post(
+      '/login',
       {
         username,
         password
-      },
-      {
-        withCredentials: true,
       }
-    );
-    const {success} = response.data
-    console.log("COOKIES SET", response.headers.cookie)
+    )
+ 
+    const {success} = responseData
     if (success) {
+      $loginStatus.isLoggedIn = true
+      $loginStatus.isAdmin = responseData.isAdmin
       goto("./tms")
     } else {
-      const {message} = response.data
+      const {message} = responseData
       errorMessage = message
     }
+  }catch(error ) {
+    console.log("ERROR ", error)
+  }
   } 
-  $:console.log("Error ", errorMessage)
+  const timeout = 1500
+  afterUpdate(()=>{
+    if (errorMessage) {
+    setTimeout(()=>{
+    errorMessage= undefined}, timeout)}})
 </script>
 <body>
 <div class="login-container">
@@ -46,10 +57,14 @@ import {PUBLIC_BACKEND_HOSTNAME} from "$env/static/public"
   <button>Submit</button> 
 </form>
 </div>
-{#if errorMessage}
-<div class="error">{errorMessage}</div>
-{/if}
 </body>
+
+{#if errorMessage}
+<div class="error-msg">  
+  <Popup message={errorMessage} success={false}/>
+</div>
+{/if}
+
 
 <style>
   * {
@@ -112,11 +127,13 @@ body {
     cursor: pointer;
 }
 
-.error {
-  display: flex;
-    margin-top:20px;
-    margin-bottom: 8px;
-    color: #920;
+.error-msg {
+  position: absolute;
+  margin-top:40px;
+  margin-bottom: 8px;
+  justify-items: center;
+  top:60%;
+  background-color: #ccc;
 }
 
 </style>

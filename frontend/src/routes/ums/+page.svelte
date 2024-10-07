@@ -3,24 +3,13 @@
   export let data:PageServerData
   export let form:ActionData
   const PASSWORD_PLACEHOLDER = "********"
-
   import { goto, invalidateAll } from "$app/navigation";
-  import { writable } from 'svelte/store';
-  import type { Writable } from "svelte/store";
   import MultiSelect from 'svelte-multiselect';
-  import { PUBLIC_BACKEND_HOSTNAME } from "$env/static/public";
   import axiosInstance from "$lib/axiosConfig";
+  import Popup from "$lib/components/Popup.svelte"
+  import { afterUpdate, beforeUpdate, onMount } from "svelte";
 
-  const {users, userError, groups, groupError} = data;
 
-  interface User {
-    username:string,
-    password:string,
-    email:string,
-    groups:string[],
-    isActive:boolean
-  }
-$:{console.log("NEW USER ", data)}
 let tempUser:User = {
   username:'',
   password:'',
@@ -28,22 +17,29 @@ let tempUser:User = {
   groups:[],
   isActive:true
 }
-  
+let selectedUser:User = {...tempUser};
+let updateResult:{success:boolean, field:String,message:String}|undefined; 
   // Functions to handle editing
-  function startEditing(username:string, groups:string[] ) {
-    tempUser.username = username;
-    tempUser.groups = groups;
+  function startEditing(user:User ) {
+    selectedUser = {...tempUser, username:user.username, groups:user.groups}
   }
-  const token = data.token
-  const updateUser  = async () => {
-    const response = await axiosInstance
+  // reset tempUser after editing
+  function stopEditing(user:User) {
+    selectedUser = {...tempUser}
+  }
+  let users:User[]=[], userError:string, groups:string[]=[], groupError:string, token:string|undefined;
+  // $:({users, userError, groups, groupError, token} = data);
+  
+  const updateUser  = async (user:User) => {
+ 
+    const responseData = await axiosInstance
       .put(
-        `/users/${tempUser.username}`,
+        `/users/${user.username}`,
         {
-          email:tempUser.email,
-          password:tempUser.password,
-          groups:tempUser.groups,
-          isActive:tempUser.isActive
+          email:user.email,
+          password:user.password,
+          groups:user.groups,
+          isActive:user.isActive
         },
         {
           headers: {
@@ -52,68 +48,101 @@ let tempUser:User = {
           withCredentials: true,
         }
       )
-      .then((res) => res.data)
-    console.log("UPDATE RESPONSE ", response)
-    const {success, message} = response
-    return response
-  }
-  
-
-  const stopEditing = async () => {
-    tempUser.username = '';
+    console.log("RESPONSE DATA ", responseData)
+    const {success, field, message} = responseData
+    if (success === true) {
+      invalidateAll();
+      stopEditing(user);
+    } 
+    return {success, field, message};
   }
   let newUserGroups:string[] = []
+  const submitFunc = async(user:User)=> {
+    updateResult = await updateUser(selectedUser);
+  
+  }
+  let isActive=true;
+  onMount(()=>{
+    ({users, userError, groups, groupError, token} = data);
+  })
+  beforeUpdate(()=>{
+    ({users, userError, groups, groupError, token} = data);
+  })
+  afterUpdate(()=>{
+    console.log("AFTER UPDATE")
+    
+  })
+  const timeout = 3000
+  afterUpdate(()=>{
+    if (updateResult) {
+    setTimeout(()=>{
+    updateResult= undefined}, timeout)}})
+  $:{console.log("CURRENTLY EDITING USERS ", selectedUser, form, updateResult)
+  updateResult = {success:false, field:'',message:''}
 
+  }
 </script>
-
-<form method="post" action="?/createGroup" on:submit={invalidateAll}>
+<body>
+<form class="create-group-form" method="post" action="?/createGroup" on:submit={invalidateAll}>
   <label for="groupname">New Group:</label>
   <input type="text" id="groupname" name="groupname">
   <button type="submit">Create Group</button>
 </form>
 
-<div class="container">
 {#if data.users && data.users.length > 0}
-<form method="post" action="?/createUser" id="createUserForm" on:submit={invalidateAll}></form>
-<!-- <form method="post" action="?/updateUser" id="updateUserForm" on:submit={invalidateAll}></form> -->
-<table class="user-table">
+<form class='create-user-form' method="post" action="?/createUser" id="createUserForm" on:submit={invalidateAll}></form>
+<div class="table-container">
+  <table class="thead-container">
   <thead>
       <tr>
-          <th>Username:</th>
-          <th>Password:</th>
-          <th>Email:</th>
-          <th>Groups:</th>
-          <th>isActive:</th>
-          <th>Create/Edit</th>
+          <th >Username:</th>
+          <th >Password:</th>
+          <th >Email:</th>
+          <th >Groups:</th>
+          <th >isActive:</th>
+          <th >Create/Edit</th>
       </tr>
   </thead>
+</table>
+<div class="scrollable-body">
+  <table class="tbody-container">
   <tbody>
-    
     <tr>
-       
       <td>
         <input form="createUserForm" type="text" id="username" name="new-username" />
+        {#if form && form.field ==='username'}
+        <Popup message={form.message} success={form.success}/>
+        {/if}
       </td>
-      <td><input form="createUserForm" type="text" id="password" name="new-password" /></td>
-      <td><input form="createUserForm" type="text" id="email" name="new-email" /></td>
+      <td><input form="createUserForm" type="text" id="password" name="new-password" />
+      {#if form && form.field ==='password'}
+      <Popup message={form.message} success={form.success}/>
+      {/if}
+      </td>
+      <td><input form="createUserForm" type="text" id="email" name="new-email" />
+        {#if form && form.field ==='email'}
+        <Popup message={form.message} success={form.success}/>
+        {/if}
+      </td>
       <td>
         {#if data.groups && data.groups.length > 0}   
-            <MultiSelect bind:selected={newUserGroups} placeholder='Select Groups' options={groups}/>
+            <MultiSelect bind:selected={newUserGroups} placeholder='Select Groups' options={groups} />
+            <input form="createUserForm" type="hidden" name="new-groups" value={newUserGroups}>
           {/if}
         
       </td>
       <td>
-      <input form="createUserForm" type="checkbox" id="isActive" name="new-isActive"/>
+      <input form="createUserForm" type="checkbox" id="isActive" name="new-isActive" bind:checked={isActive} />
       </td>
       <td>
-        <input form="createUserForm" type='submit' on:click={()=> console.log("Submitted")}/>
+        <input form="createUserForm" type='submit'/>
       </td>
     
     </tr>
       <!-- Loop through the users array using {#each} to generate table rows -->
-      {#each users as user (user.id)}
+      {#each users as user}
           <tr>
-            {#if tempUser.username != user.username}
+            {#if selectedUser.username != user.username}
               <td>{user.username}</td>
               <td>{PASSWORD_PLACEHOLDER}</td>
               <td>{user.email}</td>
@@ -127,100 +156,151 @@ let tempUser:User = {
               </select>
             </td>
               <td>
-              <input 
-                type="checkbox" 
-                bind:checked={user.isActive} 
-                disabled
-              />
+              <input type="checkbox" bind:checked={user.isActive} disabled />
             </td>
             <td>
-              <button class="edit-btn" on:click={()=>{startEditing(user.username, user.groups)}}>Edit</button>
+              <button class="edit-btn" on:click={()=>{startEditing(user)}}>Edit</button>
             </td>
           {:else}
           <td>
             {user.username}
-            <input form="updateUserForm" type="hidden" name="username"/>
+            <input type="hidden" name="username"/>
           </td>
-          <td><input form="updateUserForm" type="text" name='password' bind:value={tempUser.password}/></td>
-          <td><input form="updateUserForm" type="text" name='email' bind:value={tempUser.email}/></td>
           <td>
-            <MultiSelect bind:selected={tempUser.groups} options={groups} placeholder="Select Groups"/>
+            <input type="text" name='password' bind:value={selectedUser.password}/>
+            {#if updateResult && updateResult.field ==="password"}
+            <Popup message={updateResult.message} success={updateResult.success}/>
+            {/if}
+          </td>
+          <td>
+            <input type="text" name='email' bind:value={selectedUser.email}/>
+            {#if updateResult && updateResult.field ==='email'}
+            <Popup message={updateResult.message} success={updateResult.success}/>
+            {/if}
+          </td>
+          <td>
+            <MultiSelect bind:selected={selectedUser.groups} options={groups} closeDropdownOnSelect={true} placeholder="Select Groups"/>
         </td>
           <td>
           <input 
-            form="updateUserForm"
             type="checkbox" 
-            name="isActive"
-            bind:checked={tempUser.isActive} 
-          on:change={val=>!val} 
+            bind:checked={selectedUser.isActive} 
           />
         </td>
         <td>
-          <button class="edit-btn" on:click={()=>{ stopEditing()}}>Cancel</button>
-          <input form="updateUserForm" type="submit" class="edit-btn" on:click={()=>{
-            stopEditing()
-            updateUser()
-            invalidateAll()}}/>
+          <button class="edit-btn" on:click={()=>stopEditing(user)}>Cancel</button>
+          <button form="updateUserForm" type="submit" class="edit-btn" on:click={()=>submitFunc(user)}>Submit</button>
         </td>
-          {/if}
-        
+        {/if}      
         </tr>
       {/each}
-  
+  </tbody>
 </table>
-
+</div>
+</div>
+{/if}
+</body>
+{#if form && form.field==='group'}
+<div class='group-msg'>
+  <Popup message={form.message} success={form.success}/></div>
+{/if}
+<div class='user-msg'>
+{#if form && form.field==='user'}
+  <Popup message={form.message} success={form.success}/>
+{/if}
+{#if updateResult && updateResult.field==='user'}
+  <Popup message={updateResult.message} success={updateResult.success}/>
 {/if}
 </div>
-
 <style>
-/* Container */
-.container {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #ffffff; /* White background for content */
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    max-height: 1000px; /* Set the height of the scrollable area */
-    overflow-y: auto;  /* Enable vertical scrolling */
+.group-msg {
+  position:absolute;
+  top:5vh;
+  right:700px;
 }
- /* Table Styles */
-.user-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    
+.user-msg {
+  position:absolute;
+  top:5vh;
+  right:300px;
 }
-.user-table th,
-.user-table td {
-    padding: 12px;
-    border: 1px solid #ddd; /* Light gray border */
-    text-align: left;
+body {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    position:fixed;
+    top:2.5vh;
+    background-color: #f5f5f5;
+    font-family: Arial, sans-serif;
+    margin-top:60px;
+    padding: 0;
     
 }
 
-/* Header Styles */
-.user-table th {
-    background-color: #2b74e2; /* Green background for header */
-    color: white; /* White text */
+/* Containers */
+.table-container {
+  width: 90%;
+  background-color: #f0f0f0;
+  justify-content: center;
+  margin: 0 auto; /* Center the table */
+}
+
+.thead-container, .tbody-container {
+  width: 100%;
+  overflow-x: hidden;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.scrollable-body {
+  max-height: 500px; /* Set your height */
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scroll if not needed */
+}
+
+.create-group-form {
+  margin:30px 40px;
+  margin-right: 10px;
+  width: 50vw;
+}
+
+.create-group-form input {
+  width: 10px;
+  max-width: 250px; /* Restrict the maximum width */
+}
+
+
+.thead-container th, .tbody-container td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+  vertical-align: middle; /* Aligns content vertically */
+  box-sizing: border-box;
+  word-wrap: break-word; /* Allow long words to break */
+    overflow-wrap: break-word; /* This is the newer property */
+    white-space: normal; /* Allow wrapping */
+    max-width: 200px; /* Optional: Set a max width for the cell */
+}
+.tbody-container td {
+    border: 1px solid #ddd; /*Light gray border*/
+}
+
+.thead-container th {
+  position: sticky;  /* Fixes the header at the top */
+  border: 1px solid #ddd; /* Light gray border */
+  top:0;
+  z-index: 2;
+}
+input[type="text"], select {
+    width: 90%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px; /* Font size */
 }
 
 /* Row Hover Effect */
-.user-table tr:hover {
+.thead-container tr:hover, .tbody-container tr:hover{
     background-color: #f1f1f1; /* Light gray background on hover */
-}
-
-/* Input Fields */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="select"] {
-    width: 100%; /* Full width */
-    padding: 10px; /* Padding inside input */
-    margin: 5px 0; /* Margin above and below input */
-    border: 1px solid #ccc; /* Light border */
-    border-radius: 4px; /* Rounded corners */
-    font-size: 14px; /* Font size */
 }
 
 /* Button Styles */
@@ -241,41 +321,40 @@ button:hover {
 
 
 /* Responsive Design */
-
 @media (max-width: 768px) {
-    .user-table th,
-    .user-table td {
+    .thead-container th,
+    .tbody-container td {
         display: block; /* Make cells block for mobile view */
         width: 100%; /* Full width */
     }
-
-    /* Input fields and buttons should be responsive */
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    button {
-        width: calc(100% - 20px); /* Full width minus padding */
-    }
 }
 
- /* Basic styles */
- .dropdown {
-    position: relative;
-    display: inline-block;
+
+.thead-container th:nth-child(1), .tbody-container td:nth-child(1) {
+    width: 10%;
   }
 
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-    padding: 12px 16px;
-    z-index: 1;
+  th:nth-child(2), td:nth-child(2) {
+    width: 10%;
+  }
+  th:nth-child(3), td:nth-child(3) {
+    width: 15%;
   }
 
-  .dropdown:hover .dropdown-content {
-    display: block;
+  th:nth-child(4), td:nth-child(4) {
+    width: 20%;
+  }
+
+  th:nth-child(5), td:nth-child(5) {
+    width: 5%;
+  }
+
+  th:nth-child(6), td:nth-child(6) {
+    width: 10%;
   }
 
 
+  .scrollable-body::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Edge */
+}
 </style>
