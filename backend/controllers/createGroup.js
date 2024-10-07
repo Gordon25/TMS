@@ -6,7 +6,7 @@ export default async (req, res) => {
   const isValidGroupname = groupnameRegex.test(groupname);
   if (!isValidGroupname) {
     //groupname not alphanumeric
-    res.status(400).json({
+    res.status(200).json({
       success: false,
       field,
       message: "Groupname is not alphanumeric.",
@@ -20,7 +20,7 @@ export default async (req, res) => {
       );
       if (groupsMatched.length > 0) {
         //is duplicate group
-        res.status(400).json({
+        res.status(200).json({
           success: false,
           field,
           message: "Duplicate group names not allowed.",

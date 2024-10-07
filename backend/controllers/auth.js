@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import asynConnection from "../utils/dbconnection.js";
 import connection from "../utils/dbconnection.js";
+import checkgroup from "../utils/checkgroup.js";
 const authLogin = async (req, res, next) => {
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
@@ -58,7 +59,7 @@ const authLogin = async (req, res, next) => {
   }
 };
 
-const authGroups = (...users) => {
+const authGroups = (...permittedGroups) => {
   return async (req, res, next) => {
     try {
       const connection = await asynConnection;
@@ -68,10 +69,18 @@ const authGroups = (...users) => {
         `select groupname from user_groups where username=?`,
         username
       );
-
-      const userPermittedGroups = groups.filter((group) => users.includes(group.groupname));
-
-      if (userPermittedGroups.length === 0) {
+      let isAuthorized = false;
+      let isInGroup = false;
+      let i;
+      for (i = 0; i < permittedGroups.length; i++) {
+        isInGroup = await checkgroup(username, permittedGroups[i]);
+        if (isInGroup) {
+          isAuthorized = true;
+          break;
+        }
+      }
+      // const userPermittedGroups = groups.filter((group) => groups.includes(group.groupname));
+      if (!isAuthorized) {
         //not permitted to access
         res.status(403).json({
           success: false,

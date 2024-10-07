@@ -14,7 +14,7 @@ export default async (req, res) => {
     const isAdmin = await checkgroup(username, "Admin");
     res.status(200).json({
       success: true,
-      isAdmin: isAdmin,
+      isAdmin,
     });
   } catch (error) {
     res.json({
