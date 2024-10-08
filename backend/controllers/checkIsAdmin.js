@@ -8,7 +8,7 @@ export default async (req, res) => {
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
     const { isUserInGroup, message } = await checkgroup(username, "Admin");
     if (message != "") {
-      res.status(501).json({
+      res.status(500).json({
         success: false,
         message,
       });
