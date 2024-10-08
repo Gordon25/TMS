@@ -90,10 +90,10 @@ const authGroups = (...permittedGroups) => {
         next();
       }
     } catch (error) {
-      console.log("Error ", error);
+      console.log(error);
       res.json({
         success: false,
-        message: error.message,
+        message: "Internal Server error.",
       });
     }
   };

@@ -6,9 +6,10 @@ export default (req, res) => {
       message: "Successfully logged out.",
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Internal Server error",
     });
   }
 };

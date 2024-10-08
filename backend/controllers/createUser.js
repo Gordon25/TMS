@@ -40,11 +40,11 @@ export default async (req, res) => {
         message: `User account ${username} created.`,
       });
     } catch (error) {
+      console.log(error);
       res.status(500).json({
         sucess: false,
         field,
-        message: error.message,
-        stack: error.stack,
+        message: "Internal Server error.",
       });
     }
   }

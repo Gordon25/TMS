@@ -60,15 +60,10 @@ export default async (req, res) => {
       }
     }
   } catch (error) {
-    if (error.code === "ECONNREFUSED") {
-      res.status(500).json({
-        message: "Cannot process your request now, try again later.",
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };

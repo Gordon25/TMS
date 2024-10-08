@@ -71,11 +71,11 @@ export default async (req, res) => {
         });
       }
     } catch (error) {
+      console.log(error);
       res.status(500).json({
         success: false,
         field,
-        message: error.message,
-        stack: error.stack,
+        message: "Internal Server error.",
       });
     }
   }

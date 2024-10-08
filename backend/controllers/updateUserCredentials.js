@@ -26,11 +26,11 @@ const updateEmailController = async (req, res) => {
         message: `${username} email updated to ${email}.`,
       });
     } catch (error) {
+      console.log(error);
       res.json({
         success: false,
         field,
-        message: error.message,
-        stack: error.stack,
+        message: "Internal Server error.",
       });
     }
   }
@@ -62,10 +62,11 @@ const updatePasswordController = async (req, res) => {
         message: `${username} password updated to ${password}.`,
       });
     } catch (error) {
+      console.log(error);
       res.status(500).json({
         success: false,
         field,
-        message: error.message,
+        message: "Internal Server error.",
       });
     }
   }
