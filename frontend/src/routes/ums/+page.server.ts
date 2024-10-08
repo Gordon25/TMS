@@ -22,6 +22,7 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
     })
     .then((res) => res.data)
     .catch((err) => err.response.data);
+
   const data = {
     users: usersResult.data || [],
     userError: usersResult.message || "",
@@ -54,6 +55,7 @@ export const actions: Actions = {
       )
       .then((res) => res.data)
       .catch((err) => err.response.data);
+
     const { success, field, message } = responseData;
     if (success) {
       return { success, field, message };
@@ -94,6 +96,7 @@ export const actions: Actions = {
       )
       .then((res) => res.data)
       .catch((err) => err.response.data);
+
     const { success, field, message } = responseData;
     if (success) {
       return { success, field, message };

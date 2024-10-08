@@ -1,8 +1,5 @@
 <script lang='ts'>
-  import { onMount } from "svelte";
-  import axiosInstance from "../axiosConfig";
   import logout from "../logout";
-  import loginStatus from "$lib/stores/loginStatus";
   import { goto } from "$app/navigation";
   export let isAdmin:boolean;
  
@@ -15,10 +12,7 @@
   <a href="./ums">User Management</a>
   {/if}
   <a href="./profile">Profile</a>
-  <button on:click|preventDefault={async ()=>{const {success} = await logout();
-                                              if (success) {
-                                                goto("/login");
-                                              }}} type="submit">Log Out</button>
+  <button on:click|preventDefault={logout} type="submit">Log Out</button>
 </div>
 
 

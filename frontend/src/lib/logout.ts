@@ -5,7 +5,10 @@ const logout = async () => {
   let success = false;
   let message = "";
   try {
-    const responseData = await axiosInstance.get(`/logout`).then((res) => res.data);
+    const responseData = await axiosInstance
+      .get(`/logout`)
+      .then((res) => res.data)
+      .catch((err) => err.response.data);
 
     success = responseData.success;
     message = responseData.message;

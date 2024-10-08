@@ -13,6 +13,7 @@
     "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "target": "es6",
+    "lib": ["ES2015", "DOM"],
     "module": "esnext",
     "paths": {
       "$lib/*": ["src/lib/*"]

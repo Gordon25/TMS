@@ -3,13 +3,13 @@
   export let data:PageServerData
   export let form:ActionData
   const PASSWORD_PLACEHOLDER = "********"
-  import { goto, invalidateAll } from "$app/navigation";
+  import { invalidateAll } from "$app/navigation";
   import MultiSelect from 'svelte-multiselect';
   import axiosInstance from "$lib/axiosConfig";
   import Popup from "$lib/components/Popup.svelte"
-  import { afterUpdate, beforeUpdate, onMount } from "svelte";
 
-
+  let newUserGroups:string[] = form&&form.groups? form.groups:[]
+  let isActive=(form&&form.isActive)? form.isActive:true;
 let tempUser:User = {
   username:'',
   password:'',
@@ -18,19 +18,16 @@ let tempUser:User = {
   isActive:true
 }
 let selectedUser:User = {...tempUser};
-let updateResult:{success:boolean, field:String,message:String}|undefined; 
-  // Functions to handle editing
+
   function startEditing(user:User ) {
     selectedUser = {...tempUser, username:user.username, groups:user.groups}
   }
-  // reset tempUser after editing
-  function stopEditing(user:User) {
+
+  function stopEditing() {
     selectedUser = {...tempUser}
   }
-  let users:User[]=[], userError:string, groups:string[]=[], groupError:string, token:string|undefined;
-  $:({users, userError, groups, groupError, token} = data);
-  
-  const updateUser  = async (user:User, event:Event) => {
+
+  const updateUser  = async (user:User) => {
     const responseData = await axiosInstance
       .put(
         `/users/${user.username}`,
@@ -49,27 +46,23 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
       )
       .then(res=>res.data)
       .catch(err=>err.response.data)
+ 
     const {success, field, message} = responseData
     if (success === true) {
       invalidateAll();
-      stopEditing(user);
-    } else {
-      selectedUser = {...selectedUser};
-    }
+      stopEditing();
+    } 
     return {success, field, message};
   }
-  let newUserGroups:string[] = form&&form.groups? form.groups:[]
-  const submitFunc = async(event:Event)=> {
-    updateResult = await updateUser(selectedUser, event);
-  }
-  let isActive=(form&&form.isActive)? form.isActive:true;
-  onMount(()=>{
-    ({users, userError, groups, groupError, token} = data);
-  })
-  beforeUpdate(()=>{
-    ({users, userError, groups, groupError, token} = data);
-  })
 
+  let updateResult:{success:boolean, field:String,message:String}|undefined; 
+  const submitFunc = async()=> {
+    updateResult = await updateUser(selectedUser);
+  }
+
+  let users:User[]=[], userError:string, groups:string[]=[], groupError:string, token:string|undefined;
+  $:({users, userError, groups, groupError, token} = data);
+  
   const timeout = 3000
   $:{
     if (updateResult) {
@@ -78,8 +71,6 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
       }, timeout)
     }
   }
-
-  
 </script>
 <body>
 <form class="create-group-form" method="post" action="?/createGroup" on:submit={invalidateAll}>
@@ -188,7 +179,7 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
         </td>
         <td>
           <button form="updateUserForm" type="submit" class="edit-btn" on:click={submitFunc}>Save</button>
-          <button class="edit-btn" on:click={()=>stopEditing(user)}>Cancel</button>
+          <button class="edit-btn" on:click={stopEditing}>Cancel</button>
         </td>
         {/if}      
         </tr>

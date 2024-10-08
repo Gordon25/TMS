@@ -1,14 +1,11 @@
 <script lang="ts">
-import { goto } from "$app/navigation";
 let username = ''
 let password = ''
 let errorMessage:String|undefined;
 import loginStatus from "$lib/stores/loginStatus";
-import {AxiosError, type AxiosResponse} from 'axios'
 import axiosInstance from "$lib/axiosConfig.ts";
 import Popup from "$lib/components/Popup.svelte"
-import { afterUpdate, beforeUpdate } from "svelte";
-import { redirect } from "@sveltejs/kit";
+
   let success = false;
   const login = async () => {
     try {
@@ -20,33 +17,32 @@ import { redirect } from "@sveltejs/kit";
       }
     ).then(res=>res.data)
     .catch(err=>err.response.data);
+    
     ({success} = responseData)
     if (success) {
       $loginStatus.isLoggedIn = true
-      $loginStatus.isAdmin = responseData?.isAdmin
     } else {
-      const {message} = responseData
-      errorMessage = message
+      $loginStatus.isLoggedIn = false
+      const timeout = 1500
+      errorMessage = responseData.message;
+      setTimeout(()=>{
+        errorMessage= undefined}, timeout)
     }
-  }catch(error ) {
+  } catch(error ) {
+    $loginStatus.isLoggedIn = false;
     success = false
     console.log("ERROR ", error)
-
+  } finally {
+    if (success) {
+      window.location.href = "/tms";
+    }
   }
 }
 
-  const timeout = 1500
-  afterUpdate(()=>{
-    if (errorMessage) {
-    setTimeout(()=>{
-    errorMessage= undefined}, timeout)}})
 </script>
 <body>
 <div class="login-container">
-<form class="login-form" method="post" on:submit|preventDefault={async ()=>{await login() 
-                                                                            if (success) {
-                                                                              goto("/tms")
-                                                                            }}}>
+<form class="login-form" method="post" on:submit|preventDefault={login}>
 	<label for="username">
 		Username
   </label>

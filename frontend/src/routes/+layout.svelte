@@ -1,21 +1,17 @@
-<script lang="ts">
-  import { goto } from "$app/navigation";  
+<script lang="ts">  
   import type { LayoutData } from "./$types";
-  import { beforeUpdate, onMount } from "svelte";
+  import { beforeUpdate } from "svelte";
   import loginStatus from "$lib/stores/loginStatus";
-  import axiosInstance from "$lib/axiosConfig.ts";
   import Navbar from "$lib/components/Navbar.svelte";
-  import { page } from "$app/stores";
   
   export let data: LayoutData;
   let errorMessage: string | null = null; // Use nullable type for error message
-  let { isAdmin, isLoggedIn } = data;
 
-  // Set login status reactively
+
   beforeUpdate(()=> {
     if (data) { 
-      $loginStatus.isLoggedIn = isLoggedIn;
-      $loginStatus.isAdmin = isAdmin;
+      $loginStatus.isLoggedIn = data.isLoggedIn;
+      $loginStatus.isAdmin = data.isAdmin;
     }
   }
 )
@@ -27,7 +23,7 @@
     {errorMessage}
   </div>
   {:else}
-  {#if $loginStatus.isLoggedIn}
+  {#if $loginStatus.isLoggedIn===true}
     <Navbar isAdmin={$loginStatus.isAdmin} />
   {/if}
   <slot />
