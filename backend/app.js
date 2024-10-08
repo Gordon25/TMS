@@ -1,9 +1,9 @@
 import express from "express";
-// import session from "express-session";
 import bodyParser from "body-parser";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-// set up app
+import { connection } from "./utils/dbconnection.js";
+
 const app = express();
 app.use(
   cors({
@@ -11,8 +11,24 @@ app.use(
     credentials: true,
   })
 );
-app.use(bodyParser.urlencoded({ extended: true })); // Setup the body parser to handle form submits
-app.use(cookieParser()); // to populate session cookies during login
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(express.json());
-// app.use(session({ secret: "super-secret" })); // Session setup
+
+async function shutdownDatabase() {
+  console.log("Received shutdown signal, closing database connections...");
+  try {
+    await connection.end();
+    console.log("Connection closed.");
+  } catch (error) {
+    console.error("Error closing connection pool:", error);
+  } finally {
+    process.exit(0);
+  }
+}
+
+// Listen for termination signals
+process.on("SIGINT", shutdownDatabase);
+process.on("SIGTERM", shutdownDatabase);
+
 export default app;

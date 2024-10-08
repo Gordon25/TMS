@@ -1,4 +1,4 @@
-import connection from "../utils/dbconnection.js";
+import { connection } from "../utils/dbconnection.js";
 import bcryptjs from "bcryptjs";
 export default async (req, res) => {
   const field = "user";
@@ -13,7 +13,6 @@ export default async (req, res) => {
   } else {
     try {
       const hashedPassword = await bcryptjs.hash(password, 10);
-      // update email, password, isActive
       await connection.query(
         `UPDATE accounts SET
       password = IF(? != '', ?, password),

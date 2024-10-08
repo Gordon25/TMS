@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
-import asynConnection from "../utils/dbconnection.js";
-import connection from "../utils/dbconnection.js";
+import { connection } from "../utils/dbconnection.js";
 import checkgroup from "../utils/checkgroup.js";
 const authLogin = async (req, res, next) => {
   let token;
@@ -9,7 +8,6 @@ const authLogin = async (req, res, next) => {
   }
 
   if (!token) {
-    // user not logged in
     res.status(401).json({
       success: false,
       message: "Unauthorized, login first.",
@@ -24,7 +22,6 @@ const authLogin = async (req, res, next) => {
       );
 
       if (ip != req.ip || browserType != req.headers["user-agent"]) {
-        // Do not allow copy and pasting to different PC or browser
         res.status(401).json({
           success: false,
           message: "Unauthorised access.",
@@ -45,10 +42,9 @@ const authLogin = async (req, res, next) => {
           success: false,
           message: "Your session has expired. Please sign in again.",
         });
-        //remove token, log user out?
+
         res;
       } else {
-        // Need?
         res.status(401).json({
           success: false,
           message: "Invalid JWT. " + error.message,
@@ -62,13 +58,7 @@ const authLogin = async (req, res, next) => {
 const authGroups = (...permittedGroups) => {
   return async (req, res, next) => {
     try {
-      const connection = await asynConnection;
       const username = req.username;
-
-      const [groups, fields] = await connection.query(
-        `select groupname from user_groups where username=?`,
-        username
-      );
       let isAuthorized = false;
       let isUserInGroup = false;
       let i;
@@ -91,9 +81,7 @@ const authGroups = (...permittedGroups) => {
           success: false,
           message: errorMessage,
         });
-        // const userPermittedGroups = groups.filter((group) => groups.includes(group.groupname));
       } else if (!isAuthorized) {
-        //not permitted to access
         res.status(403).json({
           success: false,
           message: "User does not have authorized access, please find admin.",
@@ -107,10 +95,6 @@ const authGroups = (...permittedGroups) => {
         success: false,
         message: error.message,
       });
-      // res.status(500).json({
-      //   success: false,
-      //   message: error.message,
-      // });
     }
   };
 };

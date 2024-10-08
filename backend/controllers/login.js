@@ -1,5 +1,5 @@
 import bcryptjs from "bcryptjs";
-import connection from "../utils/dbconnection.js";
+import { connection } from "../utils/dbconnection.js";
 import jwt from "jsonwebtoken";
 export default async (req, res) => {
   try {

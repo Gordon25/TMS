@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
-import connection from "../utils/dbconnection.js";
+import { connection } from "../utils/dbconnection.js";
 const updateEmailController = async (req, res) => {
   const field = "email";
   const { email } = req.body;

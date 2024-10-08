@@ -1,4 +1,4 @@
-import connection from "../utils/dbconnection.js";
+import { connection } from "../utils/dbconnection.js";
 export default async (req, res) => {
   try {
     const [groups, fields] = await connection.query("SELECT DISTINCT groupname FROM user_groups;");

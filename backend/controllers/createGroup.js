@@ -1,4 +1,4 @@
-import connection from "../utils/dbconnection.js";
+import { connection } from "../utils/dbconnection.js";
 export default async (req, res) => {
   const field = "group";
   const { groupname } = req.body;
