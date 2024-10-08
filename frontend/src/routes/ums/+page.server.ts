@@ -3,20 +3,25 @@ import axiosInstance from "$lib/axiosConfig";
 import { type Actions } from "@sveltejs/kit";
 export const load: PageServerLoad = async ({ request, cookies }) => {
   const token = cookies.get("token");
-  const usersResult = await axiosInstance.get(`/users`, {
-    headers: {
-      "user-agent": request.headers.get("user-agent"),
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const usersResult = await axiosInstance
+    .get(`/users`, {
+      headers: {
+        "user-agent": request.headers.get("user-agent"),
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => res.data)
+    .catch((err) => err.response.data);
 
-  const groupsResult = await axiosInstance.get(`/groups`, {
-    headers: {
-      "user-agent": request.headers.get("user-agent"),
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+  const groupsResult = await axiosInstance
+    .get(`/groups`, {
+      headers: {
+        "user-agent": request.headers.get("user-agent"),
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => res.data)
+    .catch((err) => err.response.data);
   const data = {
     users: usersResult.data || [],
     userError: usersResult.message || "",
@@ -33,22 +38,28 @@ export const actions: Actions = {
     const token = cookies.get("token");
     const groupname = form.get("groupname");
 
-    const responseData = await axiosInstance.post(
-      "/groups",
-      {
-        groupname,
-      },
-      {
-        headers: {
-          "user-agent": request.headers.get("user-agent"),
-          Authorization: `Bearer ${token}`,
+    const responseData = await axiosInstance
+      .post(
+        "/groups",
+        {
+          groupname,
         },
-        withCredentials: true,
-      }
-    );
-
+        {
+          headers: {
+            "user-agent": request.headers.get("user-agent"),
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      )
+      .then((res) => res.data)
+      .catch((err) => err.response.data);
     const { success, field, message } = responseData;
-    return { success, field, message };
+    if (success) {
+      return { success, field, message };
+    } else {
+      return { success, field, message, groupname };
+    }
   },
   createUser: async ({ request, cookies }) => {
     const form: FormData = await request.formData();
@@ -64,23 +75,30 @@ export const actions: Actions = {
     }
     const isActive = form.get("new-isActive") == "on";
 
-    const responseData = await axiosInstance.post(
-      "/users",
-      {
-        username,
-        password,
-        email,
-        groups,
-        isActive,
-      },
-      {
-        headers: {
-          "user-agent": request.headers.get("user-agent"),
-          Authorization: `Bearer ${token}`,
+    const responseData = await axiosInstance
+      .post(
+        "/users",
+        {
+          username,
+          password,
+          email,
+          groups,
+          isActive,
         },
-      }
-    );
+        {
+          headers: {
+            "user-agent": request.headers.get("user-agent"),
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => res.data)
+      .catch((err) => err.response.data);
     const { success, field, message } = responseData;
-    return { success, field, message };
+    if (success) {
+      return { success, field, message };
+    } else {
+      return { success, field, message, username, password, email, groups, isActive };
+    }
   },
 };

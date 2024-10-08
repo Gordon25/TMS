@@ -1,21 +1,44 @@
 import axiosInstance from "../../lib/axiosConfig";
 import type { PageServerLoad } from "./$types";
-
-const load: PageServerLoad = async ({ cookies, request }) => {
-  const token = cookies.get("token");
-  const response = await axiosInstance.get("/user", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "user-agent": request.headers.get("user-agent"),
+interface App {
+  acronym: String;
+  rNumber: String;
+  StartDate: String;
+  EndDate: String;
+  TaskCreate: String;
+  TaskOpen: String;
+  TaskToDo: string;
+  TaskDoing: string;
+  TaskDone: string;
+  Description: string;
+}
+const load: PageServerLoad = () => {
+  const appData: App[] = [
+    {
+      acronym: "App1",
+      rNumber: "0",
+      StartDate: "",
+      EndDate: "",
+      TaskCreate: "PL",
+      TaskOpen: "User",
+      TaskToDo: "",
+      TaskDoing: "",
+      TaskDone: "",
+      Description: "This is the first app",
     },
-  });
+    {
+      acronym: "App2",
+      rNumber: "0",
+      StartDate: "",
+      EndDate: "",
+      TaskCreate: "PL",
+      TaskOpen: "",
+      TaskToDo: "",
+      TaskDoing: "user",
+      TaskDone: "",
+      Description: "",
+    },
+  ];
 
-  const { success } = response;
-  if (success) {
-    const { username, email } = response.data;
-    return { success, username, email: email ? email : "" };
-  } else {
-    const { success, message } = response;
-    return { success, message };
-  }
+  return { appData };
 };

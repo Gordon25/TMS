@@ -51,7 +51,7 @@ const authLogin = async (req, res, next) => {
         // Need?
         res.status(401).json({
           success: false,
-          message: "Invalid JWT.",
+          message: "Invalid JWT. " + error.message,
           errorname: error.name,
         });
       }
@@ -70,17 +70,29 @@ const authGroups = (...permittedGroups) => {
         username
       );
       let isAuthorized = false;
-      let isInGroup = false;
+      let isUserInGroup = false;
       let i;
+      let errorMessage = "";
+      let hasError = false;
       for (i = 0; i < permittedGroups.length; i++) {
-        isInGroup = await checkgroup(username, permittedGroups[i]);
-        if (isInGroup) {
+        const res = await checkgroup(username, permittedGroups[i]);
+        isUserInGroup = res.isUserInGroup;
+        if (res.message != "") {
+          hasError = true;
+          errorMessage = res.message;
+          break;
+        } else if (isUserInGroup) {
           isAuthorized = true;
           break;
         }
       }
-      // const userPermittedGroups = groups.filter((group) => groups.includes(group.groupname));
-      if (!isAuthorized) {
+      if (hasError) {
+        res.status(500).json({
+          success: false,
+          message: errorMessage,
+        });
+        // const userPermittedGroups = groups.filter((group) => groups.includes(group.groupname));
+      } else if (!isAuthorized) {
         //not permitted to access
         res.status(403).json({
           success: false,
@@ -90,11 +102,15 @@ const authGroups = (...permittedGroups) => {
         next();
       }
     } catch (error) {
+      console.log("Error ", error);
       res.json({
         success: false,
         message: error.message,
-        stack: error.stack,
       });
+      // res.status(500).json({
+      //   success: false,
+      //   message: error.message,
+      // });
     }
   };
 };

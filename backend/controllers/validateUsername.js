@@ -30,7 +30,7 @@ export default async (req, res, next) => {
         next();
       }
     } catch (error) {
-      res.json({
+      res.status(500).json({
         success: false,
         field,
         message: error.message,

@@ -8,7 +8,7 @@ export default async (req, res) => {
       data: groupnames,
     });
   } catch (error) {
-    res.json({
+    res.status(500).json({
       success: true,
       message: error.message,
       stack: error.stack,

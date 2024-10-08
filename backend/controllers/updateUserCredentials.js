@@ -62,7 +62,7 @@ const updatePasswordController = async (req, res) => {
         message: `${username} password updated to ${password}.`,
       });
     } catch (error) {
-      res.json({
+      res.status(500).json({
         success: false,
         field,
         message: error.message,

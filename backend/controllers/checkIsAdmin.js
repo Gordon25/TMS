@@ -6,18 +6,20 @@ export default async (req, res) => {
 
   try {
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
-    // const [[{ isAdmin }], fields] = await connection.query(
-    //   "select count(distinct groupname) as isAdmin from user_groups where username=? and groupname='Admin';",
-    //   username
-    // );
-
-    const isAdmin = await checkgroup(username, "Admin");
-    res.status(200).json({
-      success: true,
-      isAdmin,
-    });
+    const { isUserInGroup, message } = await checkgroup(username, "Admin");
+    if (message != "") {
+      res.status(501).json({
+        success: false,
+        message,
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        isAdmin: isUserInGroup,
+      });
+    }
   } catch (error) {
-    res.json({
+    res.status(500).json({
       success: false,
       message: error.message,
       stack: error.stack,

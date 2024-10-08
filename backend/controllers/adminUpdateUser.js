@@ -72,7 +72,7 @@ export default async (req, res) => {
         });
       }
     } catch (error) {
-      res.json({
+      res.status(500).json({
         success: false,
         field,
         message: error.message,

@@ -1,11 +1,9 @@
 import bcryptjs from "bcryptjs";
 import connection from "../utils/dbconnection.js";
 import jwt from "jsonwebtoken";
-import checkgroup from "../utils/checkgroup.js";
 export default async (req, res) => {
   try {
     const { username: loginUsername, password: loginPassword } = req.body;
-
     const [entries, fields] = await connection.query(`select * from accounts where username=?`, [
       loginUsername,
     ]);
@@ -35,7 +33,6 @@ export default async (req, res) => {
         });
       } else {
         //login successful
-        const isAdmin = await checkgroup(user.username, "Admin");
         //create jwt
         const token = jwt.sign(
           {
@@ -59,14 +56,19 @@ export default async (req, res) => {
         res.cookie("token", token, options);
         res.status(200).json({
           success: true,
-          isAdmin,
         });
       }
     }
   } catch (error) {
-    res.json({
-      success: false,
-      message: error.message,
-    });
+    if (error.code === "ECONNREFUSED") {
+      res.status(500).json({
+        message: "Cannot process your request now, try again later.",
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   }
 };

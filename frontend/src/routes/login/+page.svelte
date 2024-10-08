@@ -8,9 +8,9 @@ import {AxiosError, type AxiosResponse} from 'axios'
 import axiosInstance from "$lib/axiosConfig.ts";
 import Popup from "$lib/components/Popup.svelte"
 import { afterUpdate, beforeUpdate } from "svelte";
-  
-  const login = async (event:Event) => {
-    event.preventDefault();
+import { redirect } from "@sveltejs/kit";
+  let success = false;
+  const login = async () => {
     try {
     const responseData = await axiosInstance.post(
       '/login',
@@ -18,21 +18,23 @@ import { afterUpdate, beforeUpdate } from "svelte";
         username,
         password
       }
-    )
- 
-    const {success} = responseData
+    ).then(res=>res.data)
+    .catch(err=>err.response.data);
+    ({success} = responseData)
     if (success) {
       $loginStatus.isLoggedIn = true
-      $loginStatus.isAdmin = responseData.isAdmin
-      goto("./tms")
+      $loginStatus.isAdmin = responseData?.isAdmin
     } else {
       const {message} = responseData
       errorMessage = message
     }
   }catch(error ) {
+    success = false
     console.log("ERROR ", error)
+
   }
-  } 
+}
+
   const timeout = 1500
   afterUpdate(()=>{
     if (errorMessage) {
@@ -41,7 +43,10 @@ import { afterUpdate, beforeUpdate } from "svelte";
 </script>
 <body>
 <div class="login-container">
-<form class="login-form" method="post" on:submit|preventDefault={login}>
+<form class="login-form" method="post" on:submit|preventDefault={async ()=>{await login() 
+                                                                            if (success) {
+                                                                              goto("/tms")
+                                                                            }}}>
 	<label for="username">
 		Username
   </label>
@@ -54,7 +59,7 @@ import { afterUpdate, beforeUpdate } from "svelte";
 	<input type='password' name="password" id="password" bind:value={password} placeholder="Password"/>
 	
  
-  <button>Submit</button> 
+  <button>Log in</button> 
 </form>
 </div>
 </body>
@@ -133,6 +138,7 @@ body {
   margin-bottom: 8px;
   justify-items: center;
   top:60%;
+  left: 45%;
   background-color: #ccc;
 }
 

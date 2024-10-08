@@ -14,3 +14,15 @@ interface Status {
   success: boolean;
   failure: boolean;
 }
+interface App {
+  acronym: String;
+  rNumber: String;
+  StartDate: String;
+  EndDate: String;
+  TaskCreate: String;
+  TaskOpen: String;
+  TaskToDo: string;
+  TaskDoing: string;
+  TaskDone: string;
+  Description: string;
+}

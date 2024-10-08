@@ -28,10 +28,9 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
     selectedUser = {...tempUser}
   }
   let users:User[]=[], userError:string, groups:string[]=[], groupError:string, token:string|undefined;
-  // $:({users, userError, groups, groupError, token} = data);
+  $:({users, userError, groups, groupError, token} = data);
   
-  const updateUser  = async (user:User) => {
- 
+  const updateUser  = async (user:User, event:Event) => {
     const responseData = await axiosInstance
       .put(
         `/users/${user.username}`,
@@ -43,49 +42,49 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
           },
           withCredentials: true,
         }
       )
-    console.log("RESPONSE DATA ", responseData)
+      .then(res=>res.data)
+      .catch(err=>err.response.data)
     const {success, field, message} = responseData
     if (success === true) {
       invalidateAll();
       stopEditing(user);
-    } 
+    } else {
+      selectedUser = {...selectedUser};
+    }
     return {success, field, message};
   }
-  let newUserGroups:string[] = []
-  const submitFunc = async(user:User)=> {
-    updateResult = await updateUser(selectedUser);
-  
+  let newUserGroups:string[] = form&&form.groups? form.groups:[]
+  const submitFunc = async(event:Event)=> {
+    updateResult = await updateUser(selectedUser, event);
   }
-  let isActive=true;
+  let isActive=(form&&form.isActive)? form.isActive:true;
   onMount(()=>{
     ({users, userError, groups, groupError, token} = data);
   })
   beforeUpdate(()=>{
     ({users, userError, groups, groupError, token} = data);
   })
-  afterUpdate(()=>{
-    console.log("AFTER UPDATE")
-    
-  })
-  const timeout = 3000
-  afterUpdate(()=>{
-    if (updateResult) {
-    setTimeout(()=>{
-    updateResult= undefined}, timeout)}})
-  $:{console.log("CURRENTLY EDITING USERS ", selectedUser, form, updateResult)
-  updateResult = {success:false, field:'',message:''}
 
+  const timeout = 3000
+  $:{
+    if (updateResult) {
+      setTimeout(()=>{
+        updateResult = undefined;
+      }, timeout)
+    }
   }
+
+  
 </script>
 <body>
 <form class="create-group-form" method="post" action="?/createGroup" on:submit={invalidateAll}>
   <label for="groupname">New Group:</label>
-  <input type="text" id="groupname" name="groupname">
+  <input type="text" id="groupname" name="groupname" value={form&&form.groupname?form.groupname:''}>
   <button type="submit">Create Group</button>
 </form>
 
@@ -99,7 +98,7 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
           <th >Password:</th>
           <th >Email:</th>
           <th >Groups:</th>
-          <th >isActive:</th>
+          <th >Active:</th>
           <th >Create/Edit</th>
       </tr>
   </thead>
@@ -109,17 +108,17 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
   <tbody>
     <tr>
       <td>
-        <input form="createUserForm" type="text" id="username" name="new-username" />
+        <input form="createUserForm" type="text" id="username" name="new-username" value={form&&form.username? form.username:''} />
         {#if form && form.field ==='username'}
         <Popup message={form.message} success={form.success}/>
         {/if}
       </td>
-      <td><input form="createUserForm" type="text" id="password" name="new-password" />
+      <td><input form="createUserForm" type="password" id="password" name="new-password" value={form&&form.password? form.password:''}/>
       {#if form && form.field ==='password'}
       <Popup message={form.message} success={form.success}/>
       {/if}
       </td>
-      <td><input form="createUserForm" type="text" id="email" name="new-email" />
+      <td><input form="createUserForm" type="text" id="email" name="new-email" value={form&&form.email? form.email:''}/>
         {#if form && form.field ==='email'}
         <Popup message={form.message} success={form.success}/>
         {/if}
@@ -132,10 +131,10 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
         
       </td>
       <td>
-      <input form="createUserForm" type="checkbox" id="isActive" name="new-isActive" bind:checked={isActive} />
+      <input form="createUserForm" type="checkbox" id="isActive" name="new-isActive" bind:checked={isActive}/>
       </td>
       <td>
-        <input form="createUserForm" type='submit'/>
+        <button form="createUserForm" type='submit'>Add</button>  
       </td>
     
     </tr>
@@ -167,7 +166,7 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
             <input type="hidden" name="username"/>
           </td>
           <td>
-            <input type="text" name='password' bind:value={selectedUser.password}/>
+            <input type="password" name='password' bind:value={selectedUser.password}/>
             {#if updateResult && updateResult.field ==="password"}
             <Popup message={updateResult.message} success={updateResult.success}/>
             {/if}
@@ -188,8 +187,8 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
           />
         </td>
         <td>
+          <button form="updateUserForm" type="submit" class="edit-btn" on:click={submitFunc}>Save</button>
           <button class="edit-btn" on:click={()=>stopEditing(user)}>Cancel</button>
-          <button form="updateUserForm" type="submit" class="edit-btn" on:click={()=>submitFunc(user)}>Submit</button>
         </td>
         {/if}      
         </tr>
@@ -204,14 +203,18 @@ let updateResult:{success:boolean, field:String,message:String}|undefined;
 <div class='group-msg'>
   <Popup message={form.message} success={form.success}/></div>
 {/if}
-<div class='user-msg'>
+
 {#if form && form.field==='user'}
+<div class='user-msg'>
   <Popup message={form.message} success={form.success}/>
-{/if}
-{#if updateResult && updateResult.field==='user'}
-  <Popup message={updateResult.message} success={updateResult.success}/>
-{/if}
 </div>
+{/if}
+
+{#if updateResult && updateResult.field==='user'}
+<div class='group-msg'>
+  <Popup message={updateResult.message} success={updateResult.success}/>
+</div>
+{/if}
 <style>
 .group-msg {
   position:absolute;
@@ -290,7 +293,7 @@ body {
   top:0;
   z-index: 2;
 }
-input[type="text"], select {
+input[type="text"], input[type="password"], select {
     width: 90%;
     padding: 5px;
     border: 1px solid #ccc;

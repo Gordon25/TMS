@@ -40,7 +40,7 @@ export default async (req, res, next) => {
         message: `User account ${username} created.`,
       });
     } catch (error) {
-      res.json({
+      res.status(500).json({
         sucess: false,
         field,
         message: error.message,

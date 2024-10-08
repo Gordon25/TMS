@@ -14,7 +14,7 @@ export default async (req, res) => {
       data,
     });
   } catch (error) {
-    res.json({
+    res.status(500).json({
       success: false,
       message: error.message,
       stack: error.stack,
