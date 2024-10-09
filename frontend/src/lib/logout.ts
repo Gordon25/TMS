@@ -5,10 +5,7 @@ const logout = async () => {
   let success = false;
   let message = "";
   try {
-    const responseData = await axiosInstance
-      .get(`/logout`)
-      .then((res) => res.data)
-      .catch((err) => err.response.data);
+    const responseData = await axiosInstance.get(`/logout`).then((res) => res.data);
 
     success = responseData.success;
     message = responseData.message;
@@ -17,7 +14,7 @@ const logout = async () => {
       console.log("LOGOUT RESPONSE ", responseData);
       window.location.href = "/login";
     } else {
-      return alert(message);
+      console.log("LOGOUT MESSAGE ", message);
     }
   } catch (error) {
     console.log(error);

@@ -5,22 +5,24 @@ let errorMessage:String|undefined;
 import loginStatus from "$lib/stores/loginStatus";
 import axiosInstance from "$lib/axiosConfig.ts";
 import Popup from "$lib/components/Popup.svelte"
+  import type { AxiosError, AxiosResponse } from "axios";
 
   let success = false;
   const login = async () => {
-    try {
-    const responseData = await axiosInstance.post(
+    // try{
+    const responseData = await axiosInstance
+    .post(
       '/login',
       {
         username,
         password
       }
-    ).then(res=>res.data)
-    .catch(err=>err.response.data);
-    
+    ).then((res:AxiosResponse)=>res.data)
+    .catch((err:AxiosError)=>err.response?.data);
     ({success} = responseData)
     if (success) {
       $loginStatus.isLoggedIn = true
+      window.location.href = "/tms";
     } else {
       $loginStatus.isLoggedIn = false
       const timeout = 1500
@@ -28,15 +30,15 @@ import Popup from "$lib/components/Popup.svelte"
       setTimeout(()=>{
         errorMessage= undefined}, timeout)
     }
-  } catch(error ) {
-    $loginStatus.isLoggedIn = false;
-    success = false
-    console.log("ERROR ", error)
-  } finally {
-    if (success) {
-      window.location.href = "/tms";
-    }
-  }
+  // } catch(error ) {
+  //   $loginStatus.isLoggedIn = false;
+  //   success = false
+  //   console.log("ERROR ", error)
+  // } finally {
+  //   if (success) {
+      
+  //   }
+  // }
 }
 
 </script>

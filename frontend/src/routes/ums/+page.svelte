@@ -45,7 +45,7 @@ let selectedUser:User = {...tempUser};
         }
       )
       .then(res=>res.data)
-      .catch(err=>err.response.data)
+      // .catch(err=>err.response.data)
  
     const {success, field, message} = responseData
     if (success === true) {

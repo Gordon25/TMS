@@ -13,20 +13,28 @@ const axiosInstance: Axios = axios.create({
   withCredentials: true,
 });
 
-// axiosInstance.interceptors.request.use()
-// axiosInstance.interceptors.response.use(undefined, async (error: AxiosError) => {
-//   const url = error.response?.config.url;
-//   const token = error.response?.headers["set-cookie"];
-//   if (error.status === 403) {
-//     throw redirect(301, "/tms");
-//   } else if (error.status === 401 && url != "/login") {
-//     await logout();
-//     throw redirect(301, "/login");
-//   } else {
-//     console.log("ERROR STATUS", error.code, "MESSAGE ", error.message);
-//     await logout();
-//     throw redirect(301, "/login");
-//   }
-// });
+axiosInstance.interceptors.response.use(
+  (response) => response, // Return the response for successful requests
+  async (error: AxiosError) => {
+    const url = error.response?.config.url; // Get the request URL
+    const status = error.response?.status; // Get the status code
+
+    if (status === 403) {
+      throw redirect(301, "/tms");
+    } else if (status === 401) {
+      if (url === "/login") {
+        return Promise.reject(error.response); // Reject if already at the login page
+      } else {
+        console.log("UNAUTHORIZED");
+        await logout(); // Call your logout function
+        return Promise.reject(error.response);
+      }
+    } else {
+      console.log("ERROR STATUS", error.code, "MESSAGE", error.message);
+      await logout(); // Call your logout function
+      return Promise.reject(error.response);
+    }
+  }
+);
 
 export default axiosInstance;

@@ -10,8 +10,8 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
         "user-agent": request.headers.get("user-agent"),
       },
     })
-    .then((res) => res.data)
-    .catch((err) => err.response.data);
+    .then((res) => res.data);
+  // .catch((err) => err.response.data);
 
   const { success } = response;
   if (success) {
@@ -40,8 +40,8 @@ export const actions: Actions = {
           },
         }
       )
-      .then((res) => res.data)
-      .catch((err) => err.response.data);
+      .then((res) => res.data);
+    // .catch((err) => err.response.data);
 
     const { success, field, message } = responseData;
     return { success, field, message };
@@ -62,8 +62,8 @@ export const actions: Actions = {
           },
         }
       )
-      .then((res) => res.data)
-      .catch((err) => err.response.data);
+      .then((res) => res.data);
+    // .catch((err) => err.response.data);
 
     const { success, field, message } = responseData;
     return { success, field, message };

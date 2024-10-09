@@ -1,6 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import axiosInstance from "$lib/axiosConfig";
-import { type Actions } from "@sveltejs/kit";
+import { redirect, type Actions } from "@sveltejs/kit";
 export const load: PageServerLoad = async ({ request, cookies }) => {
   const token = cookies.get("token");
   const usersResult = await axiosInstance
@@ -10,8 +10,13 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then((res) => res.data)
-    .catch((err) => err.response.data);
+    .then((res) => res.data);
+  // .catch((err) => {
+  //   if (err.code === 403) {
+  //     throw redirect(301, "/tms");
+  //   }
+  //   err.response.data;
+  // });
 
   const groupsResult = await axiosInstance
     .get(`/groups`, {
@@ -20,14 +25,19 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then((res) => res.data)
-    .catch((err) => err.response.data);
+    .then((res) => res.data);
+  // .catch((err) => {
+  //   if (err.code === 403) {
+  //     throw redirect(301, "/tms");
+  //   }
+  //   err.response.data;
+  // });
 
   const data = {
-    users: usersResult.data || [],
-    userError: usersResult.message || "",
-    groups: groupsResult.data || [],
-    groupError: groupsResult.message || "",
+    users: usersResult?.data || [],
+    userError: usersResult?.message || "",
+    groups: groupsResult?.data || [],
+    groupError: groupsResult?.message || "",
     token,
   };
   return data;
@@ -53,14 +63,22 @@ export const actions: Actions = {
           withCredentials: true,
         }
       )
-      .then((res) => res.data)
-      .catch((err) => err.response.data);
-
-    const { success, field, message } = responseData;
-    if (success) {
-      return { success, field, message };
+      .then((res) => res.data);
+    // .catch((err) => {
+    //   if (err.code === 403) {
+    //     throw redirect(301, "/tms");
+    //   }
+    //   err.response.data;
+    // });
+    if (!responseData) {
+      return { success: false, field: "", message: "internal server error." };
     } else {
-      return { success, field, message, groupname };
+      const { success, field, message } = responseData;
+      if (success) {
+        return { success, field, message };
+      } else {
+        return { success, field, message, groupname };
+      }
     }
   },
   createUser: async ({ request, cookies }) => {
@@ -94,8 +112,8 @@ export const actions: Actions = {
           },
         }
       )
-      .then((res) => res.data)
-      .catch((err) => err.response.data);
+      .then((res) => res.data);
+    // .catch((err) => err.response.data);
 
     const { success, field, message } = responseData;
     if (success) {

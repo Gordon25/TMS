@@ -14,8 +14,8 @@ export const load: LayoutServerLoad = async ({ cookies, request }) => {
         },
         withCredentials: true,
       })
-      .then((res) => res.data)
-      .catch((err) => err.response.data);
+      .then((res) => res.data);
+    // .catch((err) => err.response.data);
 
     isUserAdmin = response.isAdmin;
   }
