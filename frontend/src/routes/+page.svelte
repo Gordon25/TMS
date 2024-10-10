@@ -1,13 +1,17 @@
 <script>
 import logout from "$lib/logout";
+import AppCard from "$lib/components/AppCard.svelte";
+import AppForm from "$lib/components/AppForm.svelte";
+  let groups= ['PL','Admin','PM','Dev'];
 </script>
 
-<button on:click={logout}>Logout
-</button>
-
+<body>
+  <!-- <AppCard appAcronym='App1' startDate='2024/09/03' endDate='2024/09/10'/> -->
+  <AppForm createGroups={groups} openGroups={groups} todoGroups={groups} doingGroups={groups} doneGroups={groups}/>
+</body>
+  
 <style>
-  button {
-    position: absolute;
-    top:100px
+  body {
+    margin-top: 60px;
   }
 </style>
