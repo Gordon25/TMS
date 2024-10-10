@@ -34,7 +34,7 @@
 
         <div class="input-group">
           <label for="create">Create:</label>
-          <Select items="{createGroups}" bind:value="{createGroup}" />
+          <Select class='select' items="{createGroups}" bind:value="{createGroup}" />
           <input type="hidden" id="create" name="create" value="{createGroup}" />
         </div>
         <div class="input-group">
@@ -97,6 +97,10 @@
     margin-top: 10px;
   }
 
+  .form-left .input-group {
+    display: flex;
+    flex-direction: row;
+  }
   .form-left input,
   .form-left .select {
     width: 100%;
