@@ -12,6 +12,16 @@
   let todoGroup: string;
   let doingGroup: string;
   let doneGroup: string;
+  let theme = {
+    borderRadius: '5px',
+    colors: {
+      primary: '#007bff',   // Primary color for selected items
+      primary25: '#e6f7ff', // Hover background color
+      neutral0: '#f9f4e8',  // Background color for the select input
+      neutral10: '#ccc'     // Border color
+    },
+    width:'40%'
+  };
 </script>
 
 <div class="form-container">
@@ -31,36 +41,46 @@
       </div>
       <div class="task-permissions">
         <p><strong>Task Permissions</strong></p>
-
+      </div>
         <div class="input-group">
           <label for="create">Create:</label>
-          <Select class='select' items="{createGroups}" bind:value="{createGroup}" />
-          <input type="hidden" id="create" name="create" value="{createGroup}" />
+          <div class='dropdown-select'>
+            <Select items="{createGroups}" bind:value="{createGroup}" theme = {theme} />
+            <input type="hidden" id="create" name="create" value="{createGroup}" />
+          </div>
         </div>
         <div class="input-group">
           <label for="open">Open:</label>
-          <Select class="select" items="{openGroups}" bind:value="{openGroup}" />
+          <div class="dropdown-select">
+          <Select class="dropdown-select" items="{openGroups}" bind:value="{openGroup}" />
           <input type="hidden" id="open" name="open" value="{openGroup}" />
+          </div>
         </div>
         <div class="input-group">
           <label for="todo">ToDo:</label>
-          <Select class="select" items="{todoGroups}" bind:value="{todoGroup}" />
+          <div class="dropdown-select">
+          <Select class="dropdown-select" items="{todoGroups}" bind:value="{todoGroup}" />
           <input type="hidden" id="todo" name="todo" value="{todoGroup}" />
+          </div>
         </div>
         <div class="input-group">
           <label for="doing">Doing:</label>
-          <Select items="{doingGroups}" bind:value="{doingGroup}" />
+          <div class="dropdown-select">
+          <Select class="dropdown-select" items="{doingGroups}" bind:value="{doingGroup}" />
           <input type="hidden" id="doing" name="doing" value="{doingGroup}" />
+          </div>
         </div>
         <div class="input-group">
           <label for="done">Done:</label>
-          <Select class="select" items="{doneGroups}" bind:value="{doneGroup}" />
+          <div class="dropdown-select">
+          <Select class="dropdown-select" items="{doneGroups}" bind:value="{doneGroup}" />
           <input type="hidden" id="done" name="done" value="{doneGroup}" />
+          </div>
         </div>
-      </div>
+      
     </div>
     <div class="form-right">
-      <div class="input-group">
+      <div class="input-text">
         <label for="description">Description:</label>
         <textarea id="description"></textarea>
       </div>
@@ -73,12 +93,8 @@
 </div>
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
-
   .form-container {
-    width: 80%;
+    width: 60%;
     margin: 20px auto;
     padding: 20px;
     background-color: #f4f4f4;
@@ -88,47 +104,67 @@
 
   form {
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    grid-gap: 20px;
+    grid-template-columns: 0.5fr 0.75fr;
+    gap: 20px;
   }
 
-  .form-left label {
-    font-weight: bold;
-    margin-top: 10px;
-  }
-
-  .form-left .input-group {
+  .form-left {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    
+   
   }
-  .form-left input,
-  .form-left .select {
-    width: 100%;
-    padding: 8px;
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .input-group {
     margin-bottom: 10px;
-    background-color: #f9f4e8;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-
-  textarea {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 20px;
     width: 100%;
-    height: 150px;
-    padding: 8px;
-    background-color: #f9f4e8;
-    border: 1px solid #ccc;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+  .input-text {
+    height: 80%;
+    margin-bottom: 10px;
+    display: flex;
+
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+input[type="text"],
+input[type="date"],
+textarea,
+/* Target the dropdown select container */
+.dropdown-select {
+    /* Make the select as wide as the input fields */
+    padding: 10px;
     border-radius: 5px;
   }
-
-  .form-right textarea {
-    margin-top: 10px;
+  
+  input[type='text'],
+  input[type='date'],
+  .dropdown-select {
+    width: 70%;
+    
+  }
+  textarea {
+    height: 80%;
+    width: 90%;
   }
 
   .form-actions {
     grid-column: span 2;
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
   }
 
   button {
