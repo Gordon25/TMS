@@ -25,12 +25,12 @@ axiosInstance.interceptors.response.use(
       if (url === "/login") {
         return Promise.reject(error.response); // Reject if already at the login page
       } else {
-        console.log("UNAUTHORIZED");
+        console.log("UNAUTHORIZED ", url);
         await logout(); // Call your logout function
         return Promise.reject(error.response);
       }
     } else {
-      console.log("ERROR STATUS", error.code, "MESSAGE", error.message);
+      console.log("ERROR STATUS", error.code, "MESSAGE", error.message, "URL ", url);
       await logout(); // Call your logout function
       return Promise.reject(error.response);
     }
