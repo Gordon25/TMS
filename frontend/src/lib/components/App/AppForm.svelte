@@ -12,16 +12,7 @@
   let todoGroup: string;
   let doingGroup: string;
   let doneGroup: string;
-  let theme = {
-    borderRadius: '5px',
-    colors: {
-      primary: '#007bff',   // Primary color for selected items
-      primary25: '#e6f7ff', // Hover background color
-      neutral0: '#f9f4e8',  // Background color for the select input
-      neutral10: '#ccc'     // Border color
-    },
-    width:'40%'
-  };
+
 </script>
 
 <div class="form-container">
@@ -45,7 +36,7 @@
         <div class="input-group">
           <label for="create">Create:</label>
           <div class='dropdown-select'>
-            <Select items="{createGroups}" bind:value="{createGroup}" theme = {theme} />
+            <Select items="{createGroups}" bind:value="{createGroup}" />
             <input type="hidden" id="create" name="create" value="{createGroup}" />
           </div>
         </div>

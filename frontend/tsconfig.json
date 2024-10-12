@@ -18,7 +18,7 @@
     "paths": {
       "$lib/*": ["src/lib/*"]
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "node_modules/svelte-select"],
     "exclude": ["node_modules"]
   }
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias

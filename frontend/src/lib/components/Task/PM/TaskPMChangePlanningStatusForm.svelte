@@ -1,6 +1,6 @@
 <script lang='ts'>
-  import TaskForm from "./TaskForm.svelte";
-
+  import Select from "svelte-select";
+  import TaskForm from "../TaskForm.svelte";
   export let taskName:string;
   export let taskId:string;
   export let taskPlan:string;
@@ -10,7 +10,6 @@
   export let taskCreateDate:string;
   export let taskDescription:string;
   export let taskNotes:string;
-
 </script>
 
 <TaskForm {taskState} {taskCreator} {taskOwner} {taskNotes}>
@@ -21,10 +20,8 @@
   <label slot='task-create-date-label' for='createDate'>Created On:</label>
   <p slot='task-create-date-value'>{taskCreateDate}</p>
   <p slot='task-description'>{taskDescription}</p>
-  <div slot='third-btn'></div>
-  <div slot='fourth-btn'></div>
+  <textarea slot='add-note-input' id="notes"></textarea>
+  <label slot='add-note-label' for="notes">add note:</label>
+  <button class="release-btn" slot='second-btn'>Release</button>
 </TaskForm>
 
-<style>
-
-</style>

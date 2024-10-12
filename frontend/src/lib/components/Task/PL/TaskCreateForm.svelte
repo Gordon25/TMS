@@ -1,6 +1,6 @@
 <script lang='ts'>
   import Select from "svelte-select";
-  import TaskForm from "./TaskForm.svelte";
+  import TaskForm from "../TaskForm.svelte";
   export let appAcronym:string="App1";
   export let taskState:string;
   export let plans:string[];

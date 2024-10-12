@@ -1,6 +1,6 @@
 <script lang='ts'>
   import Select from "svelte-select";
-  import TaskForm from "./TaskForm.svelte";
+  import TaskForm from "../TaskForm.svelte";
   export let taskName:string;
   export let taskId:string;
   export let plans:string[];
