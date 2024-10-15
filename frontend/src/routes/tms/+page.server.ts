@@ -1,44 +1,52 @@
+import { redirect } from "@sveltejs/kit";
 import axiosInstance from "../../lib/axiosConfig";
 import type { PageServerLoad } from "./$types";
-interface App {
-  acronym: String;
-  rNumber: String;
-  StartDate: String;
-  EndDate: String;
-  TaskCreate: String;
-  TaskOpen: String;
-  TaskToDo: string;
-  TaskDoing: string;
-  TaskDone: string;
-  Description: string;
-}
-const load: PageServerLoad = () => {
-  const appData: App[] = [
-    {
-      acronym: "App1",
-      rNumber: "0",
-      StartDate: "",
-      EndDate: "",
-      TaskCreate: "PL",
-      TaskOpen: "User",
-      TaskToDo: "",
-      TaskDoing: "",
-      TaskDone: "",
-      Description: "This is the first app",
-    },
-    {
-      acronym: "App2",
-      rNumber: "0",
-      StartDate: "",
-      EndDate: "",
-      TaskCreate: "PL",
-      TaskOpen: "",
-      TaskToDo: "",
-      TaskDoing: "user",
-      TaskDone: "",
-      Description: "",
-    },
-  ];
+import { success } from "$lib/components/Popup.svelte";
 
-  return { appData };
+export const load: PageServerLoad = async ({ cookies, request }) => {
+  let token = cookies.get("token");
+  if (!token) {
+    throw redirect(300, "/login");
+  }
+  const checkIsPLResult = await axiosInstance
+    .get("/checkIsPL", {
+      headers: {
+        "user-agent": request.headers.get("user-agent"),
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => {
+      let data = res.data;
+      const { success } = data;
+      if (success) {
+        return data.isInGroup;
+      } else {
+        return false;
+      }
+    });
+  const appsResult = await axiosInstance
+    .get(`/apps`, {
+      headers: {
+        "user-agent": request.headers.get("user-agent"),
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => res.data);
+
+  const groupsResult = await axiosInstance
+    .get(`/groups`, {
+      headers: {
+        "user-agent": request.headers.get("user-agent"),
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((res) => res.data);
+
+  const data = {
+    apps: appsResult?.data || [],
+    groups: groupsResult?.data || [],
+    token,
+    isUserPL: checkIsPLResult,
+  };
+  return data;
 };

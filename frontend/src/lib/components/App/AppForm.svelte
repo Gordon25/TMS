@@ -1,91 +1,176 @@
 <script lang="ts">
-  import Select from "svelte-select";
+import Select from "svelte-select";
+import { createEventDispatcher } from "svelte";
+import axiosInstance from "$lib/axiosConfig";
+import { invalidateAll } from "$app/navigation";
+import Popup from "$lib/components/Popup.svelte";
   export let createGroups: string[];
   export let openGroups: string[];
   export let todoGroups: string[];
   export let doingGroups: string[];
   export let doneGroups: string[];
-  // export let formAction:string;
+  export let token:string;
+  let appAcronym:string='';
+  let startDate:string='';
+  let endDate:string='';
+  let description:string='';
+  let createGroup: string='';
+  let openGroup: string='';
+  let todoGroup: string='';
+  let doingGroup: string='';
+  let doneGroup: string='';
+  let appResult:{success:boolean, field:string,message:string}|undefined;
+  const dispatch = createEventDispatcher();
+  function closeModal() {
+    dispatch('close');
+  }
+  const createApp = async ()=> {
+    const createAppResult = await axiosInstance
+      .post(
+        `/apps`,
+        {
+          appAcronym,
+          startDate,
+          endDate,
+          description,
+          create:createGroup,
+          open:openGroup,
+          todo:todoGroup,
+          doing:doingGroup,
+          done:doneGroup,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        let data = res.data;
+        const { success, field, message } = data;
+        return { success, field, message };
+      });
+    const {success} = createAppResult;
+    if (success) {
+      dispatch('createSuccess', createAppResult.message)
+      invalidateAll();
+      closeModal();
+    }
+    appResult = createAppResult;
+  }
 
-  let createGroup: string;
-  let openGroup: string;
-  let todoGroup: string;
-  let doingGroup: string;
-  let doneGroup: string;
+  const timeout = 3000
+  $:{
+    if (appResult) {
+      setTimeout(()=>{
+        appResult = undefined;
+      }, timeout)
+    }
+  }
 
 </script>
 
-<div class="form-container">
-  <form>
+{#if appResult && appResult.field ==='app'}
+<Popup message={appResult.message} success={appResult.success}/>
+{/if}
+  <div class="form-container">
+  <form method="post" on:submit|preventDefault>
     <div class="form-left">
       <div class="input-group">
         <label for="app-acronym">App Acronym:</label>
-        <input type="text" id="app-acronym" name="app-acronym" />
+        <input type="text" id="app-acronym" name="app-acronym" bind:value={appAcronym}/>
       </div>
+      {#if appResult && appResult.field ==='app acronym'}
+      <Popup message={appResult.message} success={appResult.success}/>
+      {/if}
       <div class="input-group">
         <label for="start-date">Start Date:</label>
-        <input type="date" id="start-date" name="stat-date" />
+        <input type="date" id="start-date" name="start-date" bind:value={startDate}/>
       </div>
+      {#if appResult && appResult.field ==='start date'}
+      <Popup message={appResult.message} success={appResult.success}/>
+      {/if}
       <div class="input-group">
         <label for="end-date">End Date:</label>
-        <input type="date" id="end-date" name="end-date" />
+        <input type="date" id="end-date" name="end-date" bind:value={endDate}/>
       </div>
+      {#if appResult && appResult.field ==='end date'}
+      <Popup message={appResult.message} success={appResult.success}/>
+      {/if}
       <div class="task-permissions">
         <p><strong>Task Permissions</strong></p>
       </div>
         <div class="input-group">
           <label for="create">Create:</label>
           <div class='dropdown-select'>
-            <Select items="{createGroups}" bind:value="{createGroup}" />
-            <input type="hidden" id="create" name="create" value="{createGroup}" />
+            <Select items={createGroups} bind:justValue={createGroup}/>
+            <!-- <input type="hidden" id="create" name="create" value="{createGroup}" /> -->
           </div>
         </div>
+        {#if appResult && appResult.field ==='create'}
+      <Popup message={appResult.message} success={appResult.success}/>
+      {/if}
         <div class="input-group">
           <label for="open">Open:</label>
           <div class="dropdown-select">
-          <Select class="dropdown-select" items="{openGroups}" bind:value="{openGroup}" />
-          <input type="hidden" id="open" name="open" value="{openGroup}" />
+          <Select items={openGroups} bind:justValue={openGroup}/>
+          <!-- <input type="hidden" id="open" name="open" value="{openGroup}" /> -->
           </div>
         </div>
+        {#if appResult && appResult.field ==='open'}
+        <Popup message={appResult.message} success={appResult.success}/>
+        {/if}
         <div class="input-group">
           <label for="todo">ToDo:</label>
           <div class="dropdown-select">
-          <Select class="dropdown-select" items="{todoGroups}" bind:value="{todoGroup}" />
-          <input type="hidden" id="todo" name="todo" value="{todoGroup}" />
+          <Select items={todoGroups} bind:justValue={todoGroup}/>
+          <!-- <input type="hidden" id="todo" name="todo" value="{todoGroup}" /> -->
           </div>
         </div>
+        {#if appResult && appResult.field ==='todo'}
+        <Popup message={appResult.message} success={appResult.success}/>
+        {/if}
         <div class="input-group">
           <label for="doing">Doing:</label>
           <div class="dropdown-select">
-          <Select class="dropdown-select" items="{doingGroups}" bind:value="{doingGroup}" />
-          <input type="hidden" id="doing" name="doing" value="{doingGroup}" />
+          <Select items={doingGroups} bind:justValue={doingGroup}/>
+          <!-- <input type="hidden" id="doing" name="doing" value="{doingGroup}" /> -->
           </div>
         </div>
+        {#if appResult && appResult.field ==='doing'}
+        <Popup message={appResult.message} success={appResult.success}/>
+        {/if}
         <div class="input-group">
           <label for="done">Done:</label>
           <div class="dropdown-select">
-          <Select class="dropdown-select" items="{doneGroups}" bind:value="{doneGroup}" />
-          <input type="hidden" id="done" name="done" value="{doneGroup}" />
+          <Select items={doneGroups} bind:justValue={doneGroup}/>
+          <!-- <input type="hidden" id="done" name="done" value="{doneGroup}" /> -->
           </div>
         </div>
+        {#if appResult && appResult.field ==='done'}
+        <Popup message={appResult.message} success={appResult.success}/>
+        {/if}
       
     </div>
     <div class="form-right">
       <div class="input-text">
         <label for="description">Description:</label>
-        <textarea id="description"></textarea>
+        <textarea id="description" bind:value={description}></textarea>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn save-btn">Save Changes</button>
-        <button class="btn cancel-btn">Cancel</button>
+        <button type="submit" class="btn save-btn" on:click|preventDefault={createApp}>Save Changes</button>
+        <button class="btn cancel-btn" on:click|preventDefault={closeModal}>Cancel</button>
       </div>
     </div>
   </form>
-</div>
+  </div>  
+
 
 <style>
   .form-container {
-    width: 60%;
+    width: 90%;
+    height: 60%;
     margin: 20px auto;
     padding: 20px;
     background-color: #f4f4f4;
@@ -150,6 +235,7 @@ textarea,
   textarea {
     height: 80%;
     width: 90%;
+    font-size: 18px;
   }
 
   .form-actions {

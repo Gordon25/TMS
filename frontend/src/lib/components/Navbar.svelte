@@ -1,6 +1,5 @@
 <script lang='ts'>
   import logout from "../logout";
-  import { goto } from "$app/navigation";
   export let isAdmin:boolean;
  
 </script>

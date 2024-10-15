@@ -1,8 +1,12 @@
 import type { PageServerLoad } from "./$types";
 import axiosInstance from "$lib/axiosConfig";
 import { redirect, type Actions } from "@sveltejs/kit";
+import handleError from "$lib/errorHandler";
 export const load: PageServerLoad = async ({ request, cookies }) => {
   const token = cookies.get("token");
+  if (!token) {
+    throw redirect(300, "/login");
+  }
   const usersResult = await axiosInstance
     .get(`/users`, {
       headers: {
@@ -10,13 +14,8 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then((res) => res.data);
-  // .catch((err) => {
-  //   if (err.code === 403) {
-  //     throw redirect(301, "/tms");
-  //   }
-  //   err.response.data;
-  // });
+    .then((res) => res.data)
+    .catch(handleError);
 
   const groupsResult = await axiosInstance
     .get(`/groups`, {
@@ -25,13 +24,8 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then((res) => res.data);
-  // .catch((err) => {
-  //   if (err.code === 403) {
-  //     throw redirect(301, "/tms");
-  //   }
-  //   err.response.data;
-  // });
+    .then((res) => res.data)
+    .catch(handleError);
 
   const data = {
     users: usersResult?.data || [],
@@ -63,23 +57,18 @@ export const actions: Actions = {
           withCredentials: true,
         }
       )
-      .then((res) => res.data);
-    // .catch((err) => {
-    //   if (err.code === 403) {
-    //     throw redirect(301, "/tms");
-    //   }
-    //   err.response.data;
-    // });
-    if (!responseData) {
-      return { success: false, field: "", message: "internal server error." };
-    } else {
-      const { success, field, message } = responseData;
-      if (success) {
-        return { success, field, message };
-      } else {
-        return { success, field, message, groupname };
-      }
-    }
+      .then((res) => {
+        let data = res.data;
+        const { success, field, message } = data;
+        if (success) {
+          return { success, field, message };
+        } else {
+          return { success, field, message, groupname };
+        }
+      })
+      .catch(handleError);
+
+    return responseData;
   },
   createUser: async ({ request, cookies }) => {
     const form: FormData = await request.formData();
@@ -112,14 +101,17 @@ export const actions: Actions = {
           },
         }
       )
-      .then((res) => res.data);
-    // .catch((err) => err.response.data);
+      .then((res) => {
+        let data = res.data;
+        const { success, field, message } = data;
+        if (success) {
+          return { success, field, message };
+        } else {
+          return { success, field, message, username, password, email, groups, isActive };
+        }
+      })
+      .catch(handleError);
 
-    const { success, field, message } = responseData;
-    if (success) {
-      return { success, field, message };
-    } else {
-      return { success, field, message, username, password, email, groups, isActive };
-    }
+    return responseData;
   },
 };

@@ -1,51 +1,54 @@
 <script lang='ts'>
-  import loginStatus from "../../lib/stores/loginStatus";
-
-  // export let data:PageServerData;
+  import Modal from "$lib/components/Modal.svelte";
+  import AppForm from "../../lib/components/App/AppForm.svelte";
+  import type { PageServerData } from "./$types";
+  import Popup from "$lib/components/Popup.svelte"
+  import currentApp from "$lib/stores/currentApp";
+  import { goto } from "$app/navigation";
+  import { couldStartTrivia } from "typescript";
+  import { redirect } from "@sveltejs/kit";
   import { onMount } from "svelte";
-  interface App {
-  acronym: String;
-  rNumber: String;
-  StartDate: String;
-  EndDate: String;
-  TaskCreate: String;
-  TaskOpen: String;
-  TaskToDo: string;
-  TaskDoing: string;
-  TaskDone: string;
-  Description: string;
-}
-  let apps:App[] = [
-    {
-      acronym: "App1",
-      rNumber: "0",
-      StartDate: "",
-      EndDate: "",
-      TaskCreate: "PL",
-      TaskOpen: "User",
-      TaskToDo: "",
-      TaskDoing: "",
-      TaskDone: "",
-      Description: "This is the first app",
-    },
-    {
-      acronym: "App2",
-      rNumber: "0",
-      StartDate: "",
-      EndDate: "",
-      TaskCreate: "PL",
-      TaskOpen: "",
-      TaskToDo: "",
-      TaskDoing: "user",
-      TaskDone: "",
-      Description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-    },
-  ];
- $:{console.log("TASK LIST ", $loginStatus)}
-
+  let showModal = false;
+  let apps:App[];
+  let groups:string[];
+  let token:string;
+  let isUserPL:boolean;
+  export let data:PageServerData
+  let createAppSuccessMsg:string|undefined;
+  const closeModal = ()=> {
+    (showModal = false)
+  }
+  const openModal = ()=> {
+    (showModal = true)
+  }
+  const handleSuccess=(event)=>{
+    createAppSuccessMsg = event.detail;
+  }
+  const viewAppDetails = (app_acronym:string)=>{
+    localStorage.setItem('app', app_acronym); 
+    // window.location.href='/app'
+    goto('/app');
+  }
+  $:({apps, groups, token, isUserPL} = data);
+  const timeout= 3000;
+  $:{
+    if (createAppSuccessMsg) {
+      setTimeout(()=>{
+        createAppSuccessMsg = undefined;
+      }, timeout)
+    }
+  }
+  
 </script>
 <body>
-
+  {#if createAppSuccessMsg}
+    <Popup message={createAppSuccessMsg} success={true}/>
+  {/if}
+  {#if showModal}
+    <Modal {closeModal} bind:showModal>
+      <AppForm {token} on:close={closeModal} on:createSuccess={handleSuccess} createGroups={groups} openGroups={groups} todoGroups={groups} doingGroups={groups} doneGroups={groups}/>
+    </Modal>
+  {/if}
   <table>
       <thead>
           <tr>
@@ -59,24 +62,28 @@
               <th>Task Doing</th>
               <th>Task Done</th>
               <th>Description</th>
-              <th><button>Create App</button></th>
+              <th>
+              {#if isUserPL}
+                <button on:click={openModal}>Create App</button>
+              {/if}
+              </th>
             </tr>
       </thead>
       
       <tbody>
         {#each apps as app}
           <tr>
-              <td>{app.acronym}</td>
-              <td>{app.rNumber}</td>
-              <td>{app.StartDate}</td>
-              <td>{app.EndDate}</td>
-              <td>{app.TaskCreate}</td>
-              <td>{app.TaskOpen}</td>
-              <td>{app.TaskDoing}</td>
-              <td>{app.TaskDone}</td>
-              <td>{app.TaskDone}</td>
-              <td>{app.Description}</td>
-              <td><button>View App</button></td>
+              <td>{app.app_acronym}</td>
+              <td>{app.app_rnumber}</td>
+              <td>{app.app_startdate}</td>
+              <td>{app.app_enddate}</td>
+              <td>{app.app_permit_create}</td>
+              <td>{app.app_permit_open}</td>
+              <td>{app.app_permit_todolist}</td>
+              <td>{app.app_permit_doing}</td>
+              <td>{app.app_permit_done}</td>
+              <td>{app.app_description}</td>
+              <td><button on:click={()=>{viewAppDetails(app.app_acronym)}}>View App</button></td>
           </tr>
           {/each}
       </tbody>

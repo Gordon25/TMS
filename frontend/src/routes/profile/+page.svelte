@@ -14,13 +14,15 @@
   let newPassword = "";
 
 onMount(()=>{
+    console.log("DATA ", data)
+    if (data && data.success) {
     success = data.success
-    if (success) {
     username = data.username;
     email = data.email;
     } else {
     pageError = data.message;
     }
+    
 })
 </script>
 

@@ -1,5 +1,6 @@
 import type { LayoutServerLoad } from "./$types";
 import axiosInstance from "$lib/axiosConfig";
+import handleError from "$lib/errorHandler";
 export const load: LayoutServerLoad = async ({ cookies, request }) => {
   let isLoggedIn = false;
   const token = cookies.get("token");
@@ -14,10 +15,10 @@ export const load: LayoutServerLoad = async ({ cookies, request }) => {
         },
         withCredentials: true,
       })
-      .then((res) => res.data);
-    // .catch((err) => err.response.data);
-
-    isUserAdmin = response.isAdmin;
+      .then((res) => {
+        let data = res.data;
+        isUserAdmin = data.isInGroup;
+      });
   }
   return { isLoggedIn, isAdmin: isUserAdmin };
 };

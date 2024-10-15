@@ -7,6 +7,7 @@
   import MultiSelect from 'svelte-multiselect';
   import axiosInstance from "$lib/axiosConfig";
   import Popup from "$lib/components/Popup.svelte"
+  import handleError from "$lib/errorHandler";
 
   let newUserGroups:string[] = form&&form.groups? form.groups:[]
   let isActive=(form&&form.isActive)? form.isActive:true;
@@ -45,7 +46,8 @@ let selectedUser:User = {...tempUser};
         }
       )
       .then(res=>res.data)
-      // .catch(err=>err.response.data)
+      .catch(handleError);
+     
  
     const {success, field, message} = responseData
     if (success === true) {

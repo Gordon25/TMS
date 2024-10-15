@@ -4,9 +4,7 @@ let password = ''
 let errorMessage:String|undefined;
 import loginStatus from "$lib/stores/loginStatus";
 import axiosInstance from "$lib/axiosConfig.ts";
-import Popup from "$lib/components/Popup.svelte"
-  import type { AxiosError, AxiosResponse } from "axios";
-
+import Popup from "$lib/components/Popup.svelte";
   let success = false;
   const login = async () => {
     // try{
@@ -17,19 +15,25 @@ import Popup from "$lib/components/Popup.svelte"
         username,
         password
       }
-    ).then((res:AxiosResponse)=>res.data)
-    .catch((err:AxiosError)=>err.response?.data);
-    ({success} = responseData)
-    if (success) {
-      $loginStatus.isLoggedIn = true
-      window.location.href = "/tms";
-    } else {
-      $loginStatus.isLoggedIn = false
+    ).then((res)=> {
+      let data = res.data
+      success = data.success;
+      $loginStatus.isLoggedIn = true;        
+      window.location.href = '/tms';
+    })
+    .catch((err)=>{
+      console.log("ERR IN LOGIN ", err.response?.data);
+      let data = err.response?.data;
+      success = data.success
+      errorMessage = data.message;
+      $loginStatus.isLoggedIn = false;
       const timeout = 1500
-      errorMessage = responseData.message;
+      // errorMessage = responseData.message;
       setTimeout(()=>{
-        errorMessage= undefined}, timeout)
-    }
+      errorMessage= undefined}, timeout)
+    });
+    // if (!success) {
+      
   // } catch(error ) {
   //   $loginStatus.isLoggedIn = false;
   //   success = false
