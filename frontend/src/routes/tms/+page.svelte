@@ -46,7 +46,8 @@
   {/if}
   {#if showModal}
     <Modal {closeModal} bind:showModal>
-      <AppForm {token} on:close={closeModal} on:createSuccess={handleSuccess} createGroups={groups} openGroups={groups} todoGroups={groups} doingGroups={groups} doneGroups={groups}/>
+      <AppForm isCreate={true} {token} on:close={closeModal} on:createSuccess={handleSuccess} 
+      createGroups={groups} openGroups={groups} todoGroups={groups} doingGroups={groups} doneGroups={groups}/>
     </Modal>
   {/if}
   <table>

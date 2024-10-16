@@ -6,7 +6,9 @@ import PlanTable from "$lib/components/Plan/PlanTable.svelte";
 import { onMount} from "svelte";
 import axiosInstance from "$lib/axiosConfig";
 import { invalidate } from "$app/navigation";
+  import AppForm from "$lib/components/App/AppForm.svelte";
 export let data:PageServerData
+console.log("RENDERING SCRIPT")
 let createPlanSuccessMsg:string|undefined;
 let showAppModal = false
 let showPlanModal = false
@@ -22,7 +24,7 @@ let app:App = {
   app_permit_doing:"",
   app_permit_done:'',
 };
-let plans:Plan[];
+
 let token;
 
 const closeAppModal = ()=>{
@@ -38,7 +40,7 @@ const openPlanModal = () => {
     showPlanModal = true
 }
 
-$:({token} = data);
+$:({token, isUserPM} = data);
   const timeout= 3000;
   $:{
     if (createPlanSuccessMsg) {
@@ -60,32 +62,23 @@ onMount(async()=>{
    },
    withCredentials:true 
   }).then(res=>res.data)
-  app = appData.data[0]
- const plansData  = await axiosInstance.post('/appPlans', 
-  {
-    appAcronym:app.app_acronym
-  },
-  {
-   headers:{
-    Authorization:`Bearer ${token}`
-   },
-   withCredentials:true 
-  }).then(res=>res.data)
-  
-  plans = plansData.data;
-  
+  app = appData.data[0]  
 })
+const handleSuccess=(event)=>{
+    createAppSuccessMsg = event.detail;
+  }
 </script>
 {#if showAppModal}
 <Modal closeModal={closeAppModal} bind:showModal={showAppModal}>
-  <AppViewCard appAcronym={app.app_acronym} startDate={app.app_startdate} endDate={app.app_enddate}
+  <AppForm isCreate={false} on:close={closeAppModal}
+  appAcronym={app.app_acronym} startDate={app.app_startdate} endDate={app.app_enddate}
   description={app.app_description} createGroup={app.app_permit_create} openGroup={app.app_permit_open}
   todoGroup={app.app_permit_todolist} doingGroup={app.app_permit_doing} doneGroup={app.app_permit_done}/>
 </Modal>
 {/if}
 {#if showPlanModal}
 <Modal closeModal={closePlanModal} bind:showModal={showPlanModal}>
-    <PlanTable {plans} {token} appAcronym={app.app_acronym}/>
+    <PlanTable {token} appAcronym={app.app_acronym}/>
 </Modal>
 {/if}
 <body>
