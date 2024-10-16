@@ -66,8 +66,11 @@ app.get("/user", authLogin, getUserController);
 app.put("/user/password", authLogin, validatePasswordController, updatePasswordController);
 app.put("/user/email", authLogin, validateEmailController, updateEmailController);
 
+// check user roles
 app.get("/checkIsAdmin", authLogin, checkIsUserInGroup("Admin")); // check if user is admin
 app.get("/checkIsPL", authLogin, checkIsUserInGroup("PL"));
+app.get("/checkIsPM", authLogin, checkIsUserInGroup("PM"));
+
 //Task Management System
 app.get("/apps", authLogin, getAppsController);
 app.post("/app", authLogin, getAppController); //get single app
