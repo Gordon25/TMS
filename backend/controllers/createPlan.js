@@ -1,9 +1,9 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 export default async (req, res) => {
   const field = "plan";
   try {
     const { planName, appAcronym, startDate, endDate, planColour } = req.body;
-    await connection.query(
+    await db.execute(
       `INSERT INTO plans 
       (plan_mvp_name, plan_app_acronym, plan_startdate, plan_enddate, plan_colour)
       VALUES (?, ?, ?, ?, ?);`,

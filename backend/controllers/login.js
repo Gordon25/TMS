@@ -1,10 +1,10 @@
 import bcryptjs from "bcryptjs";
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 import jwt from "jsonwebtoken";
 export default async (req, res) => {
   try {
     const { username: loginUsername, password: loginPassword } = req.body;
-    const [entries, fields] = await connection.query(`select * from accounts where username=?`, [
+    const [entries, fields] = await db.execute(`select * from accounts where username=?`, [
       loginUsername,
     ]);
 

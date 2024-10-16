@@ -1,4 +1,4 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 export default async (req, res, next) => {
   const field = "app acronym";
   const appAcronymRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
@@ -13,7 +13,7 @@ export default async (req, res, next) => {
     });
   } else {
     try {
-      const [matchedAppAcronyms, fields] = await connection.query(
+      const [matchedAppAcronyms, fields] = await db.execute(
         `select app_acronym from applications where app_acronym=?;`,
         appAcronym
       );

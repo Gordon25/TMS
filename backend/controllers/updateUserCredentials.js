@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcryptjs from "bcryptjs";
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 const updateEmailController = async (req, res) => {
   const field = "email";
   const { email } = req.body;
@@ -15,7 +15,7 @@ const updateEmailController = async (req, res) => {
     try {
       const token = req.headers.authorization.split(" ")[1];
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
-      await connection.query(
+      await db.execute(
         `UPDATE accounts SET email = ?
           where username = ?;`,
         [email, username]
@@ -51,7 +51,7 @@ const updatePasswordController = async (req, res) => {
       const token = req.headers.authorization.split(" ")[1];
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
       const hashedPassword = await bcryptjs.hash(password, 10);
-      await connection.query(
+      await db.execute(
         `UPDATE accounts SET password = ?
           where username = ?;`,
         [hashedPassword, username]

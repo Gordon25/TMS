@@ -1,4 +1,4 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 export default async (req, res, next) => {
   const field = "username";
   const usernameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
@@ -13,7 +13,7 @@ export default async (req, res, next) => {
     });
   } else {
     try {
-      const [matchedUsernames, fields] = await connection.query(
+      const [matchedUsernames, fields] = await db.execute(
         `select username from accounts where username=?;`,
         username
       );

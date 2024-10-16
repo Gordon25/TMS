@@ -1,4 +1,4 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 import bcryptjs from "bcryptjs";
 export default async (req, res) => {
   const field = "user";
@@ -13,7 +13,7 @@ export default async (req, res) => {
   } else {
     try {
       const hashedPassword = await bcryptjs.hash(password, 10);
-      await connection.query(
+      await db.execute(
         `UPDATE accounts SET
       password = IF(? != '', ?, password),
       email = IF(? != '', ?, email),
@@ -23,7 +23,7 @@ export default async (req, res) => {
       );
 
       // get current groups
-      const currentJoinedGroups = await connection
+      const currentJoinedGroups = await db
         .query(
           `SELECT groupname from user_groups
       WHERE username = ?;`,
@@ -38,7 +38,7 @@ export default async (req, res) => {
       );
       if (groupsToRemove.length > 0) {
         const groupsPlaceholder = groupsToRemove.map(() => "?").join(", ");
-        await connection.query(
+        await db.execute(
           `DELETE FROM user_groups
       WHERE username = '${username}' and
       groupname in (${groupsPlaceholder});`,
@@ -51,7 +51,7 @@ export default async (req, res) => {
       if (groupsToAdd.length > 0) {
         const newGroupsPlaceholder = groupsToAdd.map(() => "(?, ?)").join(", ");
         const values = groupsToAdd.flatMap((group) => [group, username]);
-        await connection.query(
+        await db.execute(
           `INSERT INTO user_groups (groupname, username) VALUES ${newGroupsPlaceholder};`,
           values
         );

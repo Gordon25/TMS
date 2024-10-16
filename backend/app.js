@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { connection } from "./utils/dbconnection.js";
+import { db } from "./utils/db.js";
 
 const app = express();
 app.use(
@@ -16,9 +16,9 @@ app.use(cookieParser());
 app.use(express.json());
 
 async function shutdownDatabase() {
-  console.log("Received shutdown signal, closing database connections...");
+  console.log("Received shutdown signal, closing database connection...");
   try {
-    await connection.end();
+    await db.end();
     console.log("Connection closed.");
   } catch (error) {
     console.error("Error closing connection pool:", error);

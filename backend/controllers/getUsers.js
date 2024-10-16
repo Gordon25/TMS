@@ -1,12 +1,10 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 export default async (req, res) => {
   try {
-    const [users, userFields] = await connection.query(
+    const [users, userFields] = await db.execute(
       `SELECT username, email, isActive FROM accounts where isActive=1;`
     );
-    const [groups, groupFields] = await connection.query(
-      `SELECT username, groupname FROM user_groups;`
-    );
+    const [groups, groupFields] = await db.execute(`SELECT username, groupname FROM user_groups;`);
     const data = users.map((user) => {
       return {
         ...user,

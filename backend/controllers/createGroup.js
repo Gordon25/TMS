@@ -1,4 +1,4 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 export default async (req, res) => {
   const field = "group";
   const { groupname } = req.body;
@@ -13,7 +13,7 @@ export default async (req, res) => {
     });
   } else {
     try {
-      const [groupsMatched, fields] = await connection.query(
+      const [groupsMatched, fields] = await db.execute(
         `SELECT 1 FROM user_groups 
       WHERE groupname = ?`,
         groupname
@@ -26,7 +26,7 @@ export default async (req, res) => {
           message: "Duplicate group names not allowed.",
         });
       } else {
-        await connection.query(
+        await db.execute(
           `INSERT INTO user_groups (groupname)
       VALUES (?);`,
           groupname

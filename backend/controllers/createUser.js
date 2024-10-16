@@ -1,4 +1,4 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 import bcryptjs from "bcryptjs";
 export default async (req, res) => {
   const field = "user";
@@ -17,7 +17,7 @@ export default async (req, res) => {
       const passwordHash = await bcryptjs.hash(password, 10);
       const emailInserted = email == "" ? null : email;
 
-      await connection.query(
+      await db.execute(
         `INSERT INTO accounts (username, password, email, isActive) 
         VALUES (?, ?, ?, ?);`,
         [username, passwordHash, emailInserted, isActive]
@@ -28,7 +28,7 @@ export default async (req, res) => {
         // assign user to groups
         const newEntries = groups.map(() => "(?, ?)").join(", ");
         const values = groups.flatMap((group) => [group, username]);
-        await connection.query(
+        await db.execute(
           `INSERT INTO user_groups (groupname, username)
          VALUES ${newEntries};`,
           values

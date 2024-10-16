@@ -1,8 +1,8 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 export default async (req, res) => {
   try {
-    const data = await connection
-      .query("select * from applications order by app_startdate, app_enddate;")
+    const data = await db
+      .execute("select * from applications order by app_startdate, app_enddate;")
       .then(([apps, fields]) => apps);
     res.status(200).json({
       success: true,

@@ -27,6 +27,8 @@ import getPlansController from "./controllers/getPlans.js";
 import validatePlanNameController from "./controllers/validatePlanName.js";
 import createPlanController from "./controllers/createPlan.js";
 import getAppController from "./controllers/getApp.js";
+import validateTaskNameController from "./controllers/validateTaskName.js";
+import authTaskActionController from "./controllers/authTaskAction.js";
 // login, logout
 app.post("/login", loginController);
 app.get("/logout", logoutController);
@@ -72,6 +74,7 @@ app.get("/checkIsPL", authLogin, checkIsUserInGroup("PL"));
 app.get("/checkIsPM", authLogin, checkIsUserInGroup("PM"));
 
 //Task Management System
+//Apps
 app.get("/apps", authLogin, getAppsController);
 app.post("/app", authLogin, getAppController); //get single app
 app.post(
@@ -84,6 +87,7 @@ app.post(
   createAppController
 );
 
+//Plans
 app.post("/appPlans", authLogin, getPlansController); //get plans for 1 app
 app.post(
   "/plans",
@@ -93,5 +97,8 @@ app.post(
   validateStartEndDateController,
   createPlanController
 );
+
+//Tasks
+app.post("/tasks", authLogin, authTaskActionController("create"), validateTaskNameController);
 
 export default app;

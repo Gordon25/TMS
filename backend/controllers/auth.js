@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 import checkgroup from "../utils/checkgroup.js";
 const authLogin = async (req, res, next) => {
   let token;
@@ -16,7 +16,7 @@ const authLogin = async (req, res, next) => {
     try {
       const { username, ip, browserType } = jwt.verify(token, process.env.JWT_SECRET);
 
-      const [[{ isActive }], field] = await connection.query(
+      const [[{ isActive }], field] = await db.execute(
         "select isActive from accounts where username = ?",
         username
       );

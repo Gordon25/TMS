@@ -1,10 +1,10 @@
-import { connection } from "../utils/dbconnection.js";
+import { db } from "../utils/db.js";
 import jwt from "jsonwebtoken";
 export default async (req, res) => {
   const token = req.headers.authorization.split(" ")[1];
   try {
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
-    const [[user], Fields] = await connection.query(
+    const [[user], Fields] = await db.execute(
       `SELECT username, email FROM accounts WHERE username=?;`,
       [username]
     );
