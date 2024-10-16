@@ -42,7 +42,7 @@ export default async (req, res) => {
           `DELETE FROM user_groups
       WHERE username = '${username}' and
       groupname in (${groupsPlaceholder});`,
-          groupsToRemove
+          [groupsToRemove]
         );
       }
 

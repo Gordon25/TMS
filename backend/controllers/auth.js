@@ -18,7 +18,7 @@ const authLogin = async (req, res, next) => {
 
       const [[{ isActive }], field] = await db.execute(
         "select isActive from accounts where username = ?",
-        username
+        [username]
       );
 
       if (ip != req.ip || browserType != req.headers["user-agent"]) {

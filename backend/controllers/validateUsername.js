@@ -15,7 +15,7 @@ export default async (req, res, next) => {
     try {
       const [matchedUsernames, fields] = await db.execute(
         `select username from accounts where username=?;`,
-        username
+        [username]
       );
 
       if (matchedUsernames.length != 0) {

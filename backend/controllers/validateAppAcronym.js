@@ -15,7 +15,7 @@ export default async (req, res, next) => {
     try {
       const [matchedAppAcronyms, fields] = await db.execute(
         `select app_acronym from applications where app_acronym=?;`,
-        appAcronym
+        [appAcronym]
       );
 
       if (matchedAppAcronyms.length != 0) {

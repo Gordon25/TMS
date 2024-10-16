@@ -16,7 +16,7 @@ export default async (req, res) => {
       const [groupsMatched, fields] = await db.execute(
         `SELECT 1 FROM user_groups 
       WHERE groupname = ?`,
-        groupname
+        [groupname]
       );
       if (groupsMatched.length > 0) {
         //is duplicate group
@@ -29,7 +29,7 @@ export default async (req, res) => {
         await db.execute(
           `INSERT INTO user_groups (groupname)
       VALUES (?);`,
-          groupname
+          [groupname]
         );
         res.status(200).json({
           success: true,

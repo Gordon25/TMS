@@ -5,7 +5,7 @@ export default async (req, res) => {
   try {
     const { username: loginUsername, password: loginPassword } = req.body;
     const [entries, fields] = await db.execute(`select * from accounts where username=?`, [
-      loginUsername,
+      [loginUsername],
     ]);
 
     if (entries.length === 0) {
