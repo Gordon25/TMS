@@ -2,18 +2,31 @@
   import { onMount } from "svelte";
   import Popup from "../Popup.svelte";
   import axiosInstance from "$lib/axiosConfig";
-  import { invalidateAll } from "$app/navigation";
-  export let plans:Plan[];
-  // export let createPlan:(planName:string, startDate:string, endDate:string, planColour:string)=>Promise<{success:boolean; field:string; message:string}>
   export let token;
   export let appAcronym;
+  let planResult:{success:boolean, field:string, message:string, planName?:string,startDate?:string, endDate?:string, planColour?:string, appAcronym?:string}|undefined;
   let planName=''
   let startDate=''
   let endDate=''
   let planColour='#000000';
-  let planResult:{success:boolean, field:string, message:string}|undefined 
+  let isUserPM:boolean;
+  let plans:Plan[]=[];
+  const getPlans = async()=>{
+    const plansData  = await axiosInstance.post('/appPlans', 
+    {
+      appAcronym
+    },
+    {
+    headers:{
+      Authorization:`Bearer ${token}`
+    },
+    withCredentials:true 
+    }).then(res=>res.data)
+    plans = plansData.data;
+  }
+
   const createPlan = async()=>{
-    const createPlanResult = await axiosInstance
+    await axiosInstance
     .post("/plans",{
           planName,
           appAcronym,
@@ -29,18 +42,19 @@
         }
       )
       .then((res) => {
-        let data = res.data;
-        const { success, field, message } = data;
-        return {success, field, message};
+        planResult = res.data;
       });
-      const {success} = createPlanResult
-      if (success === true) {
-        invalidateAll();
+      if (planResult && planResult.success === true) {
+        await getPlans();  
       }
-      return createPlanResult;
+      planName = planResult?.planName||''
+      startDate = planResult?.startDate||''
+      endDate = planResult?.endDate||''
+      planColour= planResult?.planColour||'#000000'
     };
+
   const submitFunc = async() => {
-    planResult = await createPlan()
+    await createPlan()
   }
   const timeout = 3000
   $: {
@@ -51,15 +65,33 @@
     }
   }
 
-onMount(()=>{
-  console.log("PLANS ", plans)
+onMount(async()=>{
+  await axiosInstance
+    .get("/checkIsPM", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials:true
+    })
+    .then((res) => {
+      let data = res.data;
+      const { success } = data;
+      if (success) {
+        isUserPM = data.isInGroup;
+      } else {
+        isUserPM = false;
+      }
+    });
+  await getPlans();
 })
+
 </script>
 
 <body>
   {#if planResult}
     <Popup message={planResult.message} success={planResult.success}/>
   {/if}
+  <form on:submit|preventDefault={submitFunc}>
   <table>
       <thead>
           <tr>
@@ -77,7 +109,11 @@ onMount(()=>{
           <td><input type='date' bind:value={startDate}/></td>
           <td><input type='date' bind:value={endDate}/></td>
           <td><input type='color' bind:value={planColour}/></td>
-          <td><button on:click|preventDefault={submitFunc}>Create</button></td>
+          <td>
+            {#if isUserPM}
+            <button type='submit'>Create</button>
+            {/if}
+          </td>
         </tr>
         {#each plans as plan}
           <tr>
@@ -90,15 +126,15 @@ onMount(()=>{
         {/each}
       </tbody>
   </table>
-
+  </form>
 </body>
 
 <style>
 body{
   font-family: Arial, sans-serif;
   margin: 0;
-  padding: 20px;
-  margin-top: 30px;
+  padding: 10px;
+  margin-top: 0px;
 
   align-items: top;
 }
