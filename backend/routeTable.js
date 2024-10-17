@@ -29,7 +29,7 @@ import createPlanController from "./controllers/createPlan.js";
 import getAppController from "./controllers/getApp.js";
 import validateTaskNameController from "./controllers/validateTaskName.js";
 import authTaskActionController from "./controllers/authTaskAction.js";
-import getInitTaskController from "./controllers/getInitTask.js";
+
 // login, logout
 app.post("/login", loginController);
 app.get("/logout", logoutController);
@@ -100,7 +100,6 @@ app.post(
 );
 
 //Tasks
-app.post("/initTask", authLogin, authTaskActionController("create"), getInitTaskController);
 app.post("/tasks", authLogin, authTaskActionController("create"), validateTaskNameController);
 
 export default app;

@@ -5,7 +5,7 @@ export default async (req, res) => {
     const data = await db
       .execute(
         "select * from plans where plan_app_acronym=? order by plan_startdate, plan_enddate asc;",
-        appAcronym
+        [appAcronym]
       )
       .then(([plans, fields]) => plans);
     res.status(200).json({
