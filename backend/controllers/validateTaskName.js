@@ -1,7 +1,7 @@
 export default async (req, res, next) => {
   const field = "task name";
   const tasknameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
-  const { taskname } = req.body;
+  const { taskname, taskPlan, taskDescription, taskNotes } = req.body;
   const isValidTaskname = tasknameRegex.test(taskname);
   if (!isValidTaskname) {
     //username not alphanumeric
@@ -9,6 +9,10 @@ export default async (req, res, next) => {
       success: false,
       field,
       message: "Task name is not alphanumeric.",
+      taskname,
+      taskPlan,
+      taskDescription,
+      taskNotes,
     });
   } else {
     //taskame valid

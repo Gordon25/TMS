@@ -28,8 +28,19 @@ import validatePlanNameController from "./controllers/validatePlanName.js";
 import createPlanController from "./controllers/createPlan.js";
 import getAppController from "./controllers/getApp.js";
 import validateTaskNameController from "./controllers/validateTaskName.js";
-import authTaskActionController from "./controllers/authTaskAction.js";
-
+import {
+  authCreateTask,
+  authReleaseTask,
+  authTodoTask,
+  authDoingTask,
+  authDoneTask,
+  authEditTaskNotes,
+} from "./controllers/authTaskAction.js";
+import createTaskController from "./controllers/createTask.js";
+import getTasksController from "./controllers/getTasks.js";
+import getTaskPermissionsController from "./controllers/getTaskPermissions.js";
+import getTaskController from "./controllers/getTask.js";
+import { updateTaskNotes, updateTaskPlan, updateTaskState } from "./controllers/updateTask.js";
 // login, logout
 app.post("/login", loginController);
 app.get("/logout", logoutController);
@@ -100,6 +111,22 @@ app.post(
 );
 
 //Tasks
-app.post("/tasks", authLogin, authTaskActionController("create"), validateTaskNameController);
+app.post("/appTasks", authLogin, getTasksController);
+app.post("/tasks", authLogin, authCreateTask, validateTaskNameController, createTaskController);
+app.post("/task", authLogin, getTaskController);
 
+//update task notes
+app.put("/taskNotes", authLogin, authEditTaskNotes, updateTaskNotes);
+
+//update task plan
+app.put("/updateReleaseTaskPlan", authLogin, authReleaseTask, updateTaskPlan);
+app.put("/updateDoneTaskPlan", authLogin, authDoneTask, updateTaskPlan);
+
+//update task state
+app.put("/updateOpenTaskState", authLogin, authReleaseTask, updateTaskState);
+app.put("/updateTodoTaskState", authLogin, authTodoTask, updateTaskState);
+app.put("/updateDoingTaskState", authLogin, authDoingTask, updateTaskState);
+app.put("/updateDoneTask", authLogin, authDoneTask, updateTaskState);
+//Task Permissions
+app.post("/taskPermissions", authLogin, getTaskPermissionsController);
 export default app;

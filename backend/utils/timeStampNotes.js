@@ -1,9 +1,9 @@
 export default (username, state, notes) => {
   let stampedNotes = "";
-  if (notes != "") {
+  if (notes !== "") {
     const now = new Date();
     const dateTime = now.toLocaleDateString() + " " + now.toLocaleTimeString();
-    const stampedNotes = `[${username}, ${state}, ${dateTime}]\n${notes}`;
+    stampedNotes = `**********\n${username} on ${dateTime}\nState: ${state}\n\n${notes}\n`;
   }
   return stampedNotes;
 };
