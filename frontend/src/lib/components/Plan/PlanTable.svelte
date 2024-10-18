@@ -50,12 +50,9 @@
       planName = planResult?.planName||''
       startDate = planResult?.startDate||''
       endDate = planResult?.endDate||''
-      planColour= planResult?.planColour||'#000000'
+      planColour= planResult?.planColour||'#ffffff'
     };
 
-  const submitFunc = async() => {
-    await createPlan()
-  }
   const timeout = 3000
   $: {
     if (planResult) {
@@ -91,7 +88,7 @@ onMount(async()=>{
   {#if planResult}
     <Popup message={planResult.message} success={planResult.success}/>
   {/if}
-  <form on:submit|preventDefault={submitFunc}>
+  <form on:submit|preventDefault={createPlan}>
   <table>
       <thead>
           <tr>
