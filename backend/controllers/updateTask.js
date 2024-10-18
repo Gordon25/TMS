@@ -25,7 +25,7 @@ const updateTaskNotes = async (req, res) => {
       });
     }
   } else {
-    res.status(200).json({ success: false, message: "Notes not updated" });
+    res.status(200).json({ success: true });
   }
 };
 
