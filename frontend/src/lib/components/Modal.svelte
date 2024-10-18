@@ -34,7 +34,7 @@
 		border: none;
 		padding: 0;
     width:auto;
-    /* height:75%; */
+    /* height:85%; */
 	}
 	dialog::backdrop {
 		background: rgba(0, 0, 0, 0.3);
@@ -44,7 +44,7 @@
 		padding: 0 1em;
 		align-items: center;
 		justify-items: center;
-		height: 100%;
+		/* height: 100%; */
 	}
 	dialog[open] {
 		animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);

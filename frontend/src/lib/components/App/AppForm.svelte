@@ -1,25 +1,33 @@
 <script lang="ts">
 import Select from "svelte-select";
-import { createEventDispatcher } from "svelte";
+import { createEventDispatcher, onMount } from "svelte";
 import axiosInstance from "$lib/axiosConfig";
 import { invalidateAll } from "$app/navigation";
 import Popup from "$lib/components/Popup.svelte";
   export let isCreate:boolean;
-  export let createGroups: string[]=[];
-  export let openGroups: string[]=[];
-  export let todoGroups: string[]=[];
-  export let doingGroups: string[]=[];
-  export let doneGroups: string[]=[];
   export let token:string='';
   export let appAcronym:string='';
-  export let startDate:string='';
-  export let endDate:string='';
-  export let description:string='';
-  export let createGroup: string='';
-  export let openGroup: string='';
-  export let todoGroup: string='';
-  export let doingGroup: string='';
-  export let doneGroup: string='';
+  export let groups:string[]=[];
+  let startDate:string='';
+  let endDate:string='';
+  let description:string='';
+  let createGroup: string='';
+  let openGroup: string='';
+  let todoGroup: string='';
+  let doingGroup: string='';
+  let doneGroup: string='';
+  let app:App = {
+  app_acronym:'',
+  app_rnumber:0,
+  app_description:"",
+  app_startdate:"",
+  app_enddate:'',
+  app_permit_create:"",
+  app_permit_open:'',
+  app_permit_todolist:'',
+  app_permit_doing:"",
+  app_permit_done:'',
+};
   let appResult:{success:boolean, field:string,message:string}|undefined;
   const dispatch = createEventDispatcher();
   function closeModal() {
@@ -70,6 +78,20 @@ import Popup from "$lib/components/Popup.svelte";
     }
   }
 
+onMount(async()=>{
+  const appData = await axiosInstance.post('/app',
+  {
+    appAcronym
+  },
+  {
+   headers:{
+    Authorization:`Bearer ${token}`
+   },
+   withCredentials:true 
+  }).then(res=>res.data)
+  app = appData.data[0] 
+  console.log(app)
+})
 </script>
 
 {#if appResult && appResult.field ==='app'}
@@ -86,7 +108,7 @@ import Popup from "$lib/components/Popup.svelte";
         <input type="text" id="app-acronym" name="app-acronym" bind:value={appAcronym}/>  
       {:else}
         <div class='input-value'>
-        <p>{appAcronym}</p>
+        <p>{app.app_acronym}</p>
         </div>
       {/if}
       </div>
@@ -97,7 +119,11 @@ import Popup from "$lib/components/Popup.svelte";
         <div class='input-label'>
         <label for="start-date">Start Date:</label>
         </div>
-        <input type="date" id="start-date" name="start-date" bind:value={startDate} disabled={!isCreate}/>
+        {#if isCreate}
+        <input type="date" id="start-date" name="start-date" bind:value={startDate}/>
+        {:else}
+        <input type="date" id="start-date" name="start-date" bind:value={app.app_startdate} disabled/>
+        {/if}
       </div>
       {#if appResult && appResult.field ==='start date'}
       <Popup message={appResult.message} success={appResult.success}/>
@@ -106,7 +132,11 @@ import Popup from "$lib/components/Popup.svelte";
         <div class='input-label'>
         <label for="end-date">End Date:</label>
         </div>
-        <input type="date" id="end-date" name="end-date" bind:value={endDate} disabled={!isCreate}/>
+        {#if isCreate}
+        <input type="date" id="end-date" name="end-date" bind:value={endDate}/>
+        {:else}
+        <input type="date" id="start-date" name="start-date" bind:value={app.app_enddate} disabled/>
+        {/if}
       </div>
       {#if appResult && appResult.field ==='end date'}
       <Popup message={appResult.message} success={appResult.success}/>
@@ -120,11 +150,11 @@ import Popup from "$lib/components/Popup.svelte";
           </div>
           {#if isCreate}
           <div class='dropdown-select'>
-            <Select items={createGroups} bind:justValue={createGroup} disabled={!isCreate} value={createGroup} />
+            <Select items={groups} bind:justValue={createGroup} />
           </div>
           {:else}
           <div class="input-value">
-            <p>{createGroup}</p>
+            <p>{app.app_permit_create}</p>
           </div>
           {/if}
         </div>
@@ -137,11 +167,11 @@ import Popup from "$lib/components/Popup.svelte";
           </div> 
           {#if isCreate}
           <div class="dropdown-select">
-          <Select items={openGroups} bind:justValue={openGroup}/>
+          <Select items={groups} bind:justValue={openGroup}/>
           </div>
           {:else}
           <div class="input-value">
-            <p>{openGroup}</p>
+            <p>{app.app_permit_open}</p>
           </div>
           {/if}
         </div>
@@ -154,11 +184,11 @@ import Popup from "$lib/components/Popup.svelte";
           </div> 
           {#if isCreate}
           <div class="dropdown-select">
-          <Select items={todoGroups} bind:justValue={todoGroup}/>
+          <Select items={groups} bind:justValue={todoGroup}/>
           </div>
           {:else}
           <div class="input-value">
-            <p>{todoGroup}</p>
+            <p>{app.app_permit_todolist}</p>
           </div>
           {/if}
         </div>
@@ -171,11 +201,11 @@ import Popup from "$lib/components/Popup.svelte";
           </div>
           {#if isCreate}
           <div class="dropdown-select">
-          <Select items={doingGroups} bind:justValue={doingGroup}/>
+          <Select items={groups} bind:justValue={doingGroup}/>
           </div>
           {:else}
           <div class="input-value">
-            <p>{doingGroup}</p>
+            <p>{app.app_permit_doing}</p>
           </div>
           {/if}
         </div>
@@ -188,11 +218,11 @@ import Popup from "$lib/components/Popup.svelte";
           </div>
           {#if isCreate}
           <div class="dropdown-select">
-          <Select items={doneGroups} bind:justValue={doneGroup}/>
+          <Select items={groups} bind:justValue={doneGroup}/>
           </div>
           {:else}
           <div class="input-value">
-            <p>{doneGroup}</p>
+            <p>{app.app_permit_done}</p>
           </div>
           {/if}
         </div>
@@ -206,8 +236,11 @@ import Popup from "$lib/components/Popup.svelte";
         <div class="input-label">
           <label for="description">Description:</label>
         </div>
-        
-        <textarea id="description" bind:value={description} maxlength="255" disabled={!isCreate}></textarea>
+        {#if isCreate}
+        <textarea id="description" bind:value={description} maxlength="255"></textarea>
+        {:else}
+        <textarea id="description" bind:value={app.app_description} disabled></textarea>
+        {/if}
       </div>
       
       <div class="form-actions">

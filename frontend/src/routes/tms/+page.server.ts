@@ -1,7 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import axiosInstance from "../../lib/axiosConfig";
 import type { PageServerLoad } from "./$types";
-import { success } from "$lib/components/Popup.svelte";
 
 export const load: PageServerLoad = async ({ cookies, request }) => {
   let token = cookies.get("token");
@@ -23,7 +22,8 @@ export const load: PageServerLoad = async ({ cookies, request }) => {
       } else {
         return false;
       }
-    });
+    })
+    .catch((err) => console.log("TMS ERROR ", err.response.data));
   const appsResult = await axiosInstance
     .get(`/apps`, {
       headers: {
