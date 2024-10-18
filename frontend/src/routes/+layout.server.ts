@@ -8,7 +8,7 @@ export const load: LayoutServerLoad = async ({ cookies, request }) => {
   if (token) {
     isLoggedIn = true;
     const response = await axiosInstance
-      .get("checkIsAdmin", {
+      .get("/checkIsAdmin", {
         headers: {
           Authorization: `Bearer ${token}`,
           "user-agent": request.headers.get("user-agent"),
@@ -18,6 +18,10 @@ export const load: LayoutServerLoad = async ({ cookies, request }) => {
       .then((res) => {
         let data = res.data;
         isUserAdmin = data.isInGroup;
+      })
+      .catch((err) => {
+        console.log("CHECK IS ADMIN ERROR ", err.response.data);
+        return err.response.data;
       });
   }
   return { isLoggedIn, isAdmin: isUserAdmin };

@@ -1,45 +1,21 @@
 <script lang='ts'>
 import Modal from "$lib/components/Modal.svelte";
-import AppViewCard from "$lib/components/App/AppViewCard.svelte";
 import type { PageServerData } from "./$types";
 import PlanTable from "$lib/components/Plan/PlanTable.svelte";
 import { onMount} from "svelte";
 import axiosInstance from "$lib/axiosConfig";
-import { invalidate } from "$app/navigation";
-  import AppForm from "$lib/components/App/AppForm.svelte";
+import AppForm from "$lib/components/App/AppForm.svelte";
+import CreateTaskForm from "$lib/components/Task/CreateTaskForm.svelte";
+import TaskCard from "$lib/components/Task/TaskCard.svelte";
 export let data:PageServerData
-console.log("RENDERING SCRIPT")
 let createPlanSuccessMsg:string|undefined;
 let showAppModal = false
 let showPlanModal = false
-let app:App = {
-  app_acronym:'',
-  app_rnumber:0,
-  app_description:"",
-  app_startdate:"",
-  app_enddate:'',
-  app_permit_create:"",
-  app_permit_open:'',
-  app_permit_todolist:'',
-  app_permit_doing:"",
-  app_permit_done:'',
-};
-
+let showTaskModal = false
+let appAcronym='';
 let token;
-
-const closeAppModal = ()=>{
-  showAppModal = false;
-}
-const openAppModal = ()=> {
-  showAppModal=true;
-}
-const closePlanModal = () => {
-    showPlanModal = false
-}
-const openPlanModal = () => {
-    showPlanModal = true
-}
-
+let openTasks:taskInfo[]=[], todoTasks:taskInfo[]=[], doingTasks:taskInfo[]=[], doneTasks:taskInfo[]=[], closedTasks:taskInfo[]=[];
+let isPermitCreate:boolean, isPermitOpen:boolean, isPermitTodo:boolean, isPermitDoing:boolean, isPermitDone:boolean;
 $:({token, isUserPM} = data);
   const timeout= 3000;
   $:{
@@ -50,65 +26,97 @@ $:({token, isUserPM} = data);
     }
   }
 
-onMount(async()=>{
-  app.app_acronym = localStorage.getItem('app')||'';
-  const appData = await axiosInstance.post('/app',
-  {
-    appAcronym:app.app_acronym
-  },
-  {
-   headers:{
-    Authorization:`Bearer ${token}`
-   },
-   withCredentials:true 
-  }).then(res=>res.data)
-  app = appData.data[0]  
-})
-const handleSuccess=(event)=>{
-    createAppSuccessMsg = event.detail;
+  const getAppTasks = async()=>{
+    await axiosInstance.post("/appTasks",{
+    appAcronym
+  },{
+    headers:{
+      Authorization:`Bearer ${token}`
+    },withCredentials:true
+  }).then(res=>{
+    let data = res.data
+    openTasks=data.open
+    todoTasks=data.todo
+    doingTasks=data.doing
+    doneTasks=data.done
+    closedTasks=data.closed})
   }
+
+onMount(async()=> {
+  appAcronym = localStorage.getItem('app')||'';
+  await getAppTasks();
+  await axiosInstance.post("/taskPermissions",{
+    appAcronym
+  },{
+    headers:{
+      Authorization:`Bearer ${token}`
+    },withCredentials:true
+  }).then(res=>{
+    let data=res.data;
+    ({isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermitDone}=data)
+  })
+})
+
 </script>
 {#if showAppModal}
-<Modal closeModal={closeAppModal} bind:showModal={showAppModal}>
-  <AppForm isCreate={false} on:close={closeAppModal}
-  appAcronym={app.app_acronym} startDate={app.app_startdate} endDate={app.app_enddate}
-  description={app.app_description} createGroup={app.app_permit_create} openGroup={app.app_permit_open}
-  todoGroup={app.app_permit_todolist} doingGroup={app.app_permit_doing} doneGroup={app.app_permit_done}/>
+<Modal closeModal={()=>{showAppModal=false}} bind:showModal={showAppModal}>
+  <AppForm isCreate={false} on:close={()=>{showAppModal=false}} {token} appAcronym={appAcronym}/>
 </Modal>
 {/if}
 {#if showPlanModal}
-<Modal closeModal={closePlanModal} bind:showModal={showPlanModal}>
-    <PlanTable {token} appAcronym={app.app_acronym}/>
+<Modal closeModal={()=>{(showPlanModal=false)}} bind:showModal={showPlanModal}>
+  <PlanTable {token} appAcronym={appAcronym}/>
+</Modal>
+{/if}
+{#if showTaskModal}
+<Modal closeModal={()=>{(showTaskModal=false)}} bind:showModal={showTaskModal} >
+  <CreateTaskForm on:refresh={getAppTasks} on:close={()=>{showTaskModal=false}} appAcronym={appAcronym} {token}/>
 </Modal>
 {/if}
 <body>
   <main>
       <section class="app-header">
-          <h1>{app.app_acronym}</h1>
-          <button on:click={openAppModal}>View App Details</button>
+          <h1>{appAcronym}</h1>
+          <button on:click={()=>{showAppModal=true}}>View App Details</button>
       </section>
       
       <div class="actions">
-        
-          <button class="btn" on:click={openPlanModal}>Plans</button>
-          <button class="btn">Create Task</button>
+        {#if isPermitCreate}
+          <button class="btn" on:click={()=>{showTaskModal=true}}>Create Task</button>
+        {/if}
+        <button class="btn" on:click={()=>{showPlanModal=true}}>Plans</button>  
       </div>
       
       <section class="task-board">
           <div class="column">
-              <h2>Open</h2>    
+              <h2>Open</h2>
+              {#each openTasks as openTask}
+                <TaskCard on:refresh={getAppTasks} {token} taskname={openTask.task_name} taskId={openTask.task_id} taskOwner={openTask.task_owner} taskPlanColour={openTask.plan_colour} isPermitEdit={isPermitOpen} taskState={openTask.task_state}/>
+              {/each}    
           </div>
           <div class="column">
               <h2>Todo</h2>
+              {#each todoTasks as todoTask}
+              <TaskCard on:refresh={getAppTasks} {token} taskname={todoTask.task_name} taskId={todoTask.task_id} taskOwner={todoTask.task_owner} taskPlanColour={todoTask.plan_colour} isPermitEdit={isPermitTodo} taskState={todoTask.task_state}/>
+            {/each}  
           </div>
           <div class="column">
               <h2>Doing</h2>
+              {#each doingTasks as doingTask}
+              <TaskCard on:refresh={getAppTasks} {token} taskname={doingTask.task_name} taskId={doingTask.task_id} taskOwner={doingTask.task_owner} taskPlanColour={doingTask.plan_colour} isPermitEdit={isPermitDoing} taskState={doingTask.task_state}/>
+            {/each} 
           </div>
           <div class="column">
               <h2>Done</h2>
+              {#each doneTasks as doneTask}
+              <TaskCard on:refresh={getAppTasks} {token} taskname={doneTask.task_name} taskId={doneTask.task_id} taskOwner={doneTask.task_owner} taskPlanColour={doneTask.plan_colour} isPermitEdit={isPermitDone} taskState={doneTask.task_state}/>
+            {/each} 
           </div>
           <div class="column">
               <h2>Closed</h2>
+              {#each closedTasks as closedTask}
+              <TaskCard on:refresh={getAppTasks} {token} taskname={closedTask.task_name} taskId={closedTask.task_id} taskOwner={closedTask.task_owner} taskPlanColour={closedTask.plan_colour} isPermitEdit={false} taskState={closedTask.task_state}/>
+            {/each} 
           </div>
       </section>
   </main>

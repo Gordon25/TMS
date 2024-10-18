@@ -34,3 +34,24 @@ interface Plan {
   plan_enddate: string;
   plan_colour: string;
 }
+
+interface taskInfo {
+  task_id: string;
+  task_name: string;
+  task_owner: string;
+  task_state: string;
+  plan_colour: string;
+}
+
+interface Task {
+  task_id: string;
+  task_name: String;
+  task_plan: string;
+  task_state: string;
+  task_creator: string;
+  task_owner: string;
+  task_createdate: string;
+  task_description: string;
+  task_notes: string;
+  task_app_acronym: string;
+}

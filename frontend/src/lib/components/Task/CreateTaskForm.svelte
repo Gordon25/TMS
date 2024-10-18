@@ -2,29 +2,90 @@
   import axiosInstance from "$lib/axiosConfig";
   import { onMount } from "svelte";
   import Select from "svelte-select"
-  export let token:string='';
-  let plans:string[]=[];
-  let taskState = 'Open';
-  let taskCreator: string;
-  let taskOwner: string;
-  // export let formAction:string;
+  import Popup from "$lib/components/Popup.svelte"
+  import { createEventDispatcher } from "svelte";
+  export let appAcronym:string;
+  export let token:string = '';
+  let plans:string[];
   let taskname:string;
   let taskPlan:string;
+  let taskState = '-';
+  let taskCreator: string;
+  let taskOwner: string;
+  let taskDescription:string = '';
+  let taskNotes:string = '';
+  let createTaskResult:{success:boolean,field:string, message:string, taskname?:string, taskPlan?:string, taskDescription?:string, taskNotes?:string}|undefined
+  let selectedPlan='';
+  const dispatch = createEventDispatcher();
+  const closeModal = ()=> {
+    dispatch('close');
+  }
+  const refreshPage = ()=>{
+    dispatch('refresh')
+  }
+  const closeForm = ()=>{
+    refreshPage();
+    closeModal();
+  }
+  const createTask = async()=> {
+    await axiosInstance.post("/tasks",{
+      appAcronym,
+      taskname,
+      taskPlan, 
+      taskState, 
+      taskCreator,
+      taskOwner,
+      taskDescription, 
+      taskNotes
+    },{
+      headers:{
+        Authorization: `Bearer ${token}`,
+      },withCredentials:true
+    }).then(res=>{createTaskResult=res.data})
+    .catch(err=>console.log(err));
+    taskname = createTaskResult?.taskname||''
+    taskDescription = createTaskResult?.taskDescription||''
+    taskNotes= createTaskResult?.taskNotes||''
+    selectedPlan=''
+  }
+
+  const timeout = 3000
+  $: {
+    if (createTaskResult) {
+      setTimeout(()=>{
+        createTaskResult = undefined
+      }, timeout)
+    }
+  }
+  
   onMount(async()=>{
     const userResult = await axiosInstance.get("/user",{
       headers:{
         Authorization: `Bearer ${token}`,
       },withCredentials:true
     }).then(res=>res.data)
-    .catch(err=>console.log(err.response.data))
+    .catch(err=>console.log(err))
     const {username} = userResult.data
     taskCreator = username;
     taskOwner = username;
-    console.log(userResult);
+    const plansData  = await axiosInstance.post('/appPlans', 
+    {
+      appAcronym
+    },
+    {
+    headers:{
+      Authorization:`Bearer ${token}`
+    },
+    withCredentials:true 
+    }).then(res=>res.data);
+    plans = plansData.data.map(plans=>plans.plan_mvp_name);
   })
 </script>
 
 <div class="form-container">
+  {#if createTaskResult}
+    <Popup message={createTaskResult.message} success={createTaskResult.success}/>
+  {/if}
   <form>
     <div class="form-left">
       <div class="input-group">
@@ -32,17 +93,13 @@
           <label for="task-name">Task name:</label>
         </div>
         <div class='input-value'>
-          <slot name="task-name">
            <input type='text' id='task-name' name='task-name' bind:value={taskname}/>
-          </slot>
         </div>
       </div>
       <div class='input-group'>
         <div class='input-label'>
-          <slot name='task-id-label'></slot>
         </div>
         <div class='input-value'>
-          <slot name='task-id-value'></slot>
         </div>
       </div>
       <div class="input-group">
@@ -50,11 +107,9 @@
             <label for="task-plan">Plan:</label>
           </div>
           <div class='input-value'>
-            <slot name="task-plan">
               <div class='dropdown-select'>
-                <Select items={plans} bind:value={taskPlan} />
+                <Select items={plans} bind:justValue={taskPlan} bind:value={selectedPlan}/>
               </div>
-            </slot>
           </div>
       </div>
       <div class="input-group">
@@ -81,53 +136,34 @@
           <p>{taskOwner}</p>
         </div>
       </div>
-      {#if taskState != 'Open'}
-      <div class='input-group'>
-        <div class='input-label'>
-          <slot name='task-create-date-label'></slot>
-        </div>
-        <div class='input-value'>
-          <slot name='task-create-date-value'></slot>
-        </div>
-      </div>
-      {/if}
       <div class="input-description">
         <div class='input-label'>
           <label for="description">Description:</label>
         </div>
-        <slot name="task-description">
-          <textarea id="description" maxlength="255"></textarea>
-        </slot>
+          <textarea id="description" maxlength="255" bind:value={taskDescription}></textarea>
       </div>
     </div>
     <div class="vl"></div>
     <div class="form-right">
-      <slot name='notes'>
       <div class='add-notes'>
         <label for='notes'>Add Notes:</label>
       </div>
       <div class="input-text">
-      <textarea id='notes'></textarea>
+      <textarea id='notes' bind:value={taskNotes}></textarea>
       </div>
-      </slot>
     </div>
   </form>
     <div class="form-actions">
         <div class='first-btn-container'>
-        <slot name='first-btn'></slot>
       </div>
       <div class='second-btn-container'>
-        <slot name='second-btn'></slot>
+        
       </div>
       <div class='third-btn-container'>
-        <slot name='third-btn'>
-          <button class='third-btn'>Save Changes</button>
-        </slot>
+          <button class='third-btn' on:click={createTask}>Create Task</button>
       </div>
       <div class='fourth-btn-container'>
-        <slot name='fourth-btn'>
-          <button class='fourth-btn'>Cancel</button>
-        </slot>
+          <button class='fourth-btn' on:click={closeForm}>Cancel</button>
       </div>
     </div>
 </div>
