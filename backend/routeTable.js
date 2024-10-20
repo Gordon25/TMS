@@ -1,11 +1,11 @@
 import loginController from "./controllers/login.js";
-import { authLogin, authGroups } from "./controllers/auth.js";
+import { authLogin, authGroups } from "./middleware/auth.js";
 import createUserController from "./controllers/createUser.js";
-import validateUsernameController from "./controllers/validateUsername.js";
+import validateUsernameController from "./middleware/validateUsername.js";
 import {
   validatePasswordController,
   validateEmailController,
-} from "./controllers/validatePasswordAndEmail.js";
+} from "./middleware/validatePasswordAndEmail.js";
 import {
   updatePasswordController,
   updateEmailController,
@@ -19,23 +19,16 @@ import getGroupsController from "./controllers/getGroups.js";
 import checkIsUserInGroup from "./controllers/checkIsInGroup.js";
 import app from "./app.js";
 import getAppsController from "./controllers/getApps.js";
-import validateAppAcronymController from "./controllers/validateAppAcronym.js";
+import validateAppAcronymController from "./middleware/validateAppAcronym.js";
 import createAppController from "./controllers/createApp.js";
-import validateStartEndDateController from "./controllers/validateStartEndDate.js";
-import validateGroupsController from "./controllers/validateGroups.js";
+import validateStartEndDateController from "./middleware/validateStartEndDate.js";
+import validateGroupsController from "./middleware/validateGroups.js";
 import getPlansController from "./controllers/getPlans.js";
-import validatePlanNameController from "./controllers/validatePlanName.js";
+import validatePlanNameController from "./middleware/validatePlanName.js";
 import createPlanController from "./controllers/createPlan.js";
 import getAppController from "./controllers/getApp.js";
-import validateTaskNameController from "./controllers/validateTaskName.js";
-import {
-  authCreateTask,
-  authReleaseTask,
-  authTodoTask,
-  authDoingTask,
-  authDoneTask,
-  authEditTaskNotes,
-} from "./controllers/authTaskAction.js";
+import validateTaskNameController from "./middleware/validateTaskName.js";
+import { authTaskAction, authCreateTask } from "./middleware/authTaskAction.js";
 import createTaskController from "./controllers/createTask.js";
 import getTasksController from "./controllers/getTasks.js";
 import getTaskPermissionsController from "./controllers/getTaskPermissions.js";
@@ -116,17 +109,17 @@ app.post("/tasks", authLogin, authCreateTask, validateTaskNameController, create
 app.post("/task", authLogin, getTaskController);
 
 //update task notes
-app.put("/taskNotes", authLogin, authEditTaskNotes, updateTaskNotes);
+app.put("/taskNotes", authLogin, authTaskAction, updateTaskNotes);
 
 //update task plan
-app.put("/updateReleaseTaskPlan", authLogin, authReleaseTask, updateTaskPlan);
-app.put("/updateDoneTaskPlan", authLogin, authDoneTask, updateTaskPlan);
+app.put("/updateReleaseTaskPlan", authLogin, authTaskAction, updateTaskPlan);
+app.put("/updateDoneTaskPlan", authLogin, authTaskAction, updateTaskPlan);
 
 //update task state
-app.put("/updateOpenTaskState", authLogin, authReleaseTask, updateTaskState);
-app.put("/updateTodoTaskState", authLogin, authTodoTask, updateTaskState);
-app.put("/updateDoingTaskState", authLogin, authDoingTask, updateTaskState);
-app.put("/updateDoneTask", authLogin, authDoneTask, updateTaskState);
+app.put("/updateOpenTaskState", authLogin, authTaskAction, updateTaskState);
+app.put("/updateTodoTaskState", authLogin, authTaskAction, updateTaskState);
+app.put("/updateDoingTaskState", authLogin, authTaskAction, updateTaskState);
+app.put("/updateDoneTask", authLogin, authTaskAction, updateTaskState);
 //Task Permissions
 app.post("/taskPermissions", authLogin, getTaskPermissionsController);
 export default app;
