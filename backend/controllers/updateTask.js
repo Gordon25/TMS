@@ -93,8 +93,8 @@ const updateTaskState = async (req, res) => {
       transporter.sendMail({
         from: `"Maddison Foo Koch " ${process.env.SMTP_FROM_EMAIL}`,
         to: emails.join(", "),
-        subject: `Task review for required.`,
-        text: `One or more task(s) is submitted for approval, requires your attention.`,
+        subject: `Pending task review.`,
+        text: `Task ${taskId} is pending approval.`,
       });
     } else {
       newState = "Todo";
