@@ -24,10 +24,10 @@ export default async (req, res) => {
 
       // get current groups
       const currentJoinedGroups = await db
-        .query(
+        .execute(
           `SELECT groupname from user_groups
       WHERE username = ?;`,
-          username
+          [username]
         )
         .then(([groups, fields]) => groups)
         .then((groups) => groups.map((group) => group.groupname));
@@ -37,12 +37,22 @@ export default async (req, res) => {
         (curr_group) => !groups.includes(curr_group)
       );
       if (groupsToRemove.length > 0) {
+        // Dynamically create placeholders for the number of groups to remove
         const groupsPlaceholder = groupsToRemove.map(() => "?").join(", ");
+
+        // Create the query with the correct number of placeholders
         await db.execute(
           `DELETE FROM user_groups
-      WHERE username = '${username}' and
-      groupname in (${groupsPlaceholder});`,
-          [groupsToRemove]
+        WHERE username = ? 
+        AND groupname IN (${groupsPlaceholder});`,
+          [username, ...groupsToRemove]
+        );
+
+        console.log(
+          `DELETE FROM user_groups
+        WHERE username = ? and
+        groupname in (${groupsPlaceholder});`,
+          [username, ...groupsToRemove]
         );
       }
 
@@ -53,7 +63,7 @@ export default async (req, res) => {
         const values = groupsToAdd.flatMap((group) => [group, username]);
         await db.execute(
           `INSERT INTO user_groups (groupname, username) VALUES ${newGroupsPlaceholder};`,
-          values
+          [...values]
         );
       }
 
