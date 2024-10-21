@@ -1,6 +1,8 @@
 import { db } from "../utils/db.js";
 import timeStampNotes from "../utils/timeStampNotes.js";
 import jwt from "jsonwebtoken";
+import transporter from "../utils/transporter.js";
+
 const updateTaskNotes = async (req, res) => {
   const { taskNotes, taskId, taskState } = req.body;
   if (taskNotes !== "") {
@@ -75,6 +77,25 @@ const updateTaskState = async (req, res) => {
   } else if (taskState === "Doing") {
     if (willPromote) {
       newState = "Done";
+      const emails = await db
+        .execute(
+          `select email from accounts where username in 
+	    (select username from user_groups where groupname = 
+		    (select app_permit_done from applications where app_acronym = 
+			    (select task_app_acronym from tasks where task_id = ?)));`,
+          [taskId]
+        )
+        .then(([emails, fields]) => emails)
+        .then((emails) => emails.map((email) => email.email))
+        .then((emails) => emails.filter((email) => email != null));
+      console.log("EMAIL ", emails.join(", "));
+
+      transporter.sendMail({
+        from: `"Maddison Foo Koch " ${process.env.SMTP_FROM_EMAIL}`,
+        to: emails.join(", "),
+        subject: `Task review for required.`,
+        text: `One or more task(s) is submitted for approval, requires your attention.`,
+      });
     } else {
       newState = "Todo";
     }
