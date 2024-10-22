@@ -33,37 +33,33 @@ const updateTaskNotes = async (req, res) => {
 
 const updateTaskPlan = async (req, res) => {
   const { taskPlan, taskId } = req.body;
-  if (taskPlan && taskPlan !== "") {
-    try {
-      const currTaskPlan = await db
-        .execute("SELECT task_plan from tasks where task_id=?;", [taskId])
-        .then(([plans, fields]) => plans[0]);
+  try {
+    const currTaskPlan = await db
+      .execute("SELECT task_plan from tasks where task_id=?;", [taskId])
+      .then(([plans, fields]) => plans[0]);
 
-      if (currTaskPlan === taskPlan) {
-        res.status(200).json({
-          succes: false,
-          message: "Task plan not updated.",
-        });
-      } else {
-        const token = req.headers.authorization.split(" ")[1];
-        const { username } = jwt.verify(token, process.env.JWT_SECRET);
-
-        await db.execute("UPDATE tasks set task_plan = ?, task_owner=? where task_id =?;", [
-          taskPlan,
-          username,
-          taskId,
-        ]);
-        res.status(200).json({ succes: true, message: `Task ${taskId} updated.` });
-      }
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({
-        success: false,
-        message: "Internal Server Error.",
+    if (currTaskPlan === taskPlan) {
+      res.status(200).json({
+        succes: false,
+        message: "Task plan not updated.",
       });
+    } else {
+      const token = req.headers.authorization.split(" ")[1];
+      const { username } = jwt.verify(token, process.env.JWT_SECRET);
+
+      await db.execute("UPDATE tasks set task_plan = ?, task_owner=? where task_id =?;", [
+        taskPlan,
+        username,
+        taskId,
+      ]);
+      res.status(200).json({ succes: true, message: `Task ${taskId} updated.` });
     }
-  } else {
-    res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error.",
+    });
   }
 };
 
