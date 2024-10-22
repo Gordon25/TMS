@@ -92,6 +92,10 @@
 
   const saveChanges=async()=>{
     updateTaskNotesResult=await updateTaskNotes();
+    console.log(task.task_state==='Open')
+    if (task.task_state==='Open') {
+      await updateTaskPlan();
+    }
     task = await getTask();
   }
   const saveAndRelease=async()=>{
@@ -268,7 +272,9 @@
           {/if}
       </div>
       <div class='second-btn-container'>
-        {#if task.task_state==='Todo'}
+        {#if task.task_state==='Open'}
+          <button class="green-btn" on:click|preventDefault={saveAndRelease}>Save and Release</button>
+        {:else if task.task_state==='Todo'}
         <button class='green-btn' on:click={saveAndPromote}>Save and pick up</button>
         {:else if task.task_state==='Doing'}
         <button class="green-btn" on:click={saveAndPromote}>Save and Seek Approval</button>
@@ -277,9 +283,7 @@
         {/if}
       </div>
       <div class='third-btn-container'>
-          {#if task.task_state==='Open'}
-          <button  on:click|preventDefault={saveAndRelease}>Save and Release</button>
-          {:else if task.task_state!=='Closed' && isPermitEdit}
+          {#if task.task_state!=='Closed' && isPermitEdit}
           <button on:click|preventDefault={saveChanges} disabled={task.task_state==='Done'&&isPlanChanged}>Save Changes</button>
           {/if}
       </div>
