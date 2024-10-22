@@ -4,12 +4,10 @@ import type { PageServerData } from "./$types";
 import PlanTable from "$lib/components/Plan/PlanTable.svelte";
 import { onMount} from "svelte";
 import axiosInstance from "$lib/axiosConfig";
-import AppForm from "$lib/components/App/AppForm.svelte";
 import CreateTaskForm from "$lib/components/Task/CreateTaskForm.svelte";
 import TaskCard from "$lib/components/Task/TaskCard.svelte";
 export let data:PageServerData
 let createPlanSuccessMsg:string|undefined;
-let showAppModal = false
 let showPlanModal = false
 let showTaskModal = false
 let appAcronym='';
@@ -25,7 +23,6 @@ $:({token, isUserPM} = data);
       }, timeout)
     }
   }
-
   const getAppTasks = async()=>{
     await axiosInstance.post("/appTasks",{
     appAcronym
@@ -56,20 +53,16 @@ onMount(async()=> {
     ({isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermitDone}=data)
   })
 })
-
+$:console.log(isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermitDone)
 </script>
-{#if showAppModal}
-<Modal closeModal={()=>{showAppModal=false}} bind:showModal={showAppModal}>
-  <AppForm isCreate={false} on:close={()=>{showAppModal=false}} {token} appAcronym={appAcronym}/>
-</Modal>
-{/if}
+
 {#if showPlanModal}
-<Modal closeModal={()=>{(showPlanModal=false)}} bind:showModal={showPlanModal}>
+<Modal closeModal={()=>{(showPlanModal=false)}} bind:showModal={showPlanModal} on:closeModal={getAppTasks}>
   <PlanTable {token} appAcronym={appAcronym}/>
 </Modal>
 {/if}
 {#if showTaskModal}
-<Modal closeModal={()=>{(showTaskModal=false)}} bind:showModal={showTaskModal} >
+<Modal closeModal={()=>{(showTaskModal=false)}} bind:showModal={showTaskModal} on:closeModal={getAppTasks}>
   <CreateTaskForm on:refresh={getAppTasks} on:close={()=>{showTaskModal=false}} appAcronym={appAcronym} {token}/>
 </Modal>
 {/if}
@@ -77,7 +70,6 @@ onMount(async()=> {
   <main>
       <section class="app-header">
           <h1>{appAcronym}</h1>
-          <button on:click={()=>{showAppModal=true}}>View App Details</button>
       </section>
       
       <div class="actions">
@@ -155,19 +147,8 @@ main {
 }
 
 .app-header h1 {
-    font-size: 24px;
-}
-
-.app-header button {
-    text-decoration: none;
-    width:90%;
-    color: #000;
-    font-size: 16px;
-    margin-right:79%;
-    background-color: transparent;
-}
-.app-header button:hover {
-  background-color:blue
+    margin-left: 25%;
+    font-size: 36px;
 }
 
 .actions {
@@ -208,12 +189,4 @@ main {
     margin-bottom: 5px;
 }
 
-.child {
-    margin-bottom: 6px; /* Adds 20px spacing between child elements */
-}
-
-/* Optionally, you can remove margin on the last child */
-.child:last-child {
-    margin-bottom: 0; /* Removes bottom margin from the last child */
-}
 </style>
