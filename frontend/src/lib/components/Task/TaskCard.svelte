@@ -12,7 +12,7 @@
 </script>
 {#if showForm}
   <Modal closeModal={()=>{showForm=false}} bind:showModal={showForm}>
-    <EditTaskForm on:close={()=>showForm=false} on:refresh {token} {taskId} {taskState} {isPermitEdit}/>
+    <EditTaskForm on:close={()=>showForm=false} on:refresh on:stateUpdate {token} {taskId} {taskState} {isPermitEdit}/>
   </Modal>
 {/if}
 <!-- svelte-ignore a11y-no-static-element-interactions -->
