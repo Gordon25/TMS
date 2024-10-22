@@ -4,6 +4,7 @@
   import Select from "svelte-select"
   import Popup from "$lib/components/Popup.svelte"
   import { createEventDispatcher } from "svelte";
+  import handleError from "$lib/errorHandler";
   export let token:string = '';
   export let plans:string[]=[];
   export let taskState:string;
@@ -20,7 +21,7 @@
                 task_description:'',
                 task_notes:'',
                 task_app_acronym:''};
-  let taskPlan:string|undefined;
+  let taskPlan:string='';
   let taskNotes:string='';
   let isPlanChanged:boolean;
   let updateTaskNotesResult:{success:boolean, message:string}|undefined;
@@ -144,7 +145,7 @@
     plans = plansData.data.map((plans:{plan_mvp_name:string;})=>plans.plan_mvp_name);
   }
   })
-  $:{isPlanChanged=((taskPlan!==undefined && taskPlan!=="") && (taskPlan!=task.task_plan))}
+  $:{isPlanChanged=(taskPlan!==task.task_plan); console.log("IS PLAN CHANGED ", isPlanChanged)}
   const timeout = 3000
   $: {
     if (updateTaskNotesResult) {
@@ -153,7 +154,12 @@
       }, timeout)
     }
   }
-  $:console.log("TASK PLAN CURRENTLY ", taskPlan)
+  $:console.log("TASK PLAN CURRENTLY ", taskPlan, "plan obj",selectedPlanObject,  selectedPlanObject==='')
+  $:{
+    if (taskPlan===undefined) {
+      taskPlan='';
+    }
+  }
 </script>
 {#if updateTaskNotesResult}
     <Popup message={updateTaskNotesResult.message} success={updateTaskNotesResult.success}/>
@@ -184,7 +190,7 @@
           <div class='input-value'>
             {#if isPermitEdit && (task.task_state==='Open' || task.task_state==='Done')}
               <div class='dropdown-select'>
-                <Select items={plans} bind:justValue={taskPlan} value={selectedPlanObject} />
+                <Select items={plans} bind:justValue={taskPlan} value={selectedPlanObject} on:clear={()=>taskPlan=''} />
               </div>
             {:else}
               <p>{task.task_plan}</p>
