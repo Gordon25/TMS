@@ -70,6 +70,7 @@ const updateTaskPlan = async (req, res) => {
 const updateTaskState = async (req, res) => {
   const { taskState, willPromote, taskId } = req.body;
   let newState;
+  let message = `${taskId} successfully promoted.`;
   if (taskState === "Open") {
     newState = "Todo";
   } else if (taskState === "Todo") {
@@ -98,12 +99,14 @@ const updateTaskState = async (req, res) => {
       });
     } else {
       newState = "Todo";
+      message = `${taskId} successfully demoted.`;
     }
   } else if (taskState === "Done") {
     if (willPromote) {
       newState = "Closed";
     } else {
       newState = "Doing";
+      message = `${taskId} successfully demoted.`;
     }
   }
   try {
@@ -116,7 +119,7 @@ const updateTaskState = async (req, res) => {
     ]);
     res.status(200).json({
       succes: true,
-      message: `Task ${taskId} state has been updated`,
+      message,
     });
   } catch (error) {
     console.log(error);
