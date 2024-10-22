@@ -96,12 +96,6 @@
            <input type='text' id='task-name' name='task-name' bind:value={taskname}/>
         </div>
       </div>
-      <div class='input-group'>
-        <div class='input-label'>
-        </div>
-        <div class='input-value'>
-        </div>
-      </div>
       <div class="input-group">
           <div class='input-label'>
             <label for="task-plan">Plan:</label>
@@ -136,29 +130,28 @@
           <p>{taskOwner}</p>
         </div>
       </div>
-      <div class="input-description">
+      <div class="input-description-group">
         <div class='input-label'>
           <label for="description">Description:</label>
         </div>
+        <div class='input-description'>
           <textarea id="description" maxlength="255" bind:value={taskDescription}></textarea>
+        </div>
       </div>
     </div>
     <div class="vl"></div>
     <div class="form-right">
-      <div class='add-notes'>
-        <label for='notes'>Add Notes:</label>
-      </div>
-      <div class="input-text">
-      <textarea id='notes' bind:value={taskNotes}></textarea>
+      <div class='add-notes-group'>
+        <div class="add-notes-label">
+          <label for='notes'>Add Notes:</label>
+        </div>
+        <div class="add-notes">
+          <textarea id='notes' bind:value={taskNotes}></textarea>
+        </div>
       </div>
     </div>
   </form>
     <div class="form-actions">
-        <div class='first-btn-container'>
-      </div>
-      <div class='second-btn-container'>
-        
-      </div>
       <div class='third-btn-container'>
           <button class='third-btn' on:click={createTask}>Create Task</button>
       </div>
@@ -171,26 +164,29 @@
 <style>
 
 .form-container {
-    width: 95%;
     margin: 0 auto;
     padding: 20px;
     background-color: #f4f4f4;
-    /* border: 1px solid #ddd; */
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
     height: 70vh;
+    font-size: 18px;
   }
 
   form {
     display: grid;
-    grid-template-columns: 0.40fr 0.01fr 0.75fr;
-    gap: 0;
-    height: 95%;
+    grid-template-columns: 0.30fr 0.01fr 0.65fr;
+    gap: 20px;
+    height: 100%;
+    width: 100%;
   }
 
   .form-left {
-    display: flex;
+    display: grid;
     flex-direction: column;
-    height: 100%;
+    gap:3%;
+    grid-template-rows: 0.1fr 0.1fr 0.1fr 0.1fr 0.1fr 0.73fr;
   }
 
   label {
@@ -210,12 +206,14 @@
   }
 
   .input-label {
-    align-content: right;
     white-space: nowrap;
+    font-size: 16px;
+    display: flex;;
+    justify-content: left;
   }
 
-  .input-text {
-    height: 95%;
+  .add-notes-group {
+    height: 100%;
     display: flex;
     flex-direction: column;
     width: 95%;
@@ -224,6 +222,14 @@
     margin-bottom: 0;
   }
 
+  .add-notes-label {
+    margin-bottom: 10px;
+  }
+
+  .add-notes {
+    height: 90%;
+    width: 100%;
+  }
 input[type="text"],
 textarea,
 /* Target the dropdown select container */
@@ -249,14 +255,14 @@ textarea,
     resize: none;
   }
 
-  .input-description {
-    height: 30%;
+  .input-description-group {
+    height: 100%;
   }
-  .input-description .input-label {
+  .input-description-group .input-label {
     margin-bottom: 10px;
   }
-  .input-description textarea {
-    width: 90%;
+  .input-description-group .input-description {
+    width: 95%;
     height: 100%;
   }
 
@@ -265,14 +271,14 @@ textarea,
     display: flex;
     justify-content: space-between;
     min-height: 6%;
-    width: 97%;
+    margin-left: 44.5%;
+    width: 50%;
   }
 
-  .form-actions {
-    grid-column: span 4;
+  .form-right {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    grid-column-gap: 10px;
   }
 
   .form-actions :global(button) {
@@ -284,30 +290,15 @@ textarea,
     cursor: pointer;
     width:100%;
     height:100%;
-  }
-
-  .form-actions :global(button:hover) {
-    background-color: #333;
-  }
-
-  .form-actions :global(button:disabled) {
-    background-color: #999;
-  }
+    font-size: 18px;
+  }  
   
-  .first-btn-container {
+  .third-btn-container {
     grid-column: 1;
   }
 
-  .second-btn-container {
-    grid-column: 2;
-  }
-  
-  .third-btn-container {
-    grid-column: 3;
-  }
-
   .fourth-btn-container {
-    grid-column: 4;
+    grid-column: 2;
   }
 
   .third-btn {
@@ -326,16 +317,13 @@ textarea,
     background-color: rgb(243, 98, 41);
   }
 
-  .first-btn-container, .second-btn-container, .third-btn-container, .fourth-btn-container {
-    width: 20%;
+ .third-btn-container, .fourth-btn-container {
+    width: 40%;
   }
 
   .vl {
-  border-left: 0.05rem solid black;
-  height: auto;
-  position: relative;
-  left: 0%;
-  margin-left: -3px;
-  top: 0;
+    border-left: 2px solid #000;
+    height: 100%;
+    margin: 0 auto;
   }
 </style>
