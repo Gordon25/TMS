@@ -4,7 +4,6 @@ import { createEventDispatcher, onMount } from "svelte";
 import axiosInstance from "$lib/axiosConfig";
 import { invalidateAll } from "$app/navigation";
 import Popup from "$lib/components/Popup.svelte";
-  export let isCreate:boolean;
   export let token:string='';
   export let appAcronym:string='';
   export let groups:string[]=[];
@@ -92,6 +91,7 @@ onMount(async()=>{
   app = appData.data[0] 
   console.log(app)
 })
+$:console.log(appAcronym, startDate, endDate, openGroup, description)
 </script>
 
 {#if appResult && appResult.field ==='app'}
@@ -104,131 +104,65 @@ onMount(async()=>{
         <div class='input-label'>
         <label for="app-acronym">App Acronym:</label>
         </div>
-      {#if isCreate}
-        <input type="text" id="app-acronym" name="app-acronym" bind:value={appAcronym}/>  
-      {:else}
         <div class='input-value'>
         <p>{app.app_acronym}</p>
         </div>
-      {/if}
       </div>
-      {#if appResult && appResult.field ==='app acronym'}
-      <Popup message={appResult.message} success={appResult.success}/>
-      {/if}
       <div class="input-group">
         <div class='input-label'>
         <label for="start-date">Start Date:</label>
         </div>
-        {#if isCreate}
-        <input type="date" id="start-date" name="start-date" bind:value={startDate}/>
-        {:else}
         <input type="date" id="start-date" name="start-date" bind:value={app.app_startdate} disabled/>
-        {/if}
       </div>
-      {#if appResult && appResult.field ==='start date'}
-      <Popup message={appResult.message} success={appResult.success}/>
-      {/if}
       <div class="input-group">
         <div class='input-label'>
         <label for="end-date">End Date:</label>
         </div>
-        {#if isCreate}
-        <input type="date" id="end-date" name="end-date" bind:value={endDate}/>
-        {:else}
         <input type="date" id="start-date" name="start-date" bind:value={app.app_enddate} disabled/>
-        {/if}
       </div>
-      {#if appResult && appResult.field ==='end date'}
-      <Popup message={appResult.message} success={appResult.success}/>
-      {/if}
       <div class="task-permissions">
         <p><strong>Task Permissions</strong></p>
       </div>
         <div class="input-group">
           <div class='input-label'>
           <label for="create">Create:</label>
-          </div>
-          {#if isCreate}
-          <div class='dropdown-select'>
-            <Select items={groups} bind:justValue={createGroup} />
-          </div>
-          {:else}
+        </div>
           <div class="input-value">
             <p>{app.app_permit_create}</p>
           </div>
-          {/if}
         </div>
-      {#if appResult && appResult.field ==='create'}
-      <Popup message={appResult.message} success={appResult.success}/>
-      {/if}
         <div class="input-group">
           <div class='input-label'>
           <label for="open">Open:</label>
-          </div> 
-          {#if isCreate}
-          <div class="dropdown-select">
-          <Select items={groups} bind:justValue={openGroup}/>
           </div>
-          {:else}
           <div class="input-value">
             <p>{app.app_permit_open}</p>
           </div>
-          {/if}
         </div>
-        {#if appResult && appResult.field ==='open'}
-        <Popup message={appResult.message} success={appResult.success}/>
-        {/if}
         <div class="input-group">
           <div class='input-label'>
           <label for="todo">ToDo:</label>
-          </div> 
-          {#if isCreate}
-          <div class="dropdown-select">
-          <Select items={groups} bind:justValue={todoGroup}/>
           </div>
-          {:else}
           <div class="input-value">
             <p>{app.app_permit_todolist}</p>
           </div>
-          {/if}
         </div>
-        {#if appResult && appResult.field ==='todo'}
-        <Popup message={appResult.message} success={appResult.success}/>
-        {/if}
         <div class="input-group">
           <div class='input-label'> 
             <label for="doing">Doing:</label>
           </div>
-          {#if isCreate}
-          <div class="dropdown-select">
-          <Select items={groups} bind:justValue={doingGroup}/>
-          </div>
-          {:else}
           <div class="input-value">
             <p>{app.app_permit_doing}</p>
           </div>
-          {/if}
         </div>
-        {#if appResult && appResult.field ==='doing'}
-        <Popup message={appResult.message} success={appResult.success}/>
-        {/if}
         <div class="input-group">
           <div class='input-label'>
           <label for="done">Done:</label>
           </div>
-          {#if isCreate}
-          <div class="dropdown-select">
-          <Select items={groups} bind:justValue={doneGroup}/>
-          </div>
-          {:else}
           <div class="input-value">
             <p>{app.app_permit_done}</p>
           </div>
-          {/if}
         </div>
-        {#if appResult && appResult.field ==='done'}
-        <Popup message={appResult.message} success={appResult.success}/>
-        {/if}
       
     </div>
     <div class="form-right">
@@ -236,18 +170,7 @@ onMount(async()=>{
         <div class="input-label">
           <label for="description">Description:</label>
         </div>
-        {#if isCreate}
-        <textarea id="description" bind:value={description} maxlength="255"></textarea>
-        {:else}
         <textarea id="description" bind:value={app.app_description} disabled></textarea>
-        {/if}
-      </div>
-      
-      <div class="form-actions">
-        {#if isCreate}
-        <button type="submit" class="btn save-btn" on:click|preventDefault={createApp}>Save Changes</button>
-        <button class="btn cancel-btn" on:click|preventDefault={closeModal}>Cancel</button>
-        {/if}
       </div>
       
     </div>
@@ -258,19 +181,19 @@ onMount(async()=>{
 <style>
   .form-container {
     width: 95%;
-    height: 90%;
+    height: 100%;
     margin: 0 auto;
     padding: 20px;
     background-color: #f4f4f4;
     /* border: 1px solid #ddd; */
     border-radius: 10px;
-    
   }
 
   form {
     display: grid;
     grid-template-columns: 0.5fr 0.75fr;
     gap: 0;
+    font-size: 18px;
   }
 
   .form-left {
@@ -314,57 +237,26 @@ onMount(async()=>{
     margin-top: 0;
     margin-bottom: 40px;
   }
-input[type="text"],
+
 input[type="date"],
-textarea,
-/* Target the dropdown select container */
-.dropdown-select {
+textarea {
     /* Make the select as wide as the input fields */
     padding: 10px;
     border-radius: 5px;
+    background-color: white;
+    font-size: 16px;
   }
   
-  input[type='text'],
   input[type='date'] {
     width: 70%;
   }
 
-  .dropdown-select {
-    width: 75%;
-  }
   textarea {
-    height: 80%;
+    height: 100%;
     width: 100%;
     font-size: 18px;
     resize: none;
+    background-color: white;
   }
 
-  .form-actions {
-    grid-column: span 2;
-    display: flex;
-    justify-content: space-between;
-    min-height: 6%;
-    width: 97%;
-  }
-
-  button {
-    padding: 10px 20px;
-    background-color: #4a4a4a;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-
-  button:hover {
-    background-color: #333;
-  }
-
-  button[type="button"] {
-    background-color: #bbb;
-  }
-
-  button[type="button"]:hover {
-    background-color: #999;
-  }
 </style>
