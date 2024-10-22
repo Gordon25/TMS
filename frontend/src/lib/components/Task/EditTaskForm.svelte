@@ -23,8 +23,8 @@
   let taskPlan:string|undefined;
   let taskNotes:string='';
   let isPlanChanged:boolean;
-
-  let updateTaskResult:{success:boolean, message:string}|undefined;
+  let updateTaskNotesResult:{success:boolean, message:string}|undefined;
+  let updateTaskStateResult:{success:boolean, message:string}|undefined;
   const dispatch = createEventDispatcher();
   const closeModal = ()=> {
     dispatch('close');
@@ -32,8 +32,12 @@
   const refreshPage = () =>{
     dispatch('refresh');
   }
+  const notifyStateUpdate = (message?:string) =>{
+    dispatch('stateUpdate', {message})
+  }
+  
   const updateTaskNotes = async()=> {
-    const updateTaskNotesResult = await axiosInstance.put("/taskNotes",{
+    const updateTaskNotesRes = await axiosInstance.put("/taskNotes",{
       taskId:task.task_id,
       taskNotes,
       taskState:task.task_state,
@@ -44,8 +48,9 @@
     }).then(res=>res.data)
     .catch(err=>console.log(err));
     taskNotes='';
-    return updateTaskNotesResult
+    return updateTaskNotesRes
   }
+
   const updateTaskPlan = async()=> {
     const updateTaskPlanResult = await axiosInstance.put("/updateReleaseTaskPlan",{
       taskId:task.task_id,
@@ -58,6 +63,7 @@
     .catch(err=>console.log(err));
     return updateTaskPlanResult.data
   }
+
   const getTask = async() =>{
     return await axiosInstance.post('/task',{
       taskId
@@ -71,7 +77,7 @@
   }
 
   const updateTaskState = async(willPromote=true)=>{
-    await axiosInstance.put('/updateOpenTaskState',{
+    const updateTaskStateRes = await axiosInstance.put('/updateOpenTaskState',{
       taskId:task.task_id,
       taskState:task.task_state,
       willPromote
@@ -80,36 +86,42 @@
         Authorization: `Bearer ${token}`,
       },withCredentials:true
     }).then(res=>res.data)
+    return updateTaskStateRes;
   }
+
   const saveChanges=async()=>{
-    updateTaskResult=await updateTaskNotes();
+    updateTaskNotesResult=await updateTaskNotes();
     task = await getTask();
   }
   const saveAndRelease=async()=>{
     await updateTaskNotes(); //combind to 1 call 
     await updateTaskPlan();
-    await updateTaskState();
+    updateTaskStateResult= await updateTaskState();
     closeModal();
     refreshPage();
+    notifyStateUpdate(updateTaskStateResult?.message);
   }
   const saveAndPromote=async()=>{
     await updateTaskNotes();
-    await updateTaskState();
+    updateTaskStateResult = await updateTaskState();
     closeModal();
     refreshPage();
+    notifyStateUpdate(updateTaskStateResult?.message);
   }
   const saveAndGiveUp=async()=>{
     await updateTaskNotes();
-    await updateTaskState(false);
+    updateTaskStateResult = await updateTaskState(false);
     closeModal();
     refreshPage();
+    notifyStateUpdate(updateTaskStateResult?.message);
   }
   const saveAndReject = async()=>{
     await updateTaskNotes();
     await updateTaskPlan();
-    await updateTaskState(false);
+    updateTaskStateResult = await updateTaskState(false);
     closeModal();
     refreshPage();
+    notifyStateUpdate(updateTaskStateResult?.message);
   }
   const closeForm=async()=>{
     closeModal();
@@ -129,22 +141,22 @@
     },
     withCredentials:true 
     }).then(res=>res.data);
-    plans = plansData.data.map(plans=>plans.plan_mvp_name);
+    plans = plansData.data.map((plans:{plan_mvp_name:string;})=>plans.plan_mvp_name);
   }
   })
   $:{isPlanChanged=((taskPlan!==undefined && taskPlan!=="") && (taskPlan!=task.task_plan))}
   const timeout = 3000
   $: {
-    if (updateTaskResult) {
+    if (updateTaskNotesResult) {
       setTimeout(()=>{
-        updateTaskResult = undefined
+        updateTaskNotesResult = undefined
       }, timeout)
     }
   }
   $:console.log("TASK PLAN CURRENTLY ", taskPlan)
 </script>
-{#if updateTaskResult}
-    <Popup message={updateTaskResult.message} success={updateTaskResult.success}/>
+{#if updateTaskNotesResult}
+    <Popup message={updateTaskNotesResult.message} success={updateTaskNotesResult.success}/>
   {/if}
 <div class="form-container">
   <form>

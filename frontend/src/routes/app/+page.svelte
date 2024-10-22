@@ -6,6 +6,7 @@ import { onMount} from "svelte";
 import axiosInstance from "$lib/axiosConfig";
 import CreateTaskForm from "$lib/components/Task/CreateTaskForm.svelte";
 import TaskCard from "$lib/components/Task/TaskCard.svelte";
+import Popup from "$lib/components/Popup.svelte";
 export let data:PageServerData
 let createPlanSuccessMsg:string|undefined;
 let showPlanModal = false
@@ -14,12 +15,23 @@ let appAcronym='';
 let token;
 let openTasks:taskInfo[]=[], todoTasks:taskInfo[]=[], doingTasks:taskInfo[]=[], doneTasks:taskInfo[]=[], closedTasks:taskInfo[]=[];
 let isPermitCreate:boolean, isPermitOpen:boolean, isPermitTodo:boolean, isPermitDoing:boolean, isPermitDone:boolean;
+let updateTaskStateMessage:string|undefined;
+const handleTaskStateUpdate = (event:Event) => {
+  updateTaskStateMessage = event.detail.message;
+}
+
 $:({token, isUserPM} = data);
   const timeout= 3000;
   $:{
     if (createPlanSuccessMsg) {
       setTimeout(()=>{
         createPlanSuccessMsg = undefined;
+      }, timeout)
+    }
+
+    if (updateTaskStateMessage) {
+      setTimeout(()=>{
+        updateTaskStateMessage = undefined;
       }, timeout)
     }
   }
@@ -71,43 +83,46 @@ $:console.log(isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermi
       <section class="app-header">
           <h1>{appAcronym}</h1>
       </section>
-      
+      {#if updateTaskStateMessage} 
+        <div class='popup'>  
+            <Popup message={updateTaskStateMessage} success={true}/>
+        </div>
+      {/if} 
       <div class="actions">
         {#if isPermitCreate}
           <button class="btn" on:click={()=>{showTaskModal=true}}>Create Task</button>
         {/if}
         <button class="btn" on:click={()=>{showPlanModal=true}}>Plans</button>  
       </div>
-      
       <section class="task-board">
           <div class="column">
               <h2>Open</h2>
               {#each openTasks as openTask}
-                <TaskCard on:refresh={getAppTasks} {token} taskname={openTask.task_name} taskId={openTask.task_id} taskOwner={openTask.task_owner} taskPlanColour={openTask.plan_colour} isPermitEdit={isPermitOpen} taskState={openTask.task_state}/>
+                <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={openTask.task_name} taskId={openTask.task_id} taskOwner={openTask.task_owner} taskPlanColour={openTask.plan_colour} isPermitEdit={isPermitOpen} taskState={openTask.task_state}/>
               {/each}    
           </div>
           <div class="column">
               <h2>Todo</h2>
               {#each todoTasks as todoTask}
-              <TaskCard on:refresh={getAppTasks} {token} taskname={todoTask.task_name} taskId={todoTask.task_id} taskOwner={todoTask.task_owner} taskPlanColour={todoTask.plan_colour} isPermitEdit={isPermitTodo} taskState={todoTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={todoTask.task_name} taskId={todoTask.task_id} taskOwner={todoTask.task_owner} taskPlanColour={todoTask.plan_colour} isPermitEdit={isPermitTodo} taskState={todoTask.task_state}/>
             {/each}  
           </div>
           <div class="column">
               <h2>Doing</h2>
               {#each doingTasks as doingTask}
-              <TaskCard on:refresh={getAppTasks} {token} taskname={doingTask.task_name} taskId={doingTask.task_id} taskOwner={doingTask.task_owner} taskPlanColour={doingTask.plan_colour} isPermitEdit={isPermitDoing} taskState={doingTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={doingTask.task_name} taskId={doingTask.task_id} taskOwner={doingTask.task_owner} taskPlanColour={doingTask.plan_colour} isPermitEdit={isPermitDoing} taskState={doingTask.task_state}/>
             {/each} 
           </div>
           <div class="column">
               <h2>Done</h2>
               {#each doneTasks as doneTask}
-              <TaskCard on:refresh={getAppTasks} {token} taskname={doneTask.task_name} taskId={doneTask.task_id} taskOwner={doneTask.task_owner} taskPlanColour={doneTask.plan_colour} isPermitEdit={isPermitDone} taskState={doneTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={doneTask.task_name} taskId={doneTask.task_id} taskOwner={doneTask.task_owner} taskPlanColour={doneTask.plan_colour} isPermitEdit={isPermitDone} taskState={doneTask.task_state}/>
             {/each} 
           </div>
           <div class="column">
               <h2>Closed</h2>
               {#each closedTasks as closedTask}
-              <TaskCard on:refresh={getAppTasks} {token} taskname={closedTask.task_name} taskId={closedTask.task_id} taskOwner={closedTask.task_owner} taskPlanColour={closedTask.plan_colour} isPermitEdit={false} taskState={closedTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={closedTask.task_name} taskId={closedTask.task_id} taskOwner={closedTask.task_owner} taskPlanColour={closedTask.plan_colour} isPermitEdit={false} taskState={closedTask.task_state}/>
             {/each} 
           </div>
       </section>
@@ -166,7 +181,10 @@ main {
     margin-left: 10px;
     border-radius: 5px;
 }
-
+.popup {
+  max-width: fit-content;
+  margin: auto auto;
+}
 .task-board {
     display: flex;
     justify-content: space-between;
