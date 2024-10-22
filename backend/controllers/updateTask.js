@@ -27,13 +27,13 @@ const updateTaskNotes = async (req, res) => {
       });
     }
   } else {
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: false, message: "Notes not changed." });
   }
 };
 
 const updateTaskPlan = async (req, res) => {
   const { taskPlan, taskId } = req.body;
-  if (taskPlan !== "") {
+  if (taskPlan && taskPlan !== "") {
     try {
       const currTaskPlan = await db
         .execute("SELECT task_plan from tasks where task_id=?;", [taskId])
