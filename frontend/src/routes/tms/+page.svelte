@@ -5,7 +5,9 @@
   import { goto, invalidateAll } from "$app/navigation";
   import { PUBLIC_APP_INIT_RNUMBER } from "$env/static/public";
   import axiosInstance from "$lib/axiosConfig";
-  let showModal = true;
+  import Modal from "$lib/components/Modal.svelte";
+  import AppForm from "$lib/components/App/AppForm.svelte";
+  let showAppModal = false;
   let apps:App[];
   let groups:string[];
   let token:string;
@@ -20,6 +22,7 @@
   let todoGroup: string='';
   let doingGroup: string='';
   let doneGroup: string='';
+  let displayedAppAcronym:string='';
   export let data:PageServerData
   let createAppSuccessResult:{success:boolean, field:string, message:string}|undefined;
 
@@ -27,9 +30,14 @@
     localStorage.setItem('app', app_acronym); 
     goto('/app');
   }
-  const autoExpand = (event:Event)=>{
+  const autoExpandTextArea = (event:Event)=>{
     const element = event.target as HTMLTextAreaElement;
     element.style.height = '150px';
+    element.style.height = `${element.scrollHeight}px`;
+  }
+  const autoExpandInput = (event:Event)=>{
+    const element = event.target as HTMLTextAreaElement;
+    element.style.height = '40px';
     element.style.height = `${element.scrollHeight}px`;
   }
   const createApp = async ()=> {
@@ -89,39 +97,47 @@
   {#if createAppSuccessResult && createAppSuccessResult.field==='app'}
     <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
   {/if}
-  <table>
+  {#if showAppModal}
+  <Modal closeModal={()=>{showAppModal=false}} bind:showModal={showAppModal} on:closeModal={invalidateAll}>
+    <AppForm isCreate={false} on:close={()=>{showAppModal=false}} {token} appAcronym={displayedAppAcronym}/>
+  </Modal>
+  {/if}
+  <table class="thead-container">
       <thead>
           <tr>
               <th class='acronym'>Acronym</th>
-              <th class='rnumber'>Rnumber</th>
-              <th class='start'>Start</th>
-              <th class='end'>End</th>
+              <th class='rnumber'>Running number</th>
+              <th class='date'>Start</th>
+              <th class='date'>End</th>
               <th class='create'>Task Create</th>
               <th class='open'>Task Open</th>
               <th class='todo'>Task To Do</th>
               <th class='doing'>Task Doing</th>
               <th class='done'>Task Done</th>
               <th class='description'>Description</th>
+              <th class='view-details'></th>
               <th class='action'></th>
             </tr>
       </thead>
-      
+      </table>
+      <div class='scrollable-body'>
+      <table class="tbody-container">
       <tbody>
         {#if isUserPL}
         <td class='acronym'>
-          <input type="text" id="app-acronym" name="app-acronym" bind:value={appAcronym} on:input={autoExpand}/>
+          <input type="text" id="app-acronym" name="app-acronym" bind:value={appAcronym} on:input={autoExpandInput}/>
           {#if createAppSuccessResult && createAppSuccessResult.field==='app acronym'}
           <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
           {/if}
         </td>
         <td class='rnumber'>{appInitRNumber}</td>
-        <td class='start'>
+        <td class='date'>
           <input type="date" id="start-date" name="start-date" bind:value={startDate}/>
           {#if createAppSuccessResult && createAppSuccessResult.field==='start date'}
           <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
           {/if}
         </td>
-        <td class='end'>
+        <td class='date'>
           <input type="date" id="end-date" name="end-date" bind:value={endDate}/>
           {#if createAppSuccessResult && createAppSuccessResult.field==='end date'}
           <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
@@ -155,26 +171,30 @@
             <Select items={groups} bind:justValue={doneGroup} />
           </div>
         </td>
-        <td class='description'><textarea id="description" bind:value={description} maxlength="255" on:input={autoExpand}></textarea></td>
+        <td class='description'><textarea id="description" bind:value={description} maxlength="255" on:input={autoExpandTextArea}></textarea></td>
         <td class='action'><button on:click|preventDefault={createApp}>Create App</button></td>
+        <td class='view-details'></td>
         {/if}
         {#each apps as app}
           <tr>
               <td class='acronym'>{app.app_acronym}</td>
               <td class='rnumber'>{app.app_rnumber}</td>
-              <td class='start'>{app.app_startdate}</td>
-              <td class='end'>{app.app_enddate}</td>
+              <td class='date'>{app.app_startdate}</td>
+              <td class='date'>{app.app_enddate}</td>
               <td class='create'>{app.app_permit_create}</td>
               <td class='open'>{app.app_permit_open}</td>
               <td class='todo'>{app.app_permit_todolist}</td>
               <td class='doing'>{app.app_permit_doing}</td>
               <td class='done'>{app.app_permit_done}</td>
               <td class="description">{app.app_description}</td>
+              <td class='view-details'><button on:click={()=>{displayedAppAcronym=app.app_acronym; showAppModal=true;}}>View Details</button></td>
               <td class='action'><button on:click={()=>{viewAppDetails(app.app_acronym)}}>View App</button></td>
           </tr>
           {/each}
       </tbody>
-  </table>
+    </table>
+      </div> 
+  
 
 </body>
 
@@ -187,19 +207,30 @@
     background-color: #f4f4f4;
     display: flex;
     flex-direction: column;
-    width: 98%;
+    width: 98vw;
     position:fixed;
     overflow-y: hidden;
-    overflow-x: auto;
+    overflow-x: scroll;
   }
 
-  /* Scrollable table container */
-  .table-container {
-    width: 100%;
-    overflow-x: auto; /* Enable horizontal scrolling if content overflows */
-    overflow-y: scroll;
+
+  .thead-container, .tbody-container {
+  width: 100%;
+  overflow-x: scroll;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+
+  .scrollable-body {
+    max-height: 750px; /* Set your height */
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scroll if not needed */
   }
 
+  .tbody-container {
+    margin-top: 0;
+  }
   /* Table styles */
   table {
     width: 100%;
@@ -214,6 +245,7 @@
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    text-align: center;
   }
 
   th {
@@ -221,7 +253,8 @@
     color: #000;
     position: sticky;
     top: 0;
-    font-size: 16px;
+    font-size: 15px;
+    text-wrap: wrap;
   }
 
   tr:hover {
@@ -229,44 +262,44 @@
   }
 
   .dropdown-select {
-    --width: 130px; /**Set the desired fixed width*/
-
+    --width: 150px; /**Set the desired fixed width*/
+    --wrap-text: wrap;
   }
-  td.acronym {
+  .acronym {
     width: 5%;
   }
 
-  td.rnumber {
-    width: 2%;
+  .rnumber {
+    width: 2.4%;
   }
-  td.start {
-    width: 9%;
-  }
-  td.end {
-    width: 9%;
-  }
-  td.create {
-    width:9%;
-  }
-  td.open {
-    width:9%;
-  }
-  td.todo {
-    width:9%;
-  }
-  td.doing {
-    width:9%;
-  }
-  td.done {
-    width:9%;
+  .date {
+    width: 6.5%;
   }
 
-  td.description {
-    max-width: 20vw;
+  .create {
+    width:7%;
+  }
+  .open {
+    width:7%;
+  }
+  .todo {
+    width:7%;
+  }
+  .doing {
+    width:7%;
+  }
+  .done {
+    width:7%;
+  }
+
+  .description {
+    width: 18%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+
 
   /* Responsive inputs */
   input[type="text"],
@@ -281,10 +314,9 @@
   }
   
   input[type='text'] {
+    overflow-x: hidden;
+    word-wrap: break-word;
     width: 120%;
-  }
-  input[type='date'] {
-    width: 90%;
   }
   
   textarea {
