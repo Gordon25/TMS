@@ -9,7 +9,7 @@
   export let taskState:string;
   export let isPermitEdit:boolean;
   export let taskId:string;
-  export let selectedPlan='';
+  export let selectedPlanObject={label:"",value:""};
   let task:Task={task_id:'',
                 task_name:'',
                 task_plan:'',
@@ -23,8 +23,7 @@
   let taskPlan:string|undefined;
   let taskNotes:string='';
   let isPlanChanged:boolean;
-  $:{isPlanChanged=((taskPlan!==undefined && taskPlan!=="") && (taskPlan!=task.task_plan))
-  console.log("IS PLAN CHANGED ", taskPlan===undefined,taskPlan==='',taskPlan,"is changed? ", isPlanChanged)}
+
   let updateTaskResult:{success:boolean, message:string}|undefined;
   const dispatch = createEventDispatcher();
   const closeModal = ()=> {
@@ -57,7 +56,6 @@
       },withCredentials:true
     }).then(res=>res.data)
     .catch(err=>console.log(err));
-    taskPlan=undefined;
     return updateTaskPlanResult.data
   }
   const getTask = async() =>{
@@ -119,7 +117,7 @@
   }
   onMount(async()=>{
   task = await getTask()
-  console.log(taskState, isPermitEdit)
+  selectedPlanObject=task.task_plan;
   if ((taskState==='Open' ||taskState==='Done') && isPermitEdit) {
     const plansData  = await axiosInstance.post('/appPlans', 
     {
@@ -134,7 +132,7 @@
     plans = plansData.data.map(plans=>plans.plan_mvp_name);
   }
   })
-
+  $:{isPlanChanged=((taskPlan!==undefined && taskPlan!=="") && (taskPlan!=task.task_plan))}
   const timeout = 3000
   $: {
     if (updateTaskResult) {
@@ -143,7 +141,7 @@
       }, timeout)
     }
   }
-  
+  $:console.log("TASK PLAN CURRENTLY ", taskPlan)
 </script>
 {#if updateTaskResult}
     <Popup message={updateTaskResult.message} success={updateTaskResult.success}/>
@@ -174,7 +172,7 @@
           <div class='input-value'>
             {#if isPermitEdit && (task.task_state==='Open' || task.task_state==='Done')}
               <div class='dropdown-select'>
-                <Select items={plans} bind:justValue={taskPlan} bind:value={selectedPlan}/>
+                <Select items={plans} bind:justValue={taskPlan} value={selectedPlanObject} />
               </div>
             {:else}
               <p>{task.task_plan}</p>
@@ -282,7 +280,6 @@
     padding: 20px;
     background-color: #f4f4f4;
     border-radius: 10px;
-    height: 70vh;
     display: flex;
     flex-direction: column;
   }
@@ -328,7 +325,7 @@
     justify-content: left;
   }
 
-  input[type="text"],
+
   input[type="date"],
   textarea,
   .dropdown-select {
@@ -389,7 +386,8 @@
   .notes-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  max-height: 70vh;
+  height: 30vh;
   }
 
   textarea {
