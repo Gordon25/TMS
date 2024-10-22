@@ -6,7 +6,7 @@
   import { PUBLIC_APP_INIT_RNUMBER } from "$env/static/public";
   import axiosInstance from "$lib/axiosConfig";
   import Modal from "$lib/components/Modal.svelte";
-  import AppForm from "$lib/components/App/AppForm.svelte";
+  import AppDetailsForm from "$lib/components/App/AppDetailsForm.svelte";
   let showAppModal = false;
   let apps:App[];
   let groups:string[];
@@ -99,7 +99,7 @@
   {/if}
   {#if showAppModal}
   <Modal closeModal={()=>{showAppModal=false}} bind:showModal={showAppModal} on:closeModal={invalidateAll}>
-    <AppForm isCreate={false} on:close={()=>{showAppModal=false}} {token} appAcronym={displayedAppAcronym}/>
+    <AppDetailsForm on:close={()=>{showAppModal=false}} {token} appAcronym={displayedAppAcronym}/>
   </Modal>
   {/if}
   <table class="thead-container">
@@ -115,8 +115,8 @@
               <th class='doing'>Task Doing</th>
               <th class='done'>Task Done</th>
               <th class='description'>Description</th>
-              <th class='view-details'></th>
               <th class='action'></th>
+              <th class='view-task-plan'></th>
             </tr>
       </thead>
       </table>
@@ -173,7 +173,7 @@
         </td>
         <td class='description'><textarea id="description" bind:value={description} maxlength="255" on:input={autoExpandTextArea}></textarea></td>
         <td class='action'><button on:click|preventDefault={createApp}>Create App</button></td>
-        <td class='view-details'></td>
+        <td class='view-task-plan'></td>
         {/if}
         {#each apps as app}
           <tr>
@@ -187,8 +187,8 @@
               <td class='doing'>{app.app_permit_doing}</td>
               <td class='done'>{app.app_permit_done}</td>
               <td class="description">{app.app_description}</td>
-              <td class='view-details'><button on:click={()=>{displayedAppAcronym=app.app_acronym; showAppModal=true;}}>View Details</button></td>
-              <td class='action'><button on:click={()=>{viewAppDetails(app.app_acronym)}}>View App</button></td>
+              <td class='action'><button on:click={()=>{displayedAppAcronym=app.app_acronym; showAppModal=true;}}>View Details</button></td>
+              <td class='view-task-plan'><button on:click={()=>{viewAppDetails(app.app_acronym)}}>View Plans/Tasks</button></td>
           </tr>
           {/each}
       </tbody>
@@ -236,13 +236,13 @@
     width: 100%;
     min-width: 1000px; /* Set a minimum width for large content */
     border-collapse: collapse;
-    margin: 20px 0;
+    margin: 0 20px 0 0;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 
   th, td {
-    padding: 12px 15px;
+    padding: 12px 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
     text-align: center;
@@ -299,7 +299,13 @@
     white-space: nowrap;
   }
 
+  .action {
+    width: 5%;
+  }
 
+  .view-task-plan{
+    width: 5%;
+  }
 
   /* Responsive inputs */
   input[type="text"],
