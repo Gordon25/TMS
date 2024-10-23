@@ -74,7 +74,7 @@ $:console.log(isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermi
 </Modal>
 {/if}
 {#if showTaskModal}
-<Modal closeModal={()=>{(showTaskModal=false)}} bind:showModal={showTaskModal} on:closeModal={async()=>{console.log("CLOSED MODAL"); await getAppTasks();}}>
+<Modal closeModal={()=>{(showTaskModal=false)}} bind:showModal={showTaskModal} on:closeModal={getAppTasks}>
   <CreateTaskForm on:refresh={getAppTasks} on:close={()=>{showTaskModal=false}} appAcronym={appAcronym} {token}/>
 </Modal>
 {/if}
