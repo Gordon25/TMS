@@ -17,7 +17,7 @@ export default async (req, res) => {
       )
       .then(([groups, field]) => groups[0])
       .then((group) => group);
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.cookies.token;
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
 
     await checkgroup(username, permittedGroups.app_permit_create).then((res) => {

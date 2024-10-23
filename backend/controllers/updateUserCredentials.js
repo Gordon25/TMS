@@ -13,7 +13,7 @@ const updateEmailController = async (req, res) => {
     });
   } else {
     try {
-      const token = req.headers.authorization.split(" ")[1];
+      const token = req.cookies.token;
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
       await db.execute(
         `UPDATE accounts SET email = ?
@@ -48,7 +48,7 @@ const updatePasswordController = async (req, res) => {
     });
   } else {
     try {
-      const token = req.headers.authorization.split(" ")[1];
+      const token = req.cookies.token;
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
       const hashedPassword = await bcryptjs.hash(password, 10);
       await db.execute(

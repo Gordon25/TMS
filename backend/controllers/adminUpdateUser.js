@@ -47,13 +47,6 @@ export default async (req, res) => {
         AND groupname IN (${groupsPlaceholder});`,
           [username, ...groupsToRemove]
         );
-
-        console.log(
-          `DELETE FROM user_groups
-        WHERE username = ? and
-        groupname in (${groupsPlaceholder});`,
-          [username, ...groupsToRemove]
-        );
       }
 
       // assign user to groups selected

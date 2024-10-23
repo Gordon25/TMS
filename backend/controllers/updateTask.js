@@ -7,10 +7,9 @@ const updateTaskNotes = async (req, res) => {
   const { taskNotes, taskId, taskState } = req.body;
   if (taskNotes !== "") {
     try {
-      const token = req.headers.authorization.split(" ")[1];
+      const token = req.cookies.token;
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
       const stampedNotes = timeStampNotes(username, taskState, taskNotes);
-      console.log("notes ", stampedNotes, "username ", username, taskId);
       await db.execute(
         "UPDATE tasks set task_notes= CONCAT(?,task_notes), task_owner=? where task_id=?;",
         [stampedNotes, username, taskId]
@@ -44,7 +43,7 @@ const updateTaskPlan = async (req, res) => {
         message: "Task plan not updated.",
       });
     } else {
-      const token = req.headers.authorization.split(" ")[1];
+      const token = req.cookies.token;
       const { username } = jwt.verify(token, process.env.JWT_SECRET);
 
       await db.execute("UPDATE tasks set task_plan = ?, task_owner=? where task_id =?;", [
@@ -85,7 +84,6 @@ const updateTaskState = async (req, res) => {
         .then(([emails, fields]) => emails)
         .then((emails) => emails.map((email) => email.email))
         .then((emails) => emails.filter((email) => email != null));
-      console.log("EMAIL ", emails.join(", "));
 
       transporter.sendMail({
         from: `"Maddison Foo Koch " ${process.env.SMTP_FROM_EMAIL}`,
@@ -106,7 +104,7 @@ const updateTaskState = async (req, res) => {
     }
   }
   try {
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.cookies.token;
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
     await db.execute("UPDATE tasks set task_state=?, task_owner=? where task_id = ?;", [
       newState,

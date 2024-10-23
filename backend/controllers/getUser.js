@@ -1,7 +1,7 @@
 import { db } from "../utils/db.js";
 import jwt from "jsonwebtoken";
 export default async (req, res) => {
-  const token = req.headers.authorization.split(" ")[1];
+  const token = req.cookies.token;
   try {
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
     const [[user], Fields] = await db.execute(
