@@ -18,6 +18,10 @@ export default async (req, res) => {
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
+    await connection.execute(
+      `UPDATE applications set app_rnumber=app_rnumber + 1 where app_acronym=?`,
+      [appAcronym]
+    );
     const [[{ taskId }]] = await connection.execute(
       `SELECT CONCAT(app_acronym, '_', app_rnumber) AS taskId
                                               FROM applications 
@@ -54,10 +58,7 @@ export default async (req, res) => {
         createDate,
       ]
     );
-    await connection.execute(
-      `UPDATE applications set app_rnumber=app_rnumber + 1 where app_acronym=?`,
-      [appAcronym]
-    );
+
     await connection.commit();
     res.status(200).json({
       success: true,
