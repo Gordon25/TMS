@@ -11,7 +11,7 @@
   let showForm=false
 </script>
 {#if showForm}
-  <Modal closeModal={()=>{showForm=false}} bind:showModal={showForm}>
+  <Modal closeModal={()=>{showForm=false}} bind:showModal={showForm} on:closeModal>
     <EditTaskForm on:close={()=>showForm=false} on:refresh on:stateUpdate {token} {taskId} {taskState} {isPermitEdit}/>
   </Modal>
 {/if}

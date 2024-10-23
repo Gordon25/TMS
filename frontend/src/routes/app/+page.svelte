@@ -74,7 +74,7 @@ $:console.log(isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermi
 </Modal>
 {/if}
 {#if showTaskModal}
-<Modal closeModal={()=>{(showTaskModal=false)}} bind:showModal={showTaskModal} on:closeModal={getAppTasks}>
+<Modal closeModal={()=>{(showTaskModal=false)}} bind:showModal={showTaskModal} on:closeModal={async()=>{console.log("CLOSED MODAL"); await getAppTasks();}}>
   <CreateTaskForm on:refresh={getAppTasks} on:close={()=>{showTaskModal=false}} appAcronym={appAcronym} {token}/>
 </Modal>
 {/if}
@@ -98,31 +98,31 @@ $:console.log(isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermi
           <div class="column">
               <h2>Open</h2>
               {#each openTasks as openTask}
-                <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={openTask.task_name} taskId={openTask.task_id} taskOwner={openTask.task_owner} taskPlanColour={openTask.plan_colour} isPermitEdit={isPermitOpen} taskState={openTask.task_state}/>
+                <TaskCard on:refresh={getAppTasks} on:closeModal={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={openTask.task_name} taskId={openTask.task_id} taskOwner={openTask.task_owner} taskPlanColour={openTask.plan_colour} isPermitEdit={isPermitOpen} taskState={openTask.task_state}/>
               {/each}    
           </div>
           <div class="column">
               <h2>Todo</h2>
               {#each todoTasks as todoTask}
-              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={todoTask.task_name} taskId={todoTask.task_id} taskOwner={todoTask.task_owner} taskPlanColour={todoTask.plan_colour} isPermitEdit={isPermitTodo} taskState={todoTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:closeModal={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={todoTask.task_name} taskId={todoTask.task_id} taskOwner={todoTask.task_owner} taskPlanColour={todoTask.plan_colour} isPermitEdit={isPermitTodo} taskState={todoTask.task_state}/>
             {/each}  
           </div>
           <div class="column">
               <h2>Doing</h2>
               {#each doingTasks as doingTask}
-              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={doingTask.task_name} taskId={doingTask.task_id} taskOwner={doingTask.task_owner} taskPlanColour={doingTask.plan_colour} isPermitEdit={isPermitDoing} taskState={doingTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:closeModal={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={doingTask.task_name} taskId={doingTask.task_id} taskOwner={doingTask.task_owner} taskPlanColour={doingTask.plan_colour} isPermitEdit={isPermitDoing} taskState={doingTask.task_state}/>
             {/each} 
           </div>
           <div class="column">
               <h2>Done</h2>
               {#each doneTasks as doneTask}
-              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={doneTask.task_name} taskId={doneTask.task_id} taskOwner={doneTask.task_owner} taskPlanColour={doneTask.plan_colour} isPermitEdit={isPermitDone} taskState={doneTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:closeModal={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={doneTask.task_name} taskId={doneTask.task_id} taskOwner={doneTask.task_owner} taskPlanColour={doneTask.plan_colour} isPermitEdit={isPermitDone} taskState={doneTask.task_state}/>
             {/each} 
           </div>
           <div class="column">
               <h2>Closed</h2>
               {#each closedTasks as closedTask}
-              <TaskCard on:refresh={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={closedTask.task_name} taskId={closedTask.task_id} taskOwner={closedTask.task_owner} taskPlanColour={closedTask.plan_colour} isPermitEdit={false} taskState={closedTask.task_state}/>
+              <TaskCard on:refresh={getAppTasks} on:closeModal={getAppTasks} on:stateUpdate={handleTaskStateUpdate} {token} taskname={closedTask.task_name} taskId={closedTask.task_id} taskOwner={closedTask.task_owner} taskPlanColour={closedTask.plan_colour} isPermitEdit={false} taskState={closedTask.task_state}/>
             {/each} 
           </div>
       </section>
