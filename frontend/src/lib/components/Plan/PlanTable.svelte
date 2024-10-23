@@ -92,17 +92,17 @@ onMount(async()=>{
       </thead>
       
       <tbody>
+        {#if isUserPM}
         <tr>
           <td><input type='text' bind:value={planName}/></td>
           <td><input type='date' bind:value={startDate}/></td>
           <td><input type='date' bind:value={endDate}/></td>
           <td><input type='color' bind:value={planColour}/></td>
           <td>
-            {#if isUserPM}
             <button type='submit'>Create</button>
-            {/if}
           </td>
         </tr>
+        {/if}
         {#each plans as plan}
           <tr>
               <td>{plan.plan_mvp_name}</td>
