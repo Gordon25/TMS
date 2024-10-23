@@ -73,6 +73,20 @@ const updateTaskState = async (req, res) => {
   } else if (taskState === "Doing") {
     if (willPromote) {
       newState = "Done";
+    } else {
+      newState = "Todo";
+      message = `${taskId} successfully demoted.`;
+    }
+  } else if (taskState === "Done") {
+    if (willPromote) {
+      newState = "Closed";
+    } else {
+      newState = "Doing";
+      message = `${taskId} successfully demoted.`;
+    }
+  }
+  try {
+    if (taskState === "Doing" && willPromote) {
       const emails = await db
         .execute(
           `select email from accounts where username in 
@@ -91,26 +105,17 @@ const updateTaskState = async (req, res) => {
         subject: `Pending task review.`,
         text: `Task ${taskId} is pending approval.`,
       });
-    } else {
-      newState = "Todo";
-      message = `${taskId} successfully demoted.`;
     }
-  } else if (taskState === "Done") {
-    if (willPromote) {
-      newState = "Closed";
-    } else {
-      newState = "Doing";
-      message = `${taskId} successfully demoted.`;
-    }
-  }
-  try {
     const token = req.cookies.token;
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
-    await db.execute("UPDATE tasks set task_state=?, task_owner=? where task_id = ?;", [
-      newState,
-      username,
-      taskId,
-    ]);
+
+    let notes = `Task state changed from ${taskState} to ${newState}.`;
+    let stampedNotes = timeStampNotes(username, taskState, notes);
+
+    await db.execute(
+      "UPDATE tasks set task_state=?, task_owner=?, task_notes= CONCAT(?,task_notes) where task_id = ?;",
+      [newState, username, stampedNotes, taskId]
+    );
     res.status(200).json({
       succes: true,
       message,
