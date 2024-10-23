@@ -21,7 +21,7 @@ const authTaskAction = async (req, res, next) => {
         [taskId]
       )
       .then(([permittedGroup, fields]) => permittedGroup[0].permitted_group);
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.cookies.token;
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
     const { isUserInGroup, message } = await checkgroup(username, permittedGroup);
     if (message != "") {
@@ -52,7 +52,7 @@ const authCreateTask = async (req, res, next) => {
       .execute(`select app_permit_create from applications where app_acronym=?;`, [appAcronym])
       .then(([groups, field]) => groups[0].app_permit_create);
 
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.cookies.token;
     const { username } = jwt.verify(token, process.env.JWT_SECRET);
     const { isUserInGroup, message } = await checkgroup(username, permittedGroup);
     if (message != "") {

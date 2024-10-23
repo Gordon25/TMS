@@ -2,10 +2,7 @@ import jwt from "jsonwebtoken";
 import { db } from "../utils/db.js";
 import checkgroup from "../utils/checkgroup.js";
 const authLogin = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-    token = req.headers.authorization.split(" ")[1];
-  }
+  let token = req.cookies.token;
 
   if (!token) {
     res.status(401).json({
@@ -20,13 +17,18 @@ const authLogin = async (req, res, next) => {
         "select isActive from accounts where username = ?",
         [username]
       );
-
       if (ip != req.ip || browserType != req.headers["user-agent"]) {
         res.status(401).json({
           success: false,
           message: "Unauthorised access.",
         });
       } else if (!isActive) {
+        const options = {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+        };
+        res.clearCookie("token");
         res.status(401).json({
           success: false,
           message: "Account has been disabled.",
@@ -42,8 +44,6 @@ const authLogin = async (req, res, next) => {
           success: false,
           message: "Your session has expired. Please sign in again.",
         });
-
-        res;
       } else {
         res.status(401).json({
           success: false,
