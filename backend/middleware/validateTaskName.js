@@ -1,6 +1,6 @@
 export default async (req, res, next) => {
   const field = "task name";
-  const tasknameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
+  const tasknameRegex = new RegExp("^[a-zA-Z0-9]+([\\s]*[a-zA-Z0-9]+)*$");
   const { taskname, taskPlan, taskDescription, taskNotes } = req.body;
   const isValidTaskname = tasknameRegex.test(taskname);
   if (!isValidTaskname) {

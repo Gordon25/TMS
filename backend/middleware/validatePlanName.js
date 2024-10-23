@@ -1,7 +1,7 @@
 import { db } from "../utils/db.js";
 export default async (req, res, next) => {
   const field = "plan name";
-  const planNameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
+  const planNameRegex = new RegExp("^[a-zA-Z0-9]+([\\s]*[a-zA-Z0-9]+)*$");
   const { planName, appAcronym } = req.body;
   const isValidPlanName = planNameRegex.test(planName);
   if (!isValidPlanName) {
