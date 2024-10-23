@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import axiosInstance from "../../lib/axiosConfig";
+import axiosInstance from "../../lib/axiosConfig.ts";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ cookies, request }) => {
@@ -11,8 +11,9 @@ export const load: PageServerLoad = async ({ cookies, request }) => {
     .get("/checkIsPL", {
       headers: {
         "user-agent": request.headers.get("user-agent"),
-        Authorization: `Bearer ${token}`,
+        Cookie: `token=${token}`,
       },
+      withCredentials: true,
     })
     .then((res) => {
       let data = res.data;
@@ -23,24 +24,46 @@ export const load: PageServerLoad = async ({ cookies, request }) => {
         return false;
       }
     })
-    .catch((err) => console.log("TMS ERROR ", err.response.data));
+    .catch((error) => {
+      if (error.status === 401) {
+        throw redirect(303, "/login");
+      } else {
+        console.log(error.status);
+      }
+    });
   const appsResult = await axiosInstance
     .get(`/apps`, {
       headers: {
         "user-agent": request.headers.get("user-agent"),
-        Authorization: `Bearer ${token}`,
+        Cookie: `token=${token}`,
       },
+      withCredentials: true,
     })
-    .then((res) => res.data);
+    .then((res) => res.data)
+    .catch((error) => {
+      if (error.status === 401) {
+        throw redirect(303, "/login");
+      } else {
+        console.log(error.status);
+      }
+    });
 
   const groupsResult = await axiosInstance
     .get(`/groups`, {
       headers: {
         "user-agent": request.headers.get("user-agent"),
-        Authorization: `Bearer ${token}`,
+        Cookie: `token=${token}`,
       },
+      withCredentials: true,
     })
-    .then((res) => res.data);
+    .then((res) => res.data)
+    .catch((error) => {
+      if (error.status === 401) {
+        throw redirect(303, "/login");
+      } else {
+        console.log(error.status);
+      }
+    });
 
   const data = {
     apps: appsResult?.data || [],

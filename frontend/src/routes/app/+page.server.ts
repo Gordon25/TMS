@@ -1,13 +1,13 @@
 import axiosInstance from "$lib/axiosConfig";
 import type { PageServerLoad } from "./$types";
-
+import { redirect } from "@sveltejs/kit";
 export const load: PageServerLoad = async ({ request, cookies }) => {
   const token = cookies.get("token");
   const checkIsPMResult = await axiosInstance
     .get("/checkIsPM", {
       headers: {
         "user-agent": request.headers.get("user-agent"),
-        Authorization: `Bearer ${token}`,
+        Cookie: `token=${token}`,
       },
     })
     .then((res) => {
@@ -19,7 +19,13 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
         return false;
       }
     })
-    .catch((err) => console.log("ERROR ", err.response.data));
+    .catch((error) => {
+      if (error.status === 401) {
+        throw redirect(303, "/login");
+      } else {
+        console.log(error.status);
+      }
+    });
 
   return { token, isUserPM: checkIsPMResult };
 };

@@ -1,7 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import axiosInstance from "$lib/axiosConfig";
 import { redirect, type Actions } from "@sveltejs/kit";
-import handleError from "$lib/errorHandler";
 export const load: PageServerLoad = async ({ request, cookies }) => {
   const token = cookies.get("token");
   if (!token) {
@@ -11,21 +10,21 @@ export const load: PageServerLoad = async ({ request, cookies }) => {
     .get(`/users`, {
       headers: {
         "user-agent": request.headers.get("user-agent"),
-        Authorization: `Bearer ${token}`,
+        Cookie: `token=${token}`,
       },
+      withCredentials: true,
     })
-    .then((res) => res.data)
-    .catch(handleError);
+    .then((res) => res.data);
 
   const groupsResult = await axiosInstance
     .get(`/groups`, {
       headers: {
         "user-agent": request.headers.get("user-agent"),
-        Authorization: `Bearer ${token}`,
+        Cookie: `token=${token}`,
       },
+      withCredentials: true,
     })
-    .then((res) => res.data)
-    .catch(handleError);
+    .then((res) => res.data);
 
   const data = {
     users: usersResult?.data || [],
@@ -52,7 +51,7 @@ export const actions: Actions = {
         {
           headers: {
             "user-agent": request.headers.get("user-agent"),
-            Authorization: `Bearer ${token}`,
+            Cookie: `token=${token}`,
           },
           withCredentials: true,
         }
@@ -66,7 +65,7 @@ export const actions: Actions = {
           return { success, field, message, groupname };
         }
       })
-      .catch(handleError);
+      .catch((error) => console.log(error));
 
     return responseData;
   },
@@ -97,8 +96,9 @@ export const actions: Actions = {
         {
           headers: {
             "user-agent": request.headers.get("user-agent"),
-            Authorization: `Bearer ${token}`,
+            Cookie: `token=${token}`,
           },
+          withCredentials: true,
         }
       )
       .then((res) => {
@@ -109,8 +109,7 @@ export const actions: Actions = {
         } else {
           return { success, field, message, username, password, email, groups, isActive };
         }
-      })
-      .catch(handleError);
+      });
 
     return responseData;
   },

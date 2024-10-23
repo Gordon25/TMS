@@ -14,6 +14,8 @@ import Popup from "$lib/components/Popup.svelte";
       {
         username,
         password
+      },{
+        withCredentials:true
       }
     ).then((res)=> {
       let data = res.data
@@ -22,7 +24,6 @@ import Popup from "$lib/components/Popup.svelte";
       window.location.href = '/tms';
     })
     .catch((err)=>{
-      console.log("ERR IN LOGIN ", err.response?.data);
       let data = err.response?.data;
       success = data.success
       errorMessage = data.message;

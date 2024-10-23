@@ -3,10 +3,11 @@ import Modal from "$lib/components/Modal.svelte";
 import type { PageServerData } from "./$types";
 import PlanTable from "$lib/components/Plan/PlanTable.svelte";
 import { onMount} from "svelte";
-import axiosInstance from "$lib/axiosConfig";
+import axiosInstance from "$lib/axiosConfig.ts";
 import CreateTaskForm from "$lib/components/Task/CreateTaskForm.svelte";
 import TaskCard from "$lib/components/Task/TaskCard.svelte";
 import Popup from "$lib/components/Popup.svelte";
+import { goto } from "$app/navigation";
 export let data:PageServerData
 let createPlanSuccessMsg:string|undefined;
 let showPlanModal = false
@@ -39,9 +40,7 @@ $:({token, isUserPM} = data);
     await axiosInstance.post("/appTasks",{
     appAcronym
   },{
-    headers:{
-      Authorization:`Bearer ${token}`
-    },withCredentials:true
+    withCredentials:true
   }).then(res=>{
     let data = res.data
     openTasks=data.open
@@ -49,6 +48,13 @@ $:({token, isUserPM} = data);
     doingTasks=data.doing
     doneTasks=data.done
     closedTasks=data.closed})
+    .catch((error) => {
+      if (error.status === 401) {
+        goto("/login");
+      } else {
+        console.log(error.status);
+      }
+    });
   }
 
 onMount(async()=> {
@@ -57,9 +63,7 @@ onMount(async()=> {
   await axiosInstance.post("/taskPermissions",{
     appAcronym
   },{
-    headers:{
-      Authorization:`Bearer ${token}`
-    },withCredentials:true
+    withCredentials:true
   }).then(res=>{
     let data=res.data;
     ({isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermitDone}=data)
@@ -139,16 +143,19 @@ $:console.log(isPermitCreate, isPermitOpen, isPermitTodo, isPermitDoing, isPermi
 
 body {
     background-color: #f4f4f4;
-    height: 100vh;
-    margin-top: 80px;
+    height: 91vh;
+    margin-top: 40px;
+    width: fit-content;
+    overflow: auto;
+    display: flex;
+    justify-content: center; /* Horizontally centers the main */
 }
 
 main {
-    max-width: 100vw;
     margin: 5px auto;
-    padding: 10px;
-    height:99%;
     overflow: hidden; 
+    width: 1900px;
+    padding: 10px;
 }
 
 .app-header {
@@ -188,7 +195,8 @@ main {
 .task-board {
     display: flex;
     justify-content: space-between;
-    height: 80%;
+    height: 100%;
+    flex-grow: 1;
 }
 
 .column {
@@ -197,7 +205,7 @@ main {
     padding: 10px;
     text-align: center;
     border-radius: 5px;
-    
+    height: 100%;
 }
 
 .column h2 {

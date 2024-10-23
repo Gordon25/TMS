@@ -3,12 +3,13 @@
   export let data:PageServerData
   export let form:ActionData
   const PASSWORD_PLACEHOLDER = "********"
-  import { invalidateAll } from "$app/navigation";
+  import { goto, invalidateAll } from "$app/navigation";
   import MultiSelect from 'svelte-multiselect';
-  import axiosInstance from "$lib/axiosConfig";
+  import axiosInstance from "$lib/axiosConfig.ts";
   import Popup from "$lib/components/Popup.svelte"
-  import handleError from "$lib/errorHandler";
-
+  import { onMount } from "svelte";
+  import loginStatus from "$lib/stores/loginStatus";
+  import { redirect } from "@sveltejs/kit";
   let newUserGroups:string[] = form&&form.groups? form.groups:[]
   let isActive=(form&&form.isActive)? form.isActive:true;
 let tempUser:User = {
@@ -39,14 +40,17 @@ let selectedUser:User = {...tempUser};
           isActive:user.isActive
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
           withCredentials: true,
         }
       )
       .then(res=>res.data)
-      .catch(handleError);
+      .catch((error) => {
+      if (error.status === 401) {
+        throw redirect(303, "/login");
+      } else {
+        console.log(error.status);
+      }
+    });
      
  
     const {success, field, message} = responseData
@@ -73,6 +77,11 @@ let selectedUser:User = {...tempUser};
       }, timeout)
     }
   }
+  onMount(()=>{
+    if (!$loginStatus.isAdmin) {
+      goto('/tms')
+    }
+  })
 </script>
 <body>
 <form class="create-group-form" method="post" action="?/createGroup" on:submit={invalidateAll}>

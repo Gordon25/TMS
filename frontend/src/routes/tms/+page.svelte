@@ -4,13 +4,9 @@
   import Select from "svelte-select";
   import { goto, invalidateAll } from "$app/navigation";
   import { PUBLIC_APP_INIT_RNUMBER } from "$env/static/public";
-  import axiosInstance from "$lib/axiosConfig";
-  import Modal from "$lib/components/Modal.svelte";
-  import AppDetailsForm from "$lib/components/App/AppDetailsForm.svelte";
-  let showAppModal = false;
+  import axiosInstance from "$lib/axiosConfig.ts";
   let apps:App[];
   let groups:string[];
-  let token:string;
   let isUserPL:boolean;
   let appAcronym:string='';
   let appInitRNumber = PUBLIC_APP_INIT_RNUMBER;
@@ -22,7 +18,11 @@
   let todoGroup: string='';
   let doingGroup: string='';
   let doneGroup: string='';
-  let displayedAppAcronym:string='';
+  let selectedCreate='';
+  let selectedOpen='';
+  let selectedTodo='';
+  let selectedDoing='';
+  let selectedDone='';
   export let data:PageServerData
   let createAppSuccessResult:{success:boolean, field:string, message:string}|undefined;
 
@@ -56,9 +56,6 @@
           done:doneGroup,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           withCredentials: true,
         }
       )
@@ -66,7 +63,13 @@
         let data = res.data;
         const { success, field, message } = data;
         return { success, field, message };
-      });
+      }).catch((error) => {
+      if (error.status === 401) {
+        goto("/login");
+      } else {
+        console.log(error.status);
+      }
+    });
     const {success} = createAppResult;
     if (success) {
       invalidateAll();
@@ -74,11 +77,11 @@
       startDate=''
       endDate=''
       description=''
-      createGroup=''
-      openGroup=''
-      todoGroup=''
-      doingGroup=''
-      doneGroup=''
+      selectedCreate=''
+      selectedOpen=''
+      selectedTodo=''
+      selectedDoing=''
+      selectedDone=''
     }
     createAppSuccessResult = createAppResult;
   }
@@ -144,7 +147,7 @@
         </td>
         <td class='create'>
           <div class='dropdown-select'>
-            <Select items={groups} bind:justValue={createGroup} />
+            <Select items={groups} bind:justValue={createGroup} bind:value={selectedCreate}/>
           </div>
           {#if createAppSuccessResult && createAppSuccessResult.field==='create'}
           <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
@@ -152,23 +155,35 @@
         </td>
         <td class='open'>
           <div class='dropdown-select' style='--width=10%'>
-            <Select items={groups} bind:justValue={openGroup}/>
+            <Select items={groups} bind:justValue={openGroup} bind:value={selectedOpen}/>
           </div>
+          {#if createAppSuccessResult && createAppSuccessResult.field==='open'}
+          <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
+          {/if}
         </td>
         <td class='todo'>
           <div class='dropdown-select'>
-            <Select items={groups} bind:justValue={todoGroup} />
+            <Select items={groups} bind:justValue={todoGroup} bind:value={selectedTodo}/>
           </div>
+          {#if createAppSuccessResult && createAppSuccessResult.field==='todo'}
+          <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
+          {/if}
         </td>
         <td class='doing'>
           <div class='dropdown-select'>
-            <Select items={groups} bind:justValue={doingGroup} />
+            <Select items={groups} bind:justValue={doingGroup} bind:value={selectedDoing}/>
           </div>
+          {#if createAppSuccessResult && createAppSuccessResult.field==='doing'}
+          <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
+          {/if}
         </td>
         <td class='done'>
           <div class='dropdown-select'>
-            <Select items={groups} bind:justValue={doneGroup} />
+            <Select items={groups} bind:justValue={doneGroup} bind:value={selectedDone}/>
           </div>
+          {#if createAppSuccessResult && createAppSuccessResult.field==='done'}
+          <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
+          {/if}
         </td>
         <td class='description'><textarea id="description" bind:value={description} maxlength="255" on:input={autoExpandTextArea}></textarea></td>
         <td class='action'><button on:click|preventDefault={createApp}>Create App</button></td>

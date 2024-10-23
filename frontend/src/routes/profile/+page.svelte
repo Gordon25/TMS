@@ -1,5 +1,4 @@
 <script lang='ts'>
-  import { invalidateAll } from "$app/navigation";
   import type { PageServerData, ActionData } from "./$types";
   import Popup from "$lib/components/Popup.svelte";
   import { onMount } from "svelte";
@@ -14,7 +13,6 @@
   let newPassword = "";
 
 onMount(()=>{
-    console.log("DATA ", data)
     if (data && data.success) {
     success = data.success
     username = data.username;
@@ -34,13 +32,13 @@ onMount(()=>{
           <p><strong>Email:</strong> {email}</p>
       </div>
 
-      <form method="post" action="?/updateEmail" on:submit={()=>{setTimeout(()=>invalidateAll(), 1000)}}>
+      <form method="post" action="?/updateEmail">
           <label for="email">New Email:</label>
           <input class="email" type="text" id="email" name="email" bind:value={newEmail}>
           <button type="submit">Change Email</button>
        </form>      
     
-      <form method="post" action="?/updatePassword" on:submit={invalidateAll}>
+      <form method="post" action="?/updatePassword">
           <label for="password">New Password:</label>
           <input class="password" type="text" id="password" name="password" bind:value={newPassword}>
           <button type="submit">Change Password</button>
