@@ -32,7 +32,7 @@
   }
   const autoExpandTextArea = (event:Event)=>{
     const element = event.target as HTMLTextAreaElement;
-    element.style.height = '150px';
+    element.style.height = '140px';
     element.style.height = `${element.scrollHeight}px`;
   }
   const autoExpandInput = (event:Event)=>{
@@ -97,11 +97,11 @@
   {#if createAppSuccessResult && createAppSuccessResult.field==='app'}
     <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
   {/if}
-  {#if showAppModal}
+  <!-- {#if showAppModal}
   <Modal closeModal={()=>{showAppModal=false}} bind:showModal={showAppModal} on:closeModal={invalidateAll}>
     <AppDetailsForm on:close={()=>{showAppModal=false}} {token} appAcronym={displayedAppAcronym}/>
   </Modal>
-  {/if}
+  {/if} -->
   <table class="thead-container">
       <thead>
           <tr>
@@ -116,7 +116,6 @@
               <th class='done'>Task Done</th>
               <th class='description'>Description</th>
               <th class='action'></th>
-              <th class='view-task-plan'></th>
             </tr>
       </thead>
       </table>
@@ -173,7 +172,6 @@
         </td>
         <td class='description'><textarea id="description" bind:value={description} maxlength="255" on:input={autoExpandTextArea}></textarea></td>
         <td class='action'><button on:click|preventDefault={createApp}>Create App</button></td>
-        <td class='view-task-plan'></td>
         {/if}
         {#each apps as app}
           <tr>
@@ -186,9 +184,8 @@
               <td class='todo'>{app.app_permit_todolist}</td>
               <td class='doing'>{app.app_permit_doing}</td>
               <td class='done'>{app.app_permit_done}</td>
-              <td class="description">{app.app_description}</td>
-              <td class='action'><button on:click={()=>{displayedAppAcronym=app.app_acronym; showAppModal=true;}}>View Details</button></td>
-              <td class='view-task-plan'><button on:click={()=>{viewAppDetails(app.app_acronym)}}>View Plans/Tasks</button></td>
+              <td class="description"><textarea disabled>{app.app_description}</textarea></td>
+              <td class='action'><button on:click={()=>{viewAppDetails(app.app_acronym)}}>View Plans/Tasks</button></td>
           </tr>
           {/each}
       </tbody>
@@ -199,146 +196,133 @@
 </body>
 
 <style>
-  /* Body styling */
-  body {
-    font-family: Arial, sans-serif;
-    margin-top: 40px;
-    padding: 5px;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-    width: 98vw;
-    position:fixed;
-    overflow-y: hidden;
-    overflow-x: scroll;
-  }
-
-
-  .thead-container, .tbody-container {
-  width: 100%;
-  overflow-x: scroll;
-  table-layout: fixed;
-  border-collapse: collapse;
-  margin-bottom: 0;
+body {
+  font-family: Arial, sans-serif;
+  margin: 40px 0 auto auto;
+  padding: 5px;
+  background-color: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  overflow-y: hidden;
 }
 
-  .scrollable-body {
-    max-height: 750px; /* Set your height */
-  overflow-y: auto;
-  overflow-x: hidden; /* Prevent horizontal scroll if not needed */
-  }
+.thead-container,
+.tbody-container {
+  overflow-x: auto; /* Allow horizontal scroll */
+  border-collapse: collapse;
 
-  .tbody-container {
-    margin-top: 0;
-  }
-  /* Table styles */
-  table {
-    width: 100%;
-    min-width: 1000px; /* Set a minimum width for large content */
-    border-collapse: collapse;
-    margin: 0 20px 0 0;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
+}
 
-  th, td {
-    padding: 12px 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-  }
 
-  th {
-    background-color: #fafafa;
-    color: #000;
-    position: sticky;
-    top: 0;
-    font-size: 15px;
-    text-wrap: wrap;
-  }
+.scrollable-body {
+  max-height: 750px; /* Set height for vertical scrolling */
+  overflow-y: auto;  /* Enable vertical scroll */
+  overflow-x: hidden; /* Prevent extra horizontal scrolling */
+  display: inline-block;
+  width: fit-content;
+}
 
-  tr:hover {
-    background-color: #f1f1f1; /* Highlight row on hover */
-  }
+.tbody-container {
+  margin-top: 0;
+}
 
-  .dropdown-select {
-    --width: 150px; /**Set the desired fixed width*/
-    --wrap-text: wrap;
-  }
-  .acronym {
-    width: 5%;
-  }
+table {
+  width: fit-content; /* Make the table take full width */
+  table-layout: auto; /* Allow the table to auto-size based on content */
+  border-collapse: collapse;
+  margin: 0 20px 0 0;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  table-layout: fixed; 
+}
 
-  .rnumber {
-    width: 2.4%;
-  }
-  .date {
-    width: 6.5%;
-  }
+thead {
+  position: sticky;
+}
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+  white-space: nowrap; /* Prevent cell content from wrapping */
+}
 
-  .create {
-    width:7%;
-  }
-  .open {
-    width:7%;
-  }
-  .todo {
-    width:7%;
-  }
-  .doing {
-    width:7%;
-  }
-  .done {
-    width:7%;
-  }
+th {
+  background-color: #fafafa;
+  color: #000;
+  position: sticky;
+  top: 0;
+  font-size: 15px;
+}
 
-  .description {
-    width: 18%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+tr:hover {
+  background-color: #f1f1f1;
+}
 
-  .action {
-    width: 5%;
-  }
+.acronym {
+  width:100px;
+}
+.rnumber {
+  width:45px;
+  text-wrap: wrap;
+}
+.date {
+  width:123px;
+}
+.create, .open, .todo, .doing, .done {
+  width: 150px; /* Remove fixed width to prevent cramping */
+}
+.description {
+  width: 350px;
+  white-space: nowrap; /* Prevent the description from wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-  .view-task-plan{
-    width: 5%;
-  }
+.action {
+  width:100px;
+  text-wrap: wrap;
+}
 
-  /* Responsive inputs */
-  input[type="text"],
-  input[type="date"],
-  textarea {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-    width: 100%;
-  }
-  
-  input[type='text'] {
-    overflow-x: hidden;
-    word-wrap: break-word;
-    width: 120%;
-  }
-  
-  textarea {
-    resize: vertical;
-    height: 150px;
-  }
-  button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  button:hover {
-    background-color: #0056b3;
-  }
+.dropdown-select {
+  width: 100%; /* Make dropdowns responsive */
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  width: 100%; /* Ensure inputs take full width */
+}
+
+textarea {
+  height: 140px;
+  resize: vertical;
+}
+
+textarea:disabled {
+  height: 60px;
+  resize: vertical;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
 </style>
