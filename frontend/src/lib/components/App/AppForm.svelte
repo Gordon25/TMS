@@ -1,7 +1,7 @@
 <script lang="ts">
 import Select from "svelte-select";
 import { createEventDispatcher, onMount } from "svelte";
-import axiosInstance from "$lib/axiosConfig";
+import axiosInstance from "$lib/axiosConfig.ts";
 import { invalidateAll } from "$app/navigation";
 import Popup from "$lib/components/Popup.svelte";
   export let token:string='';
@@ -48,9 +48,6 @@ import Popup from "$lib/components/Popup.svelte";
           done:doneGroup,
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           withCredentials: true,
         }
       )
@@ -83,9 +80,6 @@ onMount(async()=>{
     appAcronym
   },
   {
-   headers:{
-    Authorization:`Bearer ${token}`
-   },
    withCredentials:true 
   }).then(res=>res.data)
   app = appData.data[0] 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import axiosInstance from "$lib/axiosConfig";
+  import axiosInstance from "$lib/axiosConfig.ts";
   import { onMount } from "svelte";
   import Select from "svelte-select"
   import Popup from "$lib/components/Popup.svelte"
@@ -38,9 +38,7 @@
       taskDescription, 
       taskNotes
     },{
-      headers:{
-        Authorization: `Bearer ${token}`,
-      },withCredentials:true
+      withCredentials:true
     }).then(res=>{createTaskResult=res.data})
     .catch(err=>console.log(err));
     taskname = createTaskResult?.taskname||''
@@ -60,9 +58,7 @@
   
   onMount(async()=>{
     const userResult = await axiosInstance.get("/user",{
-      headers:{
-        Authorization: `Bearer ${token}`,
-      },withCredentials:true
+      withCredentials:true
     }).then(res=>res.data)
     .catch(err=>console.log(err))
     const {username} = userResult.data
@@ -73,9 +69,6 @@
       appAcronym
     },
     {
-    headers:{
-      Authorization:`Bearer ${token}`
-    },
     withCredentials:true 
     }).then(res=>res.data);
     plans = plansData.data.map(plans=>plans.plan_mvp_name);

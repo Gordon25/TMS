@@ -1,10 +1,9 @@
 <script lang="ts">
-  import axiosInstance from "$lib/axiosConfig";
+  import axiosInstance from "$lib/axiosConfig.ts";
   import { onMount } from "svelte";
   import Select from "svelte-select"
   import Popup from "$lib/components/Popup.svelte"
   import { createEventDispatcher } from "svelte";
-  import handleError from "$lib/errorHandler";
   export let token:string = '';
   export let plans:string[]=[];
   export let taskState:string;
@@ -43,9 +42,7 @@
       taskNotes,
       taskState:task.task_state,
     },{
-      headers:{
-        Authorization: `Bearer ${token}`,
-      },withCredentials:true
+      withCredentials:true
     }).then(res=>res.data)
     .catch(err=>console.log(err));
     taskNotes='';
@@ -57,9 +54,7 @@
       taskId:task.task_id,
       taskPlan
     },{
-      headers:{
-        Authorization: `Bearer ${token}`,
-      },withCredentials:true
+      withCredentials:true
     }).then(res=>res.data)
     .catch(err=>console.log(err));
     return updateTaskPlanResult.data
@@ -69,9 +64,7 @@
     return await axiosInstance.post('/task',{
       taskId
     },{
-      headers:{
-        Authorization: `Bearer ${token}`,
-      },withCredentials:true
+      withCredentials:true
     }
   ).then(res=>res.data.data[0])
   .catch(err=>console.log(err))
@@ -83,9 +76,7 @@
       taskState:task.task_state,
       willPromote
     },{
-      headers:{
-        Authorization: `Bearer ${token}`,
-      },withCredentials:true
+      withCredentials:true
     }).then(res=>res.data)
     return updateTaskStateRes;
   }
@@ -141,9 +132,6 @@
       appAcronym:task.task_app_acronym
     },
     {
-    headers:{
-      Authorization:`Bearer ${token}`
-    },
     withCredentials:true 
     }).then(res=>res.data);
     plans = plansData.data.map((plans:{plan_mvp_name:string;})=>plans.plan_mvp_name);

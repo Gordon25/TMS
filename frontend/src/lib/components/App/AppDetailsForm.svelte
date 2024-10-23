@@ -1,6 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import axiosInstance from "$lib/axiosConfig";
+import axiosInstance from "$lib/axiosConfig.ts";
   export let token:string='';
   export let appAcronym:string='';
   let app:App = {
@@ -22,9 +22,6 @@ onMount(async()=>{
     appAcronym
   },
   {
-   headers:{
-    Authorization:`Bearer ${token}`
-   },
    withCredentials:true 
   }).then(res=>res.data.data[0])
 })

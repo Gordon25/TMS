@@ -1,7 +1,7 @@
 <script lang='ts'>
   import { onMount } from "svelte";
   import Popup from "../Popup.svelte";
-  import axiosInstance from "$lib/axiosConfig";
+  import axiosInstance from "$lib/axiosConfig.ts";
   export let token;
   export let appAcronym;
   let planResult:{success:boolean, field:string, message:string, planName?:string,startDate?:string, endDate?:string, planColour?:string, appAcronym?:string}|undefined;
@@ -17,9 +17,6 @@
       appAcronym
     },
     {
-    headers:{
-      Authorization:`Bearer ${token}`
-    },
     withCredentials:true 
     }).then(res=>res.data)
     plans = plansData.data;
@@ -35,9 +32,6 @@
           planColour
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           withCredentials: true,
         }
       )
@@ -65,9 +59,6 @@
 onMount(async()=>{
   await axiosInstance
     .get("/checkIsPM", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       withCredentials:true
     })
     .then((res) => {

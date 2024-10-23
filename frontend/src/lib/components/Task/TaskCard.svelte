@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  height:15%;
+  height:100px;
   position: relative;
   font-family: Arial, sans-serif;
   margin: 0 auto;
