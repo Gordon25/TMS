@@ -16,7 +16,7 @@ interface Status {
 }
 interface App {
   app_acronym: string;
-  app_rnumber: Number;
+  app_rnumber: string;
   app_startdate: string;
   app_enddate: string;
   app_permit_create: string;

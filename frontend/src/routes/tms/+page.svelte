@@ -3,13 +3,12 @@
   import Popup from "$lib/components/Popup.svelte"
   import Select from "svelte-select";
   import { goto, invalidateAll } from "$app/navigation";
-  import { PUBLIC_APP_INIT_RNUMBER } from "$env/static/public";
   import axiosInstance from "$lib/axiosConfig.ts";
   let apps:App[];
   let groups:string[];
   let isUserPL:boolean;
   let appAcronym:string='';
-  let appInitRNumber = PUBLIC_APP_INIT_RNUMBER;
+  let rNumber=0;
   let startDate:string='';
   let endDate:string='';
   let description:string='';
@@ -23,9 +22,26 @@
   let selectedTodo='';
   let selectedDoing='';
   let selectedDone='';
+  let editSelectedCreate='';
+  let editSelectedOpen='';
+  let editSelectedTodo='';
+  let editSelectedDoing='';
+  let editSelectedDone='';
   export let data:PageServerData
+  const emptyApp:App = {
+    app_acronym:'',
+    app_rnumber:'',
+    app_startdate:'',
+    app_enddate:'',
+    app_description:'',
+    app_permit_create:'',
+    app_permit_open:'',
+    app_permit_todolist:'',
+    app_permit_doing:'',
+    app_permit_done:''
+  }
   let createAppSuccessResult:{success:boolean, field:string, message:string}|undefined;
-
+  let updateAppResult:{success:boolean,field:string, message:string}|undefined
   const viewAppDetails = (app_acronym:string)=>{
     localStorage.setItem('app', app_acronym); 
     goto('/app');
@@ -40,12 +56,70 @@
     element.style.height = '40px';
     element.style.height = `${element.scrollHeight}px`;
   }
+  let currentApp:App = {...emptyApp}
+
+  const editApp = (app:App) =>{
+    currentApp = {...app};
+    editSelectedCreate=currentApp.app_permit_create;
+    editSelectedOpen=currentApp.app_permit_open;
+    editSelectedTodo=currentApp.app_permit_todolist;
+    editSelectedDoing=currentApp.app_permit_doing;
+    editSelectedDone=currentApp.app_permit_done;
+    console.log(currentApp)
+  }
+
+  const resetApp = () =>{
+    currentApp = {...emptyApp}
+    editSelectedCreate="";
+    editSelectedOpen="";
+    editSelectedTodo="";
+    editSelectedDoing="";
+    editSelectedDone="";
+  }
+
+  const updateApp = async() =>{
+    const updateAppRes = await axiosInstance
+    .put(
+      '/apps',{
+        appAcronym:currentApp.app_acronym,
+        startDate:currentApp.app_startdate,
+        endDate:currentApp.app_enddate,
+        description:currentApp.app_description,
+        create:currentApp.app_permit_create,
+        open:currentApp.app_permit_open,
+        todo:currentApp.app_permit_todolist,
+        doing:currentApp.app_permit_doing,
+        done:currentApp.app_permit_done,
+      },
+      {
+        withCredentials:true
+      }
+    ).then((res) => {
+        let data = res.data;
+        const { success, field, message } = data;
+        return { success, field, message };
+      }).catch((error) => {
+      if (error.status === 401) {
+        goto("/login");
+      } else {
+        console.log(error.status);
+      }
+    });
+    const {success} = updateAppRes;
+    if (success) {
+      invalidateAll();
+      resetApp();
+    }
+    updateAppResult = updateAppRes;
+    
+  }
   const createApp = async ()=> {
     const createAppResult = await axiosInstance
       .post(
         `/apps`,
         {
           appAcronym,
+          rNumber,
           startDate,
           endDate,
           description,
@@ -74,6 +148,7 @@
     if (success) {
       invalidateAll();
       appAcronym=''
+      rNumber=0
       startDate=''
       endDate=''
       description=''
@@ -85,6 +160,7 @@
     }
     createAppSuccessResult = createAppResult;
   }
+
   $:({apps, groups, token, isUserPL} = data);
   const timeout= 3000;
   $:{
@@ -93,18 +169,39 @@
         createAppSuccessResult = undefined;
       }, timeout)
     }
+    if (updateAppResult) {
+      setTimeout(()=>{
+        updateAppResult = undefined;
+      }, timeout)
+    }
   }
-  $:console.log(appAcronym, startDate, endDate, createGroup, todoGroup, openGroup, doingGroup, doneGroup, description)
+  $:console.log(updateAppResult)
+  $: {
+    if (currentApp.app_permit_create === undefined) {
+      currentApp.app_permit_create = ''
+    }
+    if (currentApp.app_permit_open === undefined) {
+      currentApp.app_permit_open = ''
+    }
+    if (currentApp.app_permit_todolist === undefined) {
+      currentApp.app_permit_todolist = ''
+    }
+    if (currentApp.app_permit_doing === undefined) {
+      currentApp.app_permit_doing = ''
+    }
+    if (currentApp.app_permit_done === undefined) {
+      currentApp.app_permit_done = ''
+    }
+  }
 </script>
 <body>
   {#if createAppSuccessResult && createAppSuccessResult.field==='app'}
     <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
   {/if}
-  <!-- {#if showAppModal}
-  <Modal closeModal={()=>{showAppModal=false}} bind:showModal={showAppModal} on:closeModal={invalidateAll}>
-    <AppDetailsForm on:close={()=>{showAppModal=false}} {token} appAcronym={displayedAppAcronym}/>
-  </Modal>
-  {/if} -->
+  {#if updateAppResult && updateAppResult.field==='app'}
+  <Popup message={updateAppResult.message} success={updateAppResult.success}/>
+  {/if}
+  <form id='create'></form>
   <table class="thead-container">
       <thead>
           <tr>
@@ -132,7 +229,12 @@
           <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
           {/if}
         </td>
-        <td class='rnumber'>{appInitRNumber}</td>
+        <td class='rnumber'>
+          <input type='text' id='rnumber' name='rnumber' bind:value={rNumber} />
+          {#if createAppSuccessResult && createAppSuccessResult.field==='rnumber'}
+          <Popup message={createAppSuccessResult.message} success={createAppSuccessResult.success}/>
+          {/if}
+        </td>
         <td class='date'>
           <input type="date" id="start-date" name="start-date" bind:value={startDate}/>
           {#if createAppSuccessResult && createAppSuccessResult.field==='start date'}
@@ -192,15 +294,87 @@
           <tr>
               <td class='acronym'>{app.app_acronym}</td>
               <td class='rnumber'>{app.app_rnumber}</td>
-              <td class='date'>{app.app_startdate}</td>
-              <td class='date'>{app.app_enddate}</td>
-              <td class='create'>{app.app_permit_create}</td>
-              <td class='open'>{app.app_permit_open}</td>
-              <td class='todo'>{app.app_permit_todolist}</td>
-              <td class='doing'>{app.app_permit_doing}</td>
-              <td class='done'>{app.app_permit_done}</td>
-              <td class="description"><textarea disabled>{app.app_description}</textarea></td>
-              <td class='action'><button on:click={()=>{viewAppDetails(app.app_acronym)}}>View Plans/Tasks</button></td>
+              <td class='date'>
+              {#if currentApp.app_acronym === app.app_acronym}
+              <input type="date" id="start-date" name="start-date" bind:value={currentApp.app_startdate}/>
+              {#if updateAppResult && updateAppResult.field==='start date'}
+                <Popup message={updateAppResult.message} success={updateAppResult.success}/>
+              {/if}
+              {:else}
+                {app.app_startdate}
+              {/if}
+              </td>
+              <td class='date'>
+                {#if currentApp.app_acronym === app.app_acronym}
+                <input type="date" id="end-date" name="end-date" bind:value={currentApp.app_enddate}/>
+                {#if updateAppResult && updateAppResult.field==='end date'}
+                <Popup message={updateAppResult.message} success={updateAppResult.success}/>
+                {/if}
+                {:else}
+                  {app.app_enddate}
+                {/if}               
+              </td>
+              <td class='create'>
+                {#if currentApp.app_acronym === app.app_acronym}
+                <div class='dropdown-select'>
+                  <Select items={groups} bind:justValue={currentApp.app_permit_create} bind:value={editSelectedCreate}/>
+                </div>
+                {:else}
+                {app.app_permit_create}
+                {/if}
+              </td>
+              <td class='open'>
+                {#if currentApp.app_acronym === app.app_acronym}
+                <div class='dropdown-select'>
+                  <Select items={groups} bind:justValue={currentApp.app_permit_open} bind:value={editSelectedOpen} />
+                </div>
+                {:else}
+                {app.app_permit_open}
+                {/if}
+              </td>
+              <td class='todo'>
+                {#if currentApp.app_acronym === app.app_acronym}
+                <div class='dropdown-select'>
+                  <Select items={groups} bind:justValue={currentApp.app_permit_todolist} bind:value={editSelectedTodo}/>
+                </div>
+                {:else}
+                {app.app_permit_todolist}
+                {/if}
+              </td>
+              <td class='doing'>
+                {#if currentApp.app_acronym === app.app_acronym}
+                <div class='dropdown-select'>
+                  <Select items={groups} bind:justValue={currentApp.app_permit_doing} bind:value={editSelectedDoing}/>
+                </div>
+                {:else}
+                {app.app_permit_doing}
+                {/if}
+              </td>
+              <td class='done'>
+                {#if currentApp.app_acronym === app.app_acronym}
+                <div class='dropdown-select'>
+                  <Select items={groups} bind:justValue={currentApp.app_permit_done} bind:value={editSelectedDone}/>
+                </div>
+                {:else}
+                {app.app_permit_done}
+                {/if}
+              </td>
+              <td class="description">
+                {#if currentApp.app_acronym === app.app_acronym}
+                <textarea bind:value={currentApp.app_description} maxlength="255" on:input={autoExpandTextArea}></textarea>
+                {:else}
+                <textarea disabled>{app.app_description}</textarea>
+                {/if}
+              </td>
+              <td class='action'>
+              {#if currentApp.app_acronym === app.app_acronym}
+                <button class='update-btn' on:click={updateApp}>Save Changes</button>
+                <button class='cancel-btn' on:click={resetApp}>Cancel</button>
+              {:else}
+                <button on:click={()=>{viewAppDetails(app.app_acronym)}}>View Plans/Tasks</button>
+                <button on:click={()=>editApp(app)}>Edit App</button>
+              {/if}
+              </td>
           </tr>
           {/each}
       </tbody>
@@ -280,7 +454,7 @@ tr:hover {
   width:100px;
 }
 .rnumber {
-  width:45px;
+  width:80px;
   text-wrap: wrap;
 }
 .date {
@@ -301,12 +475,17 @@ tr:hover {
   text-wrap: wrap;
 }
 
+.action > * {
+  margin-bottom: 10px;
+}
+
 .dropdown-select {
   width: 100%; /* Make dropdowns responsive */
 }
 
 input[type="text"],
 input[type="date"],
+input[type='number'],
 textarea {
   padding: 10px;
   border: 1px solid #ccc;
@@ -336,6 +515,32 @@ button {
   transition: background-color 0.3s;
 }
 
+.update-btn {
+  background-color: #1eba0c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cancel-btn {
+  background-color: #ca4b0b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.update-btn:hover {
+    background-color: #5cde21;
+  }
+  .cancel-btn:hover {
+    background-color: #ec7134;
+  }
 button:hover {
   background-color: #0056b3;
 }

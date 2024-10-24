@@ -20,9 +20,8 @@ import checkIsUserInGroup from "./controllers/checkIsInGroup.js";
 import app from "./app.js";
 import getAppsController from "./controllers/getApps.js";
 import validateAppAcronymController from "./middleware/validateAppAcronym.js";
-import createAppController from "./controllers/createApp.js";
+import { createApp, updateApp } from "./controllers/App.js";
 import validateStartEndDateController from "./middleware/validateStartEndDate.js";
-import validateGroupsController from "./middleware/validateGroups.js";
 import getPlansController from "./controllers/getPlans.js";
 import validatePlanNameController from "./middleware/validatePlanName.js";
 import createPlanController from "./controllers/createPlan.js";
@@ -34,6 +33,7 @@ import getTasksController from "./controllers/getTasks.js";
 import getTaskPermissionsController from "./controllers/getTaskPermissions.js";
 import getTaskController from "./controllers/getTask.js";
 import { updateTaskNotes, updateTaskPlan, updateTaskState } from "./controllers/updateTask.js";
+import validateRNumber from "./middleware/validateRNumber.js";
 // login, logout
 app.post("/login", loginController);
 app.get("/logout", logoutController);
@@ -81,16 +81,16 @@ app.get("/checkIsPM", authLogin, checkIsUserInGroup("PM"));
 //Task Management System
 //Apps
 app.get("/apps", authLogin, getAppsController);
-app.post("/app", authLogin, getAppController); //get single app
 app.post(
   "/apps",
   authLogin,
   authGroups("PL"),
   validateAppAcronymController,
+  validateRNumber,
   validateStartEndDateController,
-  validateGroupsController,
-  createAppController
+  createApp
 );
+app.put("/apps", authLogin, authGroups("PL"), validateStartEndDateController, updateApp);
 
 //Plans
 app.post("/appPlans", authLogin, getPlansController); //get plans for 1 app
