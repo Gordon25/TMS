@@ -265,7 +265,7 @@
         {:else if task.task_state==='Todo'}
         <button class='green-btn' on:click={saveAndPromote}>Save and pick up</button>
         {:else if task.task_state==='Doing'}
-        <button class="green-btn" on:click={saveAndPromote}>Save and Seek Approval</button>
+        <button class="green-btn" on:click={saveAndPromote}>Save and Send Review</button>
         {:else if task.task_state==='Done'}
         <button class="red-btn" on:click={saveAndReject}>Save and Reject</button> 
         {/if}
