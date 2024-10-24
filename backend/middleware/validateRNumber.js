@@ -2,7 +2,7 @@ export default (req, res, next) => {
   const field = "rnumber";
   const { rNumber } = req.body;
   console.log(rNumber);
-  const rNumberRegex = new RegExp(/^(0|[1-9]\d*)$/);
+  const rNumberRegex = new RegExp(/^(0|[1-9]\d*).?$/);
   const isValidRNumber = rNumberRegex.test(rNumber);
   if (!isValidRNumber) {
     res.status(200).json({

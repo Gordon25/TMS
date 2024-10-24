@@ -12,6 +12,9 @@ export default async (req, res) => {
     taskDescription,
     taskNotes,
   } = req.body;
+
+  const createNotes = "Task created";
+  const timeStampedCreateNotes = timeStampNotes(taskCreator, taskState, createNotes);
   const timeStampedNotes = timeStampNotes(taskCreator, taskState, taskNotes);
   const now = new Date();
   const createDate = now.toISOString().split("T")[0];
@@ -32,7 +35,7 @@ export default async (req, res) => {
       taskId,
       taskname,
       taskDescription,
-      timeStampedNotes,
+      timeStampedNotes + timeStampedCreateNotes,
       "task plan",
       taskPlan,
       "app acronym",
@@ -49,7 +52,7 @@ export default async (req, res) => {
         taskId,
         taskname,
         taskDescription,
-        timeStampedNotes,
+        timeStampedNotes + timeStampedCreateNotes,
         taskPlan,
         appAcronym,
         "Open",
