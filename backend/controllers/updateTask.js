@@ -102,8 +102,8 @@ const updateTaskState = async (req, res) => {
       transporter.sendMail({
         from: `"Maddison Foo Koch " ${process.env.SMTP_FROM_EMAIL}`,
         to: emails.join(", "),
-        subject: `${taskId} pending task review.`,
-        text: `Task ${taskId} is pending approval.`,
+        subject: `Task ID ${taskId} pending task review.`,
+        text: `This task is pending approval.`,
       });
     }
     const token = req.cookies.token;
