@@ -225,7 +225,7 @@
         <div class='input-label'>
           <label for="description">Description:</label>
         </div>
-          <p>{task.task_description}</p>
+          <textarea disabled>{task.task_description}</textarea>
       </div>
     </div>
     <div class="vl"></div>
