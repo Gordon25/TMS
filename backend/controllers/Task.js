@@ -2,6 +2,7 @@ import { db } from "../utils/db.js";
 import timeStampNotes from "../utils/timeStampNotes.js";
 import jwt from "jsonwebtoken";
 import transporter from "../utils/transporter.js";
+import timeStampNotes from "../utils/timeStampNotes.js";
 
 const updateTaskNotes = async (req, res) => {
   const { taskNotes, taskId, taskState } = req.body;
@@ -125,4 +126,135 @@ const updateTaskState = async (req, res) => {
     res.status(500).json({ succes: false, message: "Internal Server Error." });
   }
 };
-export { updateTaskNotes, updateTaskPlan, updateTaskState };
+
+const createTask = async (req, res) => {
+  const field = "task";
+  const {
+    taskname,
+    appAcronym,
+    taskPlan,
+    taskState,
+    taskCreator,
+    taskOwner,
+    taskDescription,
+    taskNotes,
+  } = req.body;
+
+  const createNotes = "Task created";
+  const timeStampedCreateNotes = timeStampNotes(taskCreator, taskState, createNotes);
+  const timeStampedNotes = timeStampNotes(taskCreator, taskState, taskNotes);
+  const now = new Date();
+  const createDate = now.toISOString().split("T")[0];
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+    await connection.execute(
+      `UPDATE applications set app_rnumber=app_rnumber + 1 where app_acronym=?`,
+      [appAcronym]
+    );
+    const [[{ taskId }]] = await connection.execute(
+      `SELECT CONCAT(app_acronym, '_', app_rnumber) AS taskId
+                                              FROM applications 
+                                            WHERE app_acronym = ?;`,
+      [appAcronym]
+    );
+
+    await connection.execute(
+      `INSERT INTO tasks (task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createdate)
+        VALUES(?,?,?,?,?,?,?,?,?,?);`,
+      [
+        taskId,
+        taskname,
+        taskDescription,
+        timeStampedNotes + timeStampedCreateNotes,
+        taskPlan,
+        appAcronym,
+        "Open",
+        taskCreator,
+        taskOwner,
+        createDate,
+      ]
+    );
+
+    await connection.commit();
+    res.status(200).json({
+      success: true,
+      field,
+      message: `Task ${taskname} created successfully.`,
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      field,
+      message: "Internal Server error.",
+    });
+  } finally {
+    connection.release();
+  }
+};
+
+const getTasks = async (req, res) => {
+  const { appAcronym } = req.body;
+  // const defaultPlanColour = "#FFFFFF";
+  let open = [],
+    todo = [],
+    doing = [],
+    done = [],
+    closed = [];
+  try {
+    const tasks = await db
+      .execute(
+        `select task_id, task_name, task_owner, task_state,
+        (select plan_colour from plans
+	      where plans.plan_mvp_name=tasks.task_plan and tasks.task_app_acronym=plans.plan_app_acronym) as plan_colour
+        from tasks 
+        where task_app_acronym=?;`,
+        [appAcronym]
+      )
+      .then(([tasks, fields]) => tasks);
+    open = tasks.filter((task) => task.task_state === "Open");
+    todo = tasks.filter((task) => task.task_state === "Todo");
+    doing = tasks.filter((task) => task.task_state === "Doing");
+    done = tasks.filter((task) => task.task_state === "Done");
+    closed = tasks.filter((task) => task.task_state === "Closed");
+    res.status(200).json({
+      success: true,
+      open,
+      todo,
+      doing,
+      done,
+      closed,
+    });
+  } catch (error) {
+    res.json(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+};
+
+const getTask = async (req, res) => {
+  const { taskId } = req.body;
+  try {
+    const data = await db
+      .execute(
+        `select * from tasks 
+        where task_id=?;`,
+        [taskId]
+      )
+      .then(([tasks, fields]) => tasks);
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+};
+
+export { updateTaskNotes, updateTaskPlan, updateTaskState, createTask, getTasks, getTask };

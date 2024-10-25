@@ -1,5 +1,5 @@
 import { db } from "../utils/db.js";
-export default async (req, res) => {
+const createGroup = async (req, res) => {
   const field = "group";
   const { groupname } = req.body;
   const groupnameRegex = new RegExp("^(?=.*[a-zA-Z])[a-zA-Z0-9]+$");
@@ -47,3 +47,22 @@ export default async (req, res) => {
     }
   }
 };
+
+const getGroups = async (req, res) => {
+  try {
+    const [groups, fields] = await db.execute("SELECT DISTINCT groupname FROM user_groups;");
+    const groupnames = groups.map((group) => group.groupname);
+    res.status(200).json({
+      success: true,
+      data: groupnames,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: true,
+      message: "Internal Server error.",
+    });
+  }
+};
+
+export { getGroups, createGroup };

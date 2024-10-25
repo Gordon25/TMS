@@ -1,6 +1,6 @@
 import loginController from "./controllers/login.js";
 import { authLogin, authGroups } from "./middleware/auth.js";
-import createUserController from "./controllers/createUser.js";
+import { createUser, getUser, getUsers, updateUser } from "./controllers/User.js";
 import validateUsernameController from "./middleware/validateUsername.js";
 import {
   validatePasswordController,
@@ -10,29 +10,26 @@ import {
   updatePasswordController,
   updateEmailController,
 } from "./controllers/updateUserCredentials.js";
-import adminUpdateUserController from "./controllers/adminUpdateUser.js";
-import createGroupController from "./controllers/createGroup.js";
-import getUsersController from "./controllers/getUsers.js";
-import getUserController from "./controllers/getUser.js";
+import { getGroups, createGroup } from "./controllers/Group.js";
 import logoutController from "./controllers/logout.js";
-import getGroupsController from "./controllers/getGroups.js";
 import checkIsUserInGroup from "./controllers/checkIsInGroup.js";
 import app from "./app.js";
-import getAppsController from "./controllers/getApps.js";
 import validateAppAcronymController from "./middleware/validateAppAcronym.js";
-import { createApp, updateApp } from "./controllers/App.js";
+import { createApp, updateApp, getApps } from "./controllers/App.js";
 import validateStartEndDateController from "./middleware/validateStartEndDate.js";
-import getPlansController from "./controllers/getPlans.js";
 import validatePlanNameController from "./middleware/validatePlanName.js";
-import createPlanController from "./controllers/createPlan.js";
-import getAppController from "./controllers/getApp.js";
+import { createPlan, getPlans } from "./controllers/Plan.js";
 import validateTaskNameController from "./middleware/validateTaskName.js";
 import { authTaskAction, authCreateTask } from "./middleware/authTaskAction.js";
-import createTaskController from "./controllers/createTask.js";
-import getTasksController from "./controllers/getTasks.js";
 import getTaskPermissionsController from "./controllers/getTaskPermissions.js";
-import getTaskController from "./controllers/getTask.js";
-import { updateTaskNotes, updateTaskPlan, updateTaskState } from "./controllers/updateTask.js";
+import {
+  updateTaskNotes,
+  updateTaskPlan,
+  updateTaskState,
+  createTask,
+  getTask,
+  getTasks,
+} from "./controllers/Task.js";
 import validateRNumber from "./middleware/validateRNumber.js";
 // login, logout
 app.post("/login", loginController);
@@ -40,7 +37,7 @@ app.get("/logout", logoutController);
 
 // Admin-only route
 // Manage Users
-app.get("/users", authLogin, authGroups("Admin"), getUsersController);
+app.get("/users", authLogin, authGroups("Admin"), getUsers);
 app.post(
   "/users",
   authLogin,
@@ -48,7 +45,7 @@ app.post(
   validateUsernameController,
   validatePasswordController,
   validateEmailController,
-  createUserController
+  createUser
 );
 app.put(
   "/users/:username",
@@ -56,7 +53,7 @@ app.put(
   authGroups("Admin"),
   validatePasswordController,
   validateEmailController,
-  adminUpdateUserController
+  updateUser
 );
 
 // Get, Create Groups
@@ -64,12 +61,12 @@ app.get(
   "/groups",
   authLogin,
   // authGroups("Admin", "PL"),
-  getGroupsController
+  getGroups
 );
-app.post("/groups", authLogin, authGroups("Admin"), createGroupController);
+app.post("/groups", authLogin, authGroups("Admin"), createGroup);
 
 // User-only route
-app.get("/user", authLogin, getUserController);
+app.get("/user", authLogin, getUser);
 app.put("/user/password", authLogin, validatePasswordController, updatePasswordController);
 app.put("/user/email", authLogin, validateEmailController, updateEmailController);
 
@@ -80,7 +77,7 @@ app.get("/checkIsPM", authLogin, checkIsUserInGroup("PM"));
 
 //Task Management System
 //Apps
-app.get("/apps", authLogin, getAppsController);
+app.get("/apps", authLogin, getApps);
 app.post(
   "/apps",
   authLogin,
@@ -93,20 +90,20 @@ app.post(
 app.put("/apps", authLogin, authGroups("PL"), validateStartEndDateController, updateApp);
 
 //Plans
-app.post("/appPlans", authLogin, getPlansController); //get plans for 1 app
+app.post("/appPlans", authLogin, getPlans); //get plans for 1 app
 app.post(
   "/plans",
   authLogin,
   authGroups("PM"),
   validatePlanNameController,
   validateStartEndDateController,
-  createPlanController
+  createPlan
 );
 
 //Tasks
-app.post("/appTasks", authLogin, getTasksController);
-app.post("/tasks", authLogin, authCreateTask, validateTaskNameController, createTaskController);
-app.post("/task", authLogin, getTaskController);
+app.post("/appTasks", authLogin, getTasks);
+app.post("/tasks", authLogin, authCreateTask, validateTaskNameController, createTask);
+app.post("/task", authLogin, getTask);
 
 //update task notes
 app.put("/taskNotes", authLogin, authTaskAction, updateTaskNotes);
