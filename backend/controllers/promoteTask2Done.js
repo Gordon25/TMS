@@ -48,6 +48,7 @@ const promoteTask2DoneMicroservice = async (req, res) => {
         code: "C001",
       });
     }
+    //check if user is disabled also
     const taskId = req.body.task_id;
     const tasks = await db
       .execute(`select * from tasks where task_id=?;`, [taskId])

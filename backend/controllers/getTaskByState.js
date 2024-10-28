@@ -45,6 +45,7 @@ const getTaskByStateMicroservice = async (req, res) => {
         code: "C001",
       });
     }
+    //check if user is disabled also
     const appAcronym = req.body.task_app_acronym;
     const isExistingApp = await db
       .execute(`select * from applications where app_acronym=?;`, [appAcronym])

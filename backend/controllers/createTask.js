@@ -30,7 +30,6 @@ const createtaskMicroservice = async (req, res) => {
   }
   const loginUsername = req.body.username;
   const loginPassword = req.body.password;
-  const appAcronym = req.body.task_app_acronym;
   try {
     const [users, fields] = await db.execute(`select * from accounts where username=?;`, [
       loginUsername,
@@ -48,6 +47,8 @@ const createtaskMicroservice = async (req, res) => {
         code: "C001",
       });
     }
+    //check if user is disabled also
+    const appAcronym = req.body.task_app_acronym;
     const apps = await db
       .execute(`select * from applications where app_acronym=?;`, [appAcronym])
       .then(([apps, field]) => apps);
