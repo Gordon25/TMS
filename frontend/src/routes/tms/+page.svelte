@@ -372,7 +372,9 @@
                 <button class='cancel-btn' on:click={resetApp}>Cancel</button>
               {:else}
                 <button on:click={()=>{viewAppDetails(app.app_acronym)}}>View Plans/Tasks</button>
+                {#if isUserPL} 
                 <button on:click={()=>editApp(app)}>Edit App</button>
+                {/if}
               {/if}
               </td>
           </tr>
