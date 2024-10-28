@@ -2,7 +2,6 @@ import { db } from "../utils/db.js";
 import timeStampNotes from "../utils/timeStampNotes.js";
 import jwt from "jsonwebtoken";
 import transporter from "../utils/transporter.js";
-import timeStampNotes from "../utils/timeStampNotes.js";
 
 const updateTaskNotes = async (req, res) => {
   const { taskNotes, taskId, taskState } = req.body;

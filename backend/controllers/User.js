@@ -1,7 +1,6 @@
 import { db } from "../utils/db.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-import bcryptjs from "bcryptjs";
 const createUser = async (req, res) => {
   const field = "user";
   const { username, password, email, groups, isActive } = req.body;
