@@ -31,6 +31,9 @@ import {
   getTasks,
 } from "./controllers/Task.js";
 import validateRNumber from "./middleware/validateRNumber.js";
+import { createtaskMicroservice } from "./controllers/createTask.js";
+import { getTaskByStateMicroservice } from "./controllers/getTaskbyState.js";
+import { promoteTask2DoneMicroservice } from "./controllers/promoteTask2Done.js";
 // login, logout
 app.post("/login", loginController);
 app.get("/logout", logoutController);
@@ -119,4 +122,9 @@ app.put("/updateDoingTaskState", authLogin, authTaskAction, updateTaskState);
 app.put("/updateDoneTask", authLogin, authTaskAction, updateTaskState);
 //Task Permissions
 app.post("/taskPermissions", authLogin, getTaskPermissionsController);
+
+//Assignment 3, microservices
+app.post("/createtask", createtaskMicroservice);
+app.post("/gettaskbystate", getTaskByStateMicroservice);
+app.patch("/promotetask2done", promoteTask2DoneMicroservice);
 export default app;
