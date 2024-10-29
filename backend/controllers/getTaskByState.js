@@ -28,10 +28,15 @@ const getTaskByStateMicroservice = async (req, res) => {
       code: "B002",
     });
   }
+  if (typeof req.body.username !== "string") {
+    return res.json({
+      code: "C001",
+    });
+  }
   const loginUsername = req.body.username;
-  const loginPassword = req.body.password;
+
   try {
-    const [users, fields] = await db.execute(`select * from accounts where username=?`, [
+    const [users, fields] = await db.execute(`select * from accounts where username = ?`, [
       loginUsername,
     ]);
     if (users.length === 0) {
@@ -39,17 +44,24 @@ const getTaskByStateMicroservice = async (req, res) => {
         code: "C001",
       });
     }
-    if (typeof loginPassword !== "string") {
+    if (typeof req.body.password !== "string") {
       return res.json({
         code: "C001",
       });
     }
+
+    const loginPassword = req.body.password;
     // username matches a user
     const [user] = users;
     const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
     if (!isPasswordMatch || !user.isActive) {
       return res.json({
         code: "C001",
+      });
+    }
+    if (typeof req.body.task_app_acronym !== "string") {
+      return res.json({
+        code: "D001",
       });
     }
     const appAcronym = req.body.task_app_acronym;

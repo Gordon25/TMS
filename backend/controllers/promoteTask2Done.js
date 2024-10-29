@@ -31,6 +31,11 @@ const promoteTask2DoneMicroservice = async (req, res) => {
       code: "B002",
     });
   }
+  if (typeof req.body.username !== "string") {
+    return res.json({
+      code: "C001",
+    });
+  }
   const loginUsername = req.body.username;
   const loginPassword = req.body.password;
   try {
@@ -53,6 +58,11 @@ const promoteTask2DoneMicroservice = async (req, res) => {
     if (!isPasswordMatch || !user.isActive) {
       return res.json({
         code: "C001",
+      });
+    }
+    if (typeof req.body.task_id !== "string") {
+      return res.json({
+        code: "D001",
       });
     }
     const taskId = req.body.task_id;
@@ -92,6 +102,11 @@ const promoteTask2DoneMicroservice = async (req, res) => {
     }
     const newState = "Done";
     const taskNotes = req.body.task_notes || "";
+    if (typeof taskNotes !== "string") {
+      return res.json({
+        code: "D001",
+      });
+    }
     const promoteNote = `Task state changed from ${taskState} to ${newState}.`;
     const stampedNotes = timeStampNotes(loginUsername, taskState, taskNotes);
     const stampedPromoteNote = timeStampNotes(loginUsername, taskState, promoteNote);

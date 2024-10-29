@@ -30,8 +30,12 @@ const createtaskMicroservice = async (req, res) => {
       code: "B002",
     });
   }
+  if (typeof req.body.username !== "string") {
+    return res.json({
+      code: "C001",
+    });
+  }
   const loginUsername = req.body.username;
-  const loginPassword = req.body.password;
   const appAcronym = req.body.task_app_acronym;
   try {
     const [users, fields] = await db.execute(`select * from accounts where username=?;`, [
@@ -44,11 +48,12 @@ const createtaskMicroservice = async (req, res) => {
     }
     // username matches a user
     const [user] = users;
-    if (typeof loginPassword !== "string") {
+    if (typeof req.body.password !== "string") {
       return res.json({
         code: "C001",
       });
     }
+    const loginPassword = req.body.password;
     const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
     if (!isPasswordMatch || !user.isActive) {
       return res.json({
@@ -56,6 +61,11 @@ const createtaskMicroservice = async (req, res) => {
       });
     }
 
+    if (typeof appAcronym !== "string") {
+      return res.json({
+        code: "D001",
+      });
+    }
     const apps = await db
       .execute(`select * from applications where app_acronym=?;`, [appAcronym])
       .then(([apps, field]) => apps);
@@ -85,6 +95,11 @@ const createtaskMicroservice = async (req, res) => {
     });
   }
   const tasknameRegex = new RegExp("^[a-zA-Z0-9]+([a-zA-Z0-9]+)*$");
+  if (typeof req.body.task_name !== "string") {
+    return res.json({
+      code: "D001",
+    });
+  }
   const taskname = req.body.task_name;
   const isValidTaskname = tasknameRegex.test(taskname);
   if (taskname.length > 50 || !isValidTaskname) {
@@ -104,6 +119,11 @@ const createtaskMicroservice = async (req, res) => {
     });
   }
   const taskPlan = req.body.task_plan || "";
+  if (typeof taskPlan !== "string") {
+    return res.json({
+      code: "D001",
+    });
+  }
   if (taskPlan !== "") {
     const plans = await db
       .execute(`select * from plans where plan_app_acronym=? and plan_mvp_name=?;`, [
