@@ -5,7 +5,9 @@ import timeStampNotes from "../utils/timeStampNotes.js";
 import checkgroup from "../utils/checkgroup.js";
 const promoteTask2DoneMicroservice = async (req, res) => {
   const url = req.originalUrl;
-  const matchAdditionalInfoRegex = new RegExp("(?<=\\/promotetask2done)[\\&\\?\\-\\'\\~\\%]+");
+  const matchAdditionalInfoRegex = new RegExp(
+    "(?<=\\/[Pp][Rr][Oo][Mm][Oo][Tt][Ee][Tt][Aa][Ss][Kk]2[Dd][Oo][Nn][Ee]).*[\\&\\?\\-\\'\\~\\%]+"
+  );
   const isContainsAdditionalInfo = matchAdditionalInfoRegex.test(url);
   if (isContainsAdditionalInfo) {
     return res.json({
@@ -32,23 +34,27 @@ const promoteTask2DoneMicroservice = async (req, res) => {
   const loginUsername = req.body.username;
   const loginPassword = req.body.password;
   try {
-    const [entries, fields] = await db.execute(`select * from accounts where username=?;`, [
+    const [users, fields] = await db.execute(`select * from accounts where username=?;`, [
       loginUsername,
     ]);
-    if (entries.length === 0) {
+    if (users.length === 0) {
       return res.json({
         code: "C001",
       });
     }
     // username matches a user
-    const [user] = entries;
-    const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
-    if (!isPasswordMatch) {
+    const [user] = users;
+    if (typeof loginPassword !== "string") {
       return res.json({
         code: "C001",
       });
     }
-    //check if user is disabled also
+    const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
+    if (!isPasswordMatch || !user.isActive) {
+      return res.json({
+        code: "C001",
+      });
+    }
     const taskId = req.body.task_id;
     const tasks = await db
       .execute(`select * from tasks where task_id=?;`, [taskId])

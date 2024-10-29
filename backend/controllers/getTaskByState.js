@@ -2,7 +2,9 @@ import bcryptjs from "bcryptjs";
 import { db } from "../utils/db.js";
 const getTaskByStateMicroservice = async (req, res) => {
   const url = req.originalUrl;
-  const matchAdditionalInfoRegex = new RegExp("(?<=\\/gettaskbystate)[\\&\\?\\-\\'\\~\\%]+");
+  const matchAdditionalInfoRegex = new RegExp(
+    "(?<=/[Gg][Ee][Tt][Tt][Aa][Ss][Kk][Bb][Yy][Ss][Tt][Aa][Tt][Ee]).*[\\&\\?\\-\\'\\~\\%]+"
+  );
   const isContainsAdditionalInfo = matchAdditionalInfoRegex.test(url);
   if (isContainsAdditionalInfo) {
     return res.json({
@@ -29,29 +31,38 @@ const getTaskByStateMicroservice = async (req, res) => {
   const loginUsername = req.body.username;
   const loginPassword = req.body.password;
   try {
-    const [entries, fields] = await db.execute(`select * from accounts where username=?;`, [
+    const [users, fields] = await db.execute(`select * from accounts where username=?`, [
       loginUsername,
     ]);
-    if (entries.length === 0) {
+    if (users.length === 0) {
+      return res.json({
+        code: "C001",
+      });
+    }
+    if (typeof loginPassword !== "string") {
       return res.json({
         code: "C001",
       });
     }
     // username matches a user
-    const [user] = entries;
+    const [user] = users;
     const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
-    if (!isPasswordMatch) {
+    if (!isPasswordMatch || !user.isActive) {
       return res.json({
         code: "C001",
       });
     }
-    //check if user is disabled also
     const appAcronym = req.body.task_app_acronym;
     const isExistingApp = await db
       .execute(`select * from applications where app_acronym=?;`, [appAcronym])
       .then(([apps, field]) => apps.length > 0);
     if (!isExistingApp) {
       // not an existing app
+      return res.json({
+        code: "D001",
+      });
+    }
+    if (typeof req.body.task_state !== "string") {
       return res.json({
         code: "D001",
       });

@@ -4,7 +4,9 @@ import checkgroup from "../utils/checkgroup.js";
 import timeStampNotes from "../utils/timeStampNotes.js";
 const createtaskMicroservice = async (req, res) => {
   const url = req.originalUrl;
-  const matchAdditionalInfoRegex = new RegExp("(?<=\\/createtask)[\\&\\?\\-\\'\\~\\%]+");
+  const matchAdditionalInfoRegex = new RegExp(
+    "(?<=/[Cc][Rr][Ee][Aa][Tt][Ee][Tt][Aa][Ss][Kk]).*[\\&\\?\\-\\'\\~\\%]+"
+  );
   const isContainsAdditionalInfo = matchAdditionalInfoRegex.test(url);
   if (isContainsAdditionalInfo) {
     return res.json({
@@ -30,6 +32,7 @@ const createtaskMicroservice = async (req, res) => {
   }
   const loginUsername = req.body.username;
   const loginPassword = req.body.password;
+  const appAcronym = req.body.task_app_acronym;
   try {
     const [users, fields] = await db.execute(`select * from accounts where username=?;`, [
       loginUsername,
@@ -41,14 +44,18 @@ const createtaskMicroservice = async (req, res) => {
     }
     // username matches a user
     const [user] = users;
-    const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
-    if (!isPasswordMatch) {
+    if (typeof loginPassword !== "string") {
       return res.json({
         code: "C001",
       });
     }
-    //check if user is disabled also
-    const appAcronym = req.body.task_app_acronym;
+    const isPasswordMatch = await bcryptjs.compare(loginPassword, user.password);
+    if (!isPasswordMatch || !user.isActive) {
+      return res.json({
+        code: "C001",
+      });
+    }
+
     const apps = await db
       .execute(`select * from applications where app_acronym=?;`, [appAcronym])
       .then(([apps, field]) => apps);
@@ -85,26 +92,29 @@ const createtaskMicroservice = async (req, res) => {
   }
   const taskCreator = req.body.username;
   const taskDescription = req.body.task_description || "";
-  if (taskDescription.length > 255) {
+  if (typeof taskDescription !== "string" || taskDescription.length > 255) {
     return res.json({
       code: "D001",
     });
   }
   const taskNotes = req.body.task_notes || "";
-  if (taskNotes.length > 50) {
+  if (typeof taskNotes !== "string") {
     return res.json({
       code: "D001",
     });
   }
   const taskPlan = req.body.task_plan || "";
   if (taskPlan !== "") {
-    const isValidTaskPlan = await db
+    const plans = await db
       .execute(`select * from plans where plan_app_acronym=? and plan_mvp_name=?;`, [
         appAcronym,
         taskPlan,
       ])
-      .then(([plans, fields]) => plans.length > 0);
+      .then(([plans, fields]) => plans);
+
+    const isValidTaskPlan = plans.length > 0;
     if (!isValidTaskPlan) {
+      console.log(taskPlan, " not valid plans but matching plans ", plans, plans.length);
       return res.json({
         code: "D001",
       });
