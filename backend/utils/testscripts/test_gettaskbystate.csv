@@ -1,0 +1,18 @@
+test_case,username,password,task_state,task_app_acronym,expected_code
+iam_username_wrong_type,12345,pl1@12345,doing,zoo,C001
+iam_pw_wrong_type,pl1,12345,doing,zoo,C001
+iam_usename_too_long,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",pl1@12345,doing,zoo,C001
+iam_pw_too_long,pl1,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",doing,zoo,C001
+iam_invalid_credentials,pl1,wrongpassword,doing,zoo,C001
+txn_missing_task_state,pl1,pl1@12345,,zoo,D001
+txn_missing_acronym,pl1,pl1@12345,doing,,D001
+txn_state_DNE,pl1,pl1@12345,dne,zoo,D001
+txn_acronym_DNE,pl1,pl1@12345,doing,this should not exist,D001
+txn_state_too_long,pl1,pl1@12345,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",zoo,D001
+txn_acronym_too_long,pl1,pl1@12345,doing,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",D001
+txn_state_wrong_type,pl1,pl1@12345,12345,zoo,D001
+txn_acronym_wrong_type,pl1,pl1@12345,doing,12345,D001
+txn_capitalised_state,pl1,pl1@12345,DOING,zoo,S000
+txn_lowercase_state,pl1,pl1@12345,doing,zoo,S000
+txn_camelcase_state,pl1,pl1@12345,Open,zoo,S000
+pass_gettaskbystate,pl1,pl1@12345,doing,zoo,S000
