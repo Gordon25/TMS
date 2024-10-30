@@ -1,0 +1,34 @@
+test_case,username,password,task_app_acronym,task_name,task_description,task_notes,task_plan,expected_code
+iam_username_missing,,pl1@12345,zoo,iam username missing,iam_username_missing,iam_username_missing,Sprint 2,C001
+iam_username_empty_string,"",pl1@12345,zoo,iam username empty string,iam_username_empty_string,iam_username_empty_string,Sprint 2,C001
+iam_pw_missing,pl1,,zoo,iam pw missing,iam_pw_missing,iam_pw_missing,Sprint 2,C001
+iam_pw_empty_string,pl1,"",zoo,iam pw empty string,iam_pw_empty_string,iam_pw_empty_string,Sprint 2,C001
+iam_username_wrong_type,12345,pl1@12345,zoo,iam username wrong type,iam_username_wrong_type,iam_username_wrong_type,Sprint 2,C001
+iam_pw_wrong_type,pl1,12345,zoo,iam pw wrong type,iam_pw_wrong_type,iam_pw_wrong_type,Sprint 2,C001
+iam_username_too_long,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",pl1@12345,zoo,iam username too long,iam_username_too_long,iam_username_too_long,Sprint 2,C001
+iam_pw_too_long,pl1,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",zoo,iam pw too long,iam_pw_too_long,iam_pw_too_long,Sprint 2,C001
+iam_invalid_credentials,pl1,wrongpassword,zoo,iam invalid credentials,iam_invalid_credentials,iam_invalid_credentials,Sprint 2,C001
+iam_unauthorised_user,user,user@123,zoo,iam unauthorised user,iam_unauthorised_user,iam_unauthorised_user,Sprint 2,C003
+txn_acronym_wrong_type,pl1,pl1@12345,12345,txn acronym wrong type,txn_acronym_wrong_type,txn_acronym_wrong_type,Sprint 2,D001
+txn_taskname_wrong_type,pl1,pl1@12345,zoo,12345,txn_taskname_wrong_type,txn_taskname_wrong_type,Sprint 2,D001
+txn_description_wrong_type,pl1,pl1@12345,zoo,txn description wrong type,12345,txn_description_wrong_type,Sprint 2,D001
+txn_notes_wrong_type,pl1,pl1@12345,zoo,txn notes wrong type,txn_notes_wrong_type,12345,Sprint 2,D001
+txn_plan_wrong_type,pl1,pl1@12345,zoo,txn plan wrong type,txn_plan_wrong_type,txn_plan_wrong_type,12345,D001
+txn_acronym_too_long,pl1,pl1@12345,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",txn acronym too long,txn_acronym_too_long,txn_acronym_too_long,Sprint 2,D001
+txn_taskname_too_long,pl1,pl1@12345,zoo,Lorem ipsum dolor sit amet nconsectetuer adipiscing eliAeczxvzxcvzxcvczxvxczvxcz,txn_taskname_too_long,txn_taskname_too_long,Sprint 2,D001
+txn_description_too_long,pl1,pl1@12345,zoo,txn description too long,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis,.",txn_description_too_long,Sprint 2,D001
+txn_plan_too_long,pl1,pl1@12345,zoo,txn plan too long,txn_plan_too_long,txn_plan_too_long,"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ae",D001
+txn_acronym_missing,pl1,pl1@12345,,txn acronym missing,txn_acronym_missing,txn_acronym_missing,Sprint 2,D001
+txn_acronym_empty_string,pl1,pl1@12345,"",txn acronym empty string,txn_acronym_empty_string,txn_acronym_empty_string,Sprint 2,D001
+txn_not_existing_plan,pl1,pl1@12345,zoo,txn not existing plan,txn_not_existing_plan,txn_not_existing_plan,Not an existing plan,D001
+txn_taskname_missing,pl1,pl1@12345,zoo,,txn_taskname_missing,txn_taskname_missing,Sprint 2,D001
+txn_taskname_empty_string,pl1,pl1@12345,zoo,"",txn_taskname_empty_string,txn_taskname_empty_string,Sprint 2,D001
+txn_acronym_DNE,pl1,pl1@12345,this should not exist,txn acronym DNE,txn_acronym_DNE,txn_acronym_DNE,Sprint 2,D001
+txn_taskname_invalid,pl1,pl1@12345,zoo,invalid!,txn_taskname_invalid,txn_taskname_invalid,Sprint 2,D001
+txn_description_missing,pl1,pl1@12345,zoo,txn description missing,,txn_description_missing,Sprint 2,S000
+txn_description_empty_string,pl1,pl1@12345,zoo,txn description empty string,"",txn_description_empty_string,Sprint 2,S000
+txn_notes_missing,pl1,pl1@12345,zoo,txn notes missing,txn_notes_missing,,Sprint 2,S000
+txn_notes_empty_string,pl1,pl1@12345,zoo,txn notes empty string,txn_notes_empty_string,"",Sprint 2,S000
+txn_plans_missing,pl1,pl1@12345,zoo,txn plans missing,txn_plans_missing,txn_plans_missing,,S000
+txn_plans_empty_string,pl1,pl1@12345,zoo,txn plans empty string,txn_plans_empty_string,txn_plans_empty_string,"",S000
+pass_createtask,pl1,pl1@12345,zoo,pass createtask,pass_createtask,pass_createtask,Sprint 2,S000
