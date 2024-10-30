@@ -98,8 +98,8 @@ const getTaskByStateMicroservice = async (req, res) => {
       )
       .then(([tasks, fields]) => tasks);
     return res.json({
-      code: "S000",
       tasks,
+      code: "S000",
     });
   } catch (error) {
     console.log(error);
