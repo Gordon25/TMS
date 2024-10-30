@@ -94,12 +94,12 @@ const createtaskMicroservice = async (req, res) => {
       code: "E004",
     });
   }
-  const tasknameRegex = new RegExp("^[a-zA-Z0-9]+([a-zA-Z0-9]+)*$");
   if (typeof req.body.task_name !== "string") {
     return res.json({
       code: "D001",
     });
   }
+  const tasknameRegex = new RegExp("^[a-zA-Z0-9]+([\\s]*[a-zA-Z0-9]+)*$");
   const taskname = req.body.task_name;
   const isValidTaskname = tasknameRegex.test(taskname);
   if (taskname.length > 50 || !isValidTaskname) {
@@ -134,7 +134,6 @@ const createtaskMicroservice = async (req, res) => {
 
     const isValidTaskPlan = plans.length > 0;
     if (!isValidTaskPlan) {
-      console.log(taskPlan, " not valid plans but matching plans ", plans, plans.length);
       return res.json({
         code: "D001",
       });
