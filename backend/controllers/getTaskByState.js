@@ -79,14 +79,13 @@ const getTaskByStateMicroservice = async (req, res) => {
         code: "D001",
       });
     }
-    const taskState = req.body.task_state.toLowerCase();
+    const taskState = req.body.task_state;
     const validStates = ["open", "todo", "doing", "done", "closed"];
-    if (!validStates.includes(taskState)) {
+    if (!validStates.includes(taskState.toLowerCase())) {
       return res.json({
         code: "D001",
       });
     }
-    const interpretedState = InterpreteState[taskState];
     const tasks = await db
       .execute(
         `select task_id, task_name, task_owner,
@@ -94,7 +93,7 @@ const getTaskByStateMicroservice = async (req, res) => {
 	      where plans.plan_mvp_name=tasks.task_plan and tasks.task_app_acronym=plans.plan_app_acronym),"") as task_plan_colour
         from tasks 
         where task_app_acronym=? and task_state=?;`,
-        [appAcronym, interpretedState]
+        [appAcronym, taskState]
       )
       .then(([tasks, fields]) => tasks);
     return res.json({
@@ -109,13 +108,6 @@ const getTaskByStateMicroservice = async (req, res) => {
   }
 };
 
-const InterpreteState = {
-  open: "Open",
-  todo: "Todo",
-  doing: "Doing",
-  done: "Done",
-  closed: "Closed",
-};
 /**
  *  * get task by state:
  *  - validate url done
