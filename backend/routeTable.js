@@ -127,4 +127,9 @@ app.post("/taskPermissions", authLogin, getTaskPermissionsController);
 app.post("/createtask", createtaskMicroservice);
 app.post("/gettaskbystate", getTaskByStateMicroservice);
 app.patch("/promotetask2done", promoteTask2DoneMicroservice);
+app.use((req, res) => {
+  res.json({
+    code: "A001",
+  });
+});
 export default app;
